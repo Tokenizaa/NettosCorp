@@ -3,6 +3,7 @@ import type { CompanySecret } from "@paperclipai/shared";
 import type { MyUserSecretEntry } from "../api/secrets";
 import {
   savedProviderKeys,
+  savedManagedProviderAccounts,
   savedCodexSubscriptions,
 } from "./saved-provider-credentials";
 const secret = (overrides = {}) =>
@@ -92,4 +93,45 @@ it("lists only active company Codex account connections", () => {
       binding: { type: "secret_ref", secretId: "s1", version: "latest" },
     },
   ]);
+});
+
+it("exposes a connected personal custom gateway as an explicit delegated choice", () => {
+  const gateway = {
+    id: "fcc-connection",
+    grantId: "fcc-grant",
+    companyId: "c1",
+    provider: "anthropic",
+    method: "api_key",
+    name: "FCC Gateway",
+    routing: {
+      kind: "gateway",
+      protocol: "messages",
+      auth: "none",
+      baseUrl: "http://127.0.0.1:8082",
+      models: [{ id: "claude-opus-4" }],
+    },
+    ownership: "personal",
+    ownerUserId: "user-1",
+    isDefault: false,
+    status: "connected",
+  } as AiManagedConnectionSummary;
+
+  expect(savedManagedProviderAccounts("c1", "anthropic", "user-1", [gateway])).toEqual([
+    {
+      id: "ai:fcc-grant",
+      label: "FCC Gateway (Your gateway)",
+      aiConnection: {
+        provider: "anthropic",
+        method: "api_key",
+        mode: "delegated",
+        connectionId: "fcc-connection",
+        grantId: "fcc-grant",
+      },
+      isGateway: true,
+    },
+  ]);
+  expect(savedManagedProviderAccounts("c1", "anthropic", "another-user", [gateway])).toEqual([]);
+  expect(savedManagedProviderAccounts("c1", "anthropic", "user-1", [
+    { ...gateway, status: "needs_attention" },
+  ])).toEqual([]);
 });
