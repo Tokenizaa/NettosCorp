@@ -4300,4 +4300,77 @@ describe("OnboardingWizard restore-gate (stale localStorage across accounts)", (
       await act(async () => root.unmount());
     });
   });
+
+  it("reuses the saved personal FCC gateway for Claude without starting Anthropic sign-in", async () => {
+    managedApi.list.mockReset().mockResolvedValue({
+      currentUserId: "user-1",
+      canManageConnections: true,
+      connections: [
+        {
+          id: "fcc-connection",
+          grantId: "fcc-grant",
+          companyId: "company-new",
+          provider: "anthropic",
+          method: "api_key",
+          name: "FCC Gateway",
+          routing: {
+            kind: "gateway",
+            protocol: "messages",
+            auth: "none",
+            baseUrl: "http://127.0.0.1:8082",
+            models: [{ id: "claude-opus-4-20250514" }],
+          } as never,
+          ownership: "personal",
+          ownerUserId: "user-1",
+          isDefault: false,
+          status: "connected",
+        } as never,
+      ] as never,
+    } as never);
+    // Even when a Claude subscription is also stored, the explicit FCC
+    // gateway is the correct first choice for this onboarding session.
+    mockAgentsApi.getClaudeOAuthTokenStatus.mockResolvedValue({
+      secretId: "saved-claude-login",
+      latestVersion: 1,
+    });
+    const handles = await openStep4({ adapterType: "claude_local", runner: "legacy" });
+    try {
+      await pickSource(/Claude/);
+      await vi.waitFor(() => expect(document.querySelector('select[aria-label="Model"]')).toBeTruthy());
+      expect(document.body.textContent).toContain("FCC Gateway (Your gateway)");
+      const model = document.querySelector('select[aria-label="Model"]') as HTMLSelectElement;
+      await act(async () => {
+        model.value = "claude-opus-4-20250514";
+        model.dispatchEvent(new Event("change", { bubbles: true })) as never;
+      });
+      await flushReact();
+
+      const connect = [...document.body.querySelectorAll("button")].find(button => button.textContent?.trim() === "Connect");
+      expect(connect).toBeTruthy();
+      await act(async () => connect!.click());
+      for (let i = 0; i < 8; i++) await flushReact();
+
+      const binding = {
+        provider: "anthropic",
+        method: "api_key",
+        mode: "delegated",
+        connectionId: "fcc-connection",
+        grantId: "fcc-grant",
+      } as never;
+      expect(mockAgentsApi.testEnvironment).toHaveBeenCalledWith(
+        "company-new",
+        "claude_local",
+        expect.objectContaining({ aiConnection: binding } as never),
+      );
+      expect(mockAgentsApi.hire).toHaveBeenCalledWith(
+        "company-new",
+        expect.objectContaining({ runtimeConfig: expect.objectContaining({ aiConnection: binding }) } as never),
+      );
+      expect(mockAgentsApi.startClaudeSetupTokenLogin).not.toHaveBeenCalled();
+      expect(mockAgentsApi.startAdapterAuthLogin).not.toHaveBeenCalled();
+    } finally {
+      await act(async () => root.unmount());
+    }
+  });
+
 });
