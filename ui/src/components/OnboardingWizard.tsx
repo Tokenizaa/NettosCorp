@@ -805,10 +805,12 @@ function OnboardingWizardInner({
   );
   const connectionModels = connectionModelState.connectionModels;
   const hasGatewaySelection = credentialMode === "api" && gatewayConnection?.companyId === createdCompanyId && gatewayConnection.adapterType === adapterType;
-  const gatewayLookupFailed = hasGatewaySelection && !connectionModelState.refreshing
+  const hasSavedGatewaySelection = credentialMode === "api" && selectedApiKey?.isGateway === true;
+  const hasGatewayModelSelection = hasGatewaySelection || hasSavedGatewaySelection;
+  const gatewayLookupFailed = hasGatewayModelSelection && !connectionModelState.refreshing
     && Boolean(connectionModelState.error || (!connectionModels && !connectionModelState.loading));
-  const connectionModelReady = (!hasGatewaySelection && !connectionModels) || Boolean(connectionModels
-    && (!hasGatewaySelection || (!connectionModelState.error && !connectionModelState.refreshing))
+  const connectionModelReady = (!hasGatewayModelSelection && !connectionModels) || Boolean(connectionModels
+    && (!hasGatewayModelSelection || (!connectionModelState.error && !connectionModelState.refreshing))
     && model.trim() && (connectionModels.models.length === 0 || connectionModels.models.some(entry => entry.id === model.trim())));
   createdCompanyIdRef.current = createdCompanyId;
 
@@ -3096,7 +3098,7 @@ function OnboardingWizardInner({
                       </p>
                     ) : credentialMode === "api" ? (
                       <OnboardingLoginCard
-                        instruction={hasGatewaySelection || connectionModels ? "Choose a model for your saved connection" : savedKeys.options.length ? "Choose a saved API key or enter a new one" : `Provide your ${
+                        instruction={hasGatewayModelSelection || connectionModels ? "Choose a model for your saved connection" : savedKeys.options.length ? "Choose a saved API key or enter a new one" : `Provide your ${
                           CONNECT_SOURCE_NAMES[adapterType] ?? adapterType
                         } API key to connect`}
                       >
@@ -3121,7 +3123,7 @@ function OnboardingWizardInner({
                           }}
                           onSubmit={() => handleConnectStepPrimary()}
                         />}
-                        {hasGatewaySelection && (gatewayLookupFailed ? <>
+                        {hasGatewayModelSelection && (gatewayLookupFailed ? <>
                           <p role="alert" className="text-sm text-destructive">Your saved gateway connection could not be loaded. Retry to choose a model and connect your agent.</p>
                           <Button type="button" variant="outline" disabled={loading || adapterEnvLoading} onClick={() => { void connectionModelState.refresh(); }}>
                             Retry loading connection
