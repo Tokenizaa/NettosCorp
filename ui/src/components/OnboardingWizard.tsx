@@ -711,13 +711,17 @@ function OnboardingWizardInner({
   // otherwise only reuse an unambiguous account, regardless of list ordering.
   const savedSubscription = savedKeys.subscriptions.find((option) => option.aiConnection?.mode === "responsible_user")
     ?? (savedKeys.subscriptions.length === 1 ? savedKeys.subscriptions[0] : undefined);
+  // A saved custom gateway is an explicit provider connection, not a Claude
+  // subscription. Prefer it on first setup so onboarding does not start the
+  // local Anthropic browser sign-in when a working gateway is already saved.
+  const savedGateway = savedKeys.options.find((option) => option.isGateway);
   const [selectedSavedKey, setSelectedSavedKey] = useState<{ companyId: string; envKey: string; id: string } | null>(null);
   const selectedApiKeyId = selectedSavedKey?.companyId === createdCompanyId && selectedSavedKey?.envKey === apiKeyEnvKeyFor(adapterType)
     ? selectedSavedKey.id
-    : savedKeys.options[0]?.id;
+    : savedGateway?.id ?? savedKeys.options[0]?.id;
   const selectedApiKey = savedKeys.options.find((option) => option.id === selectedApiKeyId);
   const credentialMode = credentialModeChoice ?? (
-    (savedKeys.subscriptions.length > 0 || (adapterType === "claude_local" && savedKeys.storedLogin.data))
+    savedGateway ? "api" : (savedKeys.subscriptions.length > 0 || (adapterType === "claude_local" && savedKeys.storedLogin.data))
       ? "subscription" : savedKeys.options.length || adapterType === "opencode_local" ? "api" : "subscription"
   );
   const [createdCompanyPrefix, setCreatedCompanyPrefix] = useState<
