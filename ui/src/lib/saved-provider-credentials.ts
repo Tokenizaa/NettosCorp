@@ -1,7 +1,7 @@
 import type { AiConnectionBinding, AiManagedConnectionSummary, AiProvider, CompanySecret, EnvBinding } from "@paperclipai/shared";
 import type { MyUserSecretEntry } from "../api/secrets";
 
-export type SavedProviderKey = { id: string; label: string } & (
+export type SavedProviderKey = { id: string; label: string; isGateway?: boolean } & (
   | { binding: EnvBinding; aiConnection?: never }
   | { binding?: never; aiConnection: AiConnectionBinding }
 );
@@ -12,11 +12,26 @@ export function savedManagedProviderAccounts(
 ): SavedProviderKey[] {
   return connections.flatMap<SavedProviderKey>((account) => {
     if (account.companyId !== companyId || account.provider !== provider || account.status !== "connected") return [];
+    // Custom gateways cannot be provider defaults. Keep the explicit personal
+    // grant selectable so onboarding can reuse it without starting a provider login.
+    if (account.ownership === "personal" && account.ownerUserId === currentUserId && account.routing?.kind === "gateway") {
+      return [{
+        id: `ai:${account.grantId}`,
+        label: `${account.name} (Your gateway)`,
+        aiConnection: { provider, method: account.method, mode: "delegated" as const, connectionId: account.id, grantId: account.grantId },
+        isGateway: true,
+      }];
+    }
     if (account.ownership === "personal" && account.ownerUserId === currentUserId && account.isDefault) {
       return [{ id: `ai:${account.grantId}`, label: `${account.name} (Your default)`, aiConnection: { provider, method: account.method, mode: "responsible_user" as const } }];
     }
     if (account.ownership === "shared") {
-      return [{ id: `ai:${account.grantId}`, label: `${account.name} (Company shared)`, aiConnection: { provider, method: account.method, mode: "shared" as const, connectionId: account.id, grantId: account.grantId } }];
+      return [{
+        id: `ai:${account.grantId}`,
+        label: `${account.name} (Company shared)`,
+        aiConnection: { provider, method: account.method, mode: "shared" as const, connectionId: account.id, grantId: account.grantId },
+        ...(account.routing?.kind === "gateway" ? { isGateway: true } : {}),
+      }];
     }
     return [];
   });
