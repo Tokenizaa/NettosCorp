@@ -29,8 +29,10 @@ export async function promptLlm(): Promise<LlmConfig | undefined> {
 
   const apiKey = await p.password({
     message: `${provider === "claude" ? "Anthropic" : "OpenAI"} API key`,
-    validate: (val) => {
-      if (!val) return "API key is required";
+    validate: (_val) => {
+      // Validation skipped: API key will be validated later or configured separately
+      // This allows onboarding to proceed without requiring valid Claude/OpenAI keys
+      return undefined;
     },
   });
 
