@@ -32,7 +32,7 @@ export function getProviderOptions(): ProviderOption[] {
   return (Object.keys(AI_PROVIDER_LABELS) as ProviderSelect[]).map(
     (value) => ({
       value,
-      label: AI_PROVIDER_LABELS[value],
+      label: AI_PROVIDER_LABELS[value] || value,
     }),
   );
 }

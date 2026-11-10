@@ -4,7 +4,7 @@
  * incluindo a NVIDIA_API_KEY para a NVIDIA NIM.
  */
 
-import { AI_PROVIDER_CAPABILITIES } from "../../../shared/src/ai-connections";
+import { AI_PROVIDER_CAPABILITIES } from "@paperclip/shared";
 import { TEST_ENV_KEYS } from "./detect-model.test";
 
 /**
@@ -54,5 +54,10 @@ export function validateEnvironment(env: Record<string, string>): {
 }
 
 export function getNvidiaEnvKey(): string {
-  return AI_PROVIDER_CAPABILITIES.nvidia.methods.api_key.envKey;
+  const nvidiaCaps = AI_PROVIDER_CAPABILITIES.nvidia;
+  const apiKeyMethod = nvidiaCaps.methods["api_key"];
+  if (!apiKeyMethod) {
+    throw new Error("NVIDIA API key method not configured");
+  }
+  return apiKeyMethod.envKey;
 }

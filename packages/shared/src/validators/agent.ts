@@ -14,7 +14,7 @@ export const testAdapterEnvironmentSchema = z.object({
 
 export type TestAdapterEnvironment = z.infer<
   typeof testAdapterEnvironmentSchema
->;
+> & Record<string, string | undefined>;
 
 /**
  * Valida se pelo menos uma chave de API relevante está presente para o provedor informado.

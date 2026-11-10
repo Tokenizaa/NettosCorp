@@ -1,0 +1,40 @@
+{
+  "name": "@paperclip/adapter-hermes",
+  "version": "1.0.0",
+  "description": "Hermes universal AI provider adapter with fallback chains and model routing",
+  "main": "dist/adapter.js",
+  "types": "dist/adapter.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/adapter.d.ts",
+      "import": "./dist/adapter.js",
+      "require": "./dist/adapter.js"
+    },
+    "./shared": {
+      "types": "./dist/shared/index.d.ts",
+      "import": "./dist/shared/index.js",
+      "require": "./dist/shared/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@paperclip/shared": "workspace:*",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^22.0.0",
+    "vitest": "^2.0.0"
+  },
+  "optionalDependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "openai": "^4.50.0",
+    "@google/generative-ai": "^0.15.0",
+    "cohere-ai": "^7.15.0"
+  }
+}
