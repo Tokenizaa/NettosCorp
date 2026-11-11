@@ -19,8 +19,11 @@ from datetime import datetime, timedelta
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://udeglcdloehagljrrukj.supabase.co")
 SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
 
-# Senha do PostgreSQL (configurada via .env ou variável de ambiente)
-DB_PASSWORD = os.environ.get("SUPABASE_PASSWORD", "Hermes@964212$")
+# Senha do PostgreSQL (obrigatória via variável de ambiente SUPABASE_PASSWORD)
+# NÃO há valor default: o script falha se a credencial não estiver configurada.
+DB_PASSWORD = os.environ.get("SUPABASE_PASSWORD")
+if not DB_PASSWORD:
+    raise RuntimeError("SUPABASE_PASSWORD não definida no ambiente. Não use credenciais hardcoded.")
 
 
 def run_sql(query):
@@ -88,7 +91,13 @@ def get_all_agents():
 
 
 def check_heartbeat_staleness(agents, hours_threshold=24):
-    """Identifica agentes com heartbeat desatualizado."""
+    """Identifica agentes com heartbeat desatualizado.
+
+    Este módulo APENAS LÊ o estado do banco de dados.
+    NÃO atualiza last_heartbeat_at: o heartbeat é atualizado apenas
+    quando uma função organizacional executa efetivamente uma tarefa
+    e reporta o resultado ao sistema.
+    """
     now = datetime.now()
     threshold = now - timedelta(hours=hours_threshold)
 
@@ -111,19 +120,6 @@ def check_heartbeat_staleness(agents, hours_threshold=24):
                 no_heartbeat_agents.append(agent)
 
     return active_agents, stale_agents, no_heartbeat_agents
-
-
-def update_heartbeat(agent_code):
-    """Atualiza o heartbeat de um agente específico."""
-    query = f"""
-    UPDATE agents
-    SET last_heartbeat_at = NOW(), status = 'active', lifecycle_state = 'ready'
-    WHERE code = '{agent_code}'
-    AND company_id = (SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)
-    RETURNING code, name, last_heartbeat_at;
-    """
-    stdout, stderr, rc = run_sql(query)
-    return stdout, stderr, rc
 
 
 def main():
@@ -161,17 +157,6 @@ def main():
             print(f"  ❌ {a['code']} | {a['name']} | {a['role']} | Sem heartbeat registrado")
     else:
         print("  Todas as funções têm heartbeat registrado.")
-    print()
-
-    # Atualizar heartbeat de todas as funções ativas (simular check-in periódico)
-    print("--- ATUALIZAÇÃO DE HEARTBEAT ---")
-    for agent in agents:
-        if agent["status"] == "active":
-            stdout, stderr, rc = update_heartbeat(agent["code"])
-            if rc == 0:
-                print(f"  ✓ {agent['code']} | {agent['name']} | Heartbeat atualizado")
-            else:
-                print(f"  ✗ {agent['code']} | {agent['name']} | Erro: {stderr}")
     print()
 
     print("=" * 70)

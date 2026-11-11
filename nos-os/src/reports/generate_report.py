@@ -17,9 +17,17 @@ import json
 import argparse
 from datetime import datetime, timedelta
 
-# Configuração do Supabase
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://udeglcdloehagljrrukj.supabase.co")
-SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
+# Configuração do Supabase (valores obrigatórios via variáveis de ambiente)
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY")
+
+if not SUPABASE_URL or not SUPABASE_ANON_KEY:
+    raise RuntimeError("SUPABASE_URL e SUPABASE_ANON_KEY são obrigatórios no ambiente.")
+
+# Senha do PostgreSQL (obrigatória via variável de ambiente SUPABASE_PASSWORD)
+DB_PASSWORD = os.environ.get("SUPABASE_PASSWORD")
+if not DB_PASSWORD:
+    raise RuntimeError("SUPABASE_PASSWORD não definida no ambiente. Não use credenciais hardcoded.")
 
 
 def run_sql(query):
@@ -33,7 +41,7 @@ def run_sql(query):
     
     try:
         env = os.environ.copy()
-        env["PGPASSWORD"] = os.environ.get("SUPABASE_PASSWORD", "Hermes@964212$")
+        env["PGPASSWORD"] = DB_PASSWORD
         
         result = subprocess.run(
             [
