@@ -1,0 +1,33 @@
+apiVersion: paperclip/v1
+kind: Agent
+spec:
+  name: DevOps Automator
+  role: devops-automator
+  title: DevOps Automator — Infraestrutura, CI/CD e Deploy
+  icon: ⚙️
+  reportsTo: orquestrador-global
+  metadata:
+    departamento: tecnologia
+    regime: temporario-implantação
+    perfilBase: engineering-devops-automator
+    fonte: agency-agents/engineering/engineering-devops-automator.md
+  adapterType: codex_local
+  adapterConfig:
+    model: gpt-5
+    cwd: /home/lg/.hermes/cache/scratch/nettoscorp/infra
+  runtimeConfig:
+    heartbeat:
+      enabled: true
+      intervalSec: 300
+  budgetMonthlyCents: 0
+  instructions:
+    mode: managed
+    entryFile: AGENTS.md
+  skills:
+    - paperclip
+  tools:
+    profiles:
+      - profileKey: engineering
+  permissions:
+    trustBoundary:
+      projectIds: []

@@ -129,7 +129,7 @@ export const DEFAULT_PROVIDER_CONFIGS: Record<ValidProvider, ProviderConfig> = {
     priority: 50,
     apiKeyEnv: "NVIDIA_API_KEY",
     baseURL: "https://integrate.api.nvidia.com/v1",
-    models: ["nemotron-3-ultra", "nemotron-4-340b"],
+    models: ["nvidia/nemotron-3.5-super-vl-120b-a12b", "nemotron-4-340b"],
     fallbackProviders: ["openai", "anthropic"],
     capabilities: {
       streaming: true,
@@ -393,7 +393,7 @@ export class ProviderRegistry {
 
   private getModelTier(model: string): keyof ModelRoutingConfig["tierOverrides"] | null {
     // Determine tier from model name
-    if (model.includes("opus") || model.includes("fable") || model.includes("nemotron-3-ultra")) {
+    if (model.includes("opus") || model.includes("fable") || model.includes("nemotron-3-ultra") || model.includes("nemotron-3.5")) {
       return "opus";
     }
     if (model.includes("sonnet") || model.includes("gpt-4o") || model.includes("gemini-1.5-pro")) {

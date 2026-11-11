@@ -1,0 +1,33 @@
+apiVersion: paperclip/v1
+kind: Agent
+spec:
+  name: Backend Architect
+  role: backend-architect
+  title: Backend Architect — Banco, APIs, Autenticação e RLS
+  icon: 🏗️
+  reportsTo: orquestrador-global
+  metadata:
+    departamento: tecnologia
+    regime: temporario-implantação
+    perfilBase: engineering-backend-architect
+    fonte: agency-agents/engineering/engineering-backend-architect.md
+  adapterType: codex_local
+  adapterConfig:
+    model: gpt-5
+    cwd: /home/lg/.hermes/cache/scratch/nettoscorp/backend
+  runtimeConfig:
+    heartbeat:
+      enabled: true
+      intervalSec: 300
+  budgetMonthlyCents: 0
+  instructions:
+    mode: managed
+    entryFile: AGENTS.md
+  skills:
+    - paperclip
+  tools:
+    profiles:
+      - profileKey: engineering
+  permissions:
+    trustBoundary:
+      projectIds: []

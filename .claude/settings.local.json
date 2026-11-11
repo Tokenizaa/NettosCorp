@@ -10,7 +10,9 @@
       "Bash(npx vitest:*)",
       "Bash(npx tsx:*)",
       "WebFetch(domain:docs.paperclip.ing)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git:*)",
+      "Bash(hermes:*)"
     ]
   }
 }

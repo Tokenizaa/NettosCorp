@@ -1,0 +1,33 @@
+apiVersion: paperclip/v1
+kind: Agent
+spec:
+  name: Software Architect
+  role: software-architect
+  title: Software Architect — Arquitetura e Padrões Técnicos
+  icon: 🏛️
+  reportsTo: orquestrador-global
+  metadata:
+    departamento: tecnologia
+    regime: temporario-implantação
+    perfilBase: engineering-software-architect
+    fonte: agency-agents/engineering/engineering-software-architect.md
+  adapterType: codex_local
+  adapterConfig:
+    model: gpt-5
+    cwd: /home/lg/.hermes/cache/scratch/nettoscorp/arquitetura
+  runtimeConfig:
+    heartbeat:
+      enabled: true
+      intervalSec: 300
+  budgetMonthlyCents: 0
+  instructions:
+    mode: managed
+    entryFile: AGENTS.md
+  skills:
+    - paperclip
+  tools:
+    profiles:
+      - profileKey: engineering
+  permissions:
+    trustBoundary:
+      projectIds: []

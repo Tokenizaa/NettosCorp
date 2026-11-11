@@ -1,0 +1,259 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+export type UserRole =
+  | 'super_admin'
+  | 'admin'
+  | 'director'
+  | 'manager'
+  | 'member'
+  | 'viewer';
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string;
+  avatar_url?: string;
+  role: UserRole;
+  organization_id: string;
+  department_id?: string;
+  position_id?: string;
+  status: 'active' | 'suspended' | 'invited';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  domain: string;
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Department {
+  id: string;
+  organization_id: string;
+  code: string;
+  name: string;
+  description: string;
+  manager_id?: string;
+  manager_name?: string;
+  parent_id?: string;
+  status: 'active' | 'inactive';
+  headcount?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Position {
+  id: string;
+  organization_id: string;
+  department_id: string;
+  department_name?: string;
+  title: string;
+  code: string;
+  level: string; // e.g., 'C-Level', 'Diretoria', 'Gerência', 'Especialista', 'Operacional'
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganizationMembership {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  department_id?: string;
+  position_id?: string;
+  role: UserRole;
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RolePermission {
+  id: string;
+  role: UserRole;
+  resource: string; // 'projects' | 'tasks' | 'agents' | 'decisions' | 'deliberations' | 'documents' | 'users' | 'audit' | 'settings'
+  action: 'create' | 'read' | 'update' | 'delete' | 'manage';
+  conditions?: Record<string, unknown>;
+}
+
+export type AgentStatus = 'active' | 'standby' | 'training' | 'disabled';
+
+export interface AIAgent {
+  id: string;
+  organization_id: string;
+  code: string;
+  name: string;
+  model: string;
+  purpose: string;
+  status: AgentStatus;
+  version: string;
+  assigned_department_id?: string;
+  department_name?: string;
+  config: {
+    temperature?: number;
+    max_tokens?: number;
+    system_prompt?: string;
+    capabilities?: string[];
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProjectStatus = 'planning' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled';
+export type PriorityLevel = 'low' | 'medium' | 'high' | 'urgent';
+
+export interface Project {
+  id: string;
+  organization_id: string;
+  department_id: string;
+  department_name?: string;
+  code: string;
+  name: string;
+  description: string;
+  status: ProjectStatus;
+  priority: PriorityLevel;
+  lead_id?: string;
+  lead_name?: string;
+  start_date: string;
+  due_date: string;
+  budget: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectMember {
+  id: string;
+  project_id: string;
+  user_id: string;
+  user_name?: string;
+  user_email?: string;
+  role: 'lead' | 'contributor' | 'reviewer';
+  joined_at: string;
+}
+
+export type TaskStatus = 'todo' | 'in_progress' | 'in_review' | 'done' | 'blocked';
+
+export interface Task {
+  id: string;
+  organization_id: string;
+  project_id: string;
+  project_name?: string;
+  code: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: PriorityLevel;
+  assignee_id?: string;
+  assignee_name?: string;
+  assignee_type?: 'user' | 'agent';
+  reporter_id: string;
+  reporter_name?: string;
+  due_date: string;
+  completed_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaskAssignment {
+  id: string;
+  task_id: string;
+  assignee_id: string;
+  assignee_type: 'user' | 'agent';
+  assigned_at: string;
+}
+
+export type DecisionStatus = 'draft' | 'ratified' | 'in_effect' | 'superseded' | 'revoked';
+
+export interface Decision {
+  id: string;
+  organization_id: string;
+  dec_code: string; // e.g. "DEC-2026-001"
+  title: string;
+  summary: string;
+  rationale: string;
+  status: DecisionStatus;
+  decided_by: string; // User ID or body title
+  decided_by_name?: string;
+  decided_at: string;
+  deliberation_ref_id?: string; // Cross-reference to CNS
+  deliberation_cns_code?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type DeliberationStatus = 'convened' | 'approved' | 'rejected' | 'adjourned';
+
+export interface Deliberation {
+  id: string;
+  organization_id: string;
+  cns_code: string; // e.g. "CNS-2026-004"
+  title: string;
+  session_date: string;
+  president: string;
+  quorum: string; // e.g. "5/5 Conselheiros Titulares"
+  decision_summary: string;
+  status: DeliberationStatus;
+  dec_ref_id?: string; // Cross-reference to DEC
+  dec_code_ref?: string;
+  delib_file_ref?: string; // Cross-reference to DELIB document
+  created_at: string;
+  updated_at: string;
+}
+
+export type DocumentType = 'CNS' | 'DEC' | 'DELIB' | 'POLICY' | 'REPORT';
+export type DocumentStatus = 'draft' | 'published' | 'archived';
+
+export interface GovernanceDocument {
+  id: string;
+  organization_id: string;
+  doc_type: DocumentType;
+  doc_code: string; // e.g. "DELIB-2026-012"
+  title: string;
+  version: string;
+  status: DocumentStatus;
+  file_url?: string;
+  file_size_bytes?: number;
+  cns_ref?: string; // Cross-reference code
+  dec_ref?: string; // Cross-reference code
+  delib_ref?: string; // Cross-reference code
+  metadata?: Record<string, unknown>;
+  author_id?: string;
+  author_name?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuditLog {
+  id: string;
+  organization_id: string;
+  user_id: string;
+  user_email: string;
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'PASSWORD_RESET' | 'STATUS_CHANGE' | 'PERM_CHANGE';
+  resource: string;
+  resource_id?: string;
+  details: Record<string, unknown>;
+  ip_address?: string;
+  created_at: string;
+}
+
+export interface DashboardMetrics {
+  total_projects: number;
+  in_progress_projects: number;
+  total_agents: number;
+  active_agents: number;
+  pending_tasks: number;
+  completed_tasks: number;
+  total_decisions: number;
+  total_deliberations: number;
+  total_documents: number;
+  total_departments: number;
+  total_members: number;
+  recent_activities: AuditLog[];
+}
