@@ -10,10 +10,10 @@ Este guia permite baixar este repositório e instalar o Hermes com toda a estrut
 - ffmpeg (para conversão de áudio)
 - PostgreSQL (opcional, apenas se for usar o servidor Paperclip)
 
-## 2. Clonar o repositório
+## 2. Clonar o repositório (branch oficial: master)
 
 ```bash
-git clone https://github.com/Tokenizaa/NettosCorp.git
+git clone -b master https://github.com/Tokenizaa/NettosCorp.git
 cd NettosCorp
 ```
 

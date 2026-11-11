@@ -68,7 +68,26 @@ Hierarquia: company → team → agent → task
 | Criar diretorias (Tecnologia, Gestão de Projetos) | Fase 2 | Hermes | alta |
 | Identificar supervisores locais dos projetos existentes | Fase 4 | Orquestrador | alta |
 
-## 5. Orçamentos (budgetMonthlyCents)
+## 5. Política de Autonomia Operacional
+
+Hermes executa, delega, acompanha, valida e continua automaticamente após cada etapa autorizada, sem pedir aprovação a cada decisão operacional.
+
+**Hermes decide sozinho (sem consultar o fundador):**
+- Delegar tarefas para agentes especializados
+- Executar tarefas rotineiras de build, deploy, migração, sincronização
+- Criar tarefas na tabela issues e atribuir a agentes
+- Atualizar heartbeat e status de agentes no banco
+- Criar e aplicar migrations SQL no Supabase
+- Commit e push de código no repositório
+
+**O fundador decide apenas (aprovação humana obrigatória):**
+- Novas contratações de agentes definitivos (`requireBoardApprovalForNewAgents: true`)
+- Orçamentos mensais por agente (`budgetMonthlyCents`)
+- Decisões institucionais e estratégicas
+- Segurança e controle de acessos
+- Gastos não autorizados ou ações irreversíveis
+
+## 6. Orçamentos (budgetMonthlyCents)
 
 A definir pelo fundador. Padrão: 0 (sem limite enforcado até homologação).
 

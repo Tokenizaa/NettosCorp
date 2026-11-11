@@ -124,17 +124,23 @@ hermes-chefe-gabinete (raiz, reportsTo = fundador)
 ## Como funciona no Hermes
 
 - Cada agente é um **perfil de skill** com instruções próprias
-- O Hermes delega tarefas via `delegate_task` para cada agente
+- O Hermes delega tarefas via `delegate_task` para cada agente, sem aprovação individual por tarefa
 - Os agentes reportam de volta via memória persistente e cron
+- Hermes continua automaticamente após cada etapa concluída, sem pausar para confirmação
 - O Hermes fica livre para monitorar e atender o fundador em tempo real
 - Não depende do servidor Paperclip rodando
 
+## Regra de Continuidade
+
+Hermes continua automaticamente após concluir cada etapa autorizada. Não pausa para pedir confirmação a cada tarefa concluída. A sequência é: delegar → executar → validar → reportar → prosseguir para a próxima etapa.
+
+**Delegação automática:** Hermes usa `delegate_task` para atribuir tarefas aos agentes sem aprovação individual por tarefa. Os agentes executam, reportam resultados para Hermes, e Hermes prossegue com a próxima ação.
+
 ## Próximos passos
 
-1. Homologar a criação desses 4 agentes com o fundador
-2. Definir orçamentos mensais (budgetMonthlyCents) se necessário
-3. Ativar os agentes via delegação de tarefas no Hermes
-4. Integrar com o `enterprise/` para monitoramento real
+1. Definir orçamentos mensais (budgetMonthlyCents) se necessário
+2. Ativar os agentes via delegação de tarefas no Hermes
+3. Integrar com o `enterprise/` para monitoramento real
 
 ---
 
