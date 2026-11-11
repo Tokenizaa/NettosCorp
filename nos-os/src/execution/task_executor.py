@@ -333,6 +333,315 @@ def reassign_stuck_issues(hours_threshold=24):
     return stuck_issues
 
 
+def audit_executions():
+    """Lista execuções recentes (Domínio 05)."""
+    query = """
+    SELECT e.id, e.execution_id, e.status, e.origin_trigger, e.task_or_goal_id,
+           e.started_at, e.completed_at
+    FROM executions e
+    WHERE e.company_id = (SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)
+    ORDER BY e.started_at DESC
+    LIMIT 20;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0:
+        print(f"Erro ao buscar execuções: {stderr}")
+        return
+
+    print("--- ÚLTIMAS 20 EXECUÇÕES ---")
+    for line in stdout.split("\n"):
+        if not line.strip():
+            continue
+        parts = line.split("|")
+        if len(parts) >= 7:
+            print(f"  {parts[0].strip()[:8]}... | {parts[1].strip()} | {parts[2].strip()} | {parts[3].strip()} | {parts[4].strip()} | {parts[5].strip()}")
+
+
+def create_queue_items():
+    """Cria itens de fila (work_queue_items) para todas as issues em backlog que ainda não têm (Domínio 04)."""
+    company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
+
+    query = f"""
+    SELECT id FROM work_queues
+    WHERE company_id = {company_subquery}
+    AND code = 'DEFAULT'
+    LIMIT 1;
+    """
+    stdout, stderr, rc = run_sql(query)
+    queue_id = None
+    if rc == 0 and stdout.strip():
+        queue_id = stdout.strip()
+    else:
+        query = f"""
+        INSERT INTO work_queues (company_id, code, name, description, status, concurrency_limit)
+        VALUES ({company_subquery}, 'DEFAULT', 'Fila Padrão', 'Fila de execução geral do NOS-OS', 'active', 1)
+        RETURNING id;
+        """
+        stdout, stderr, rc = run_sql(query)
+        if rc == 0 and stdout.strip():
+            queue_id = stdout.strip()
+
+    if not queue_id:
+        print("❌ Não foi possível encontrar ou criar a fila de trabalho.")
+        return []
+
+    query = f"""
+    SELECT i.id, i.title, i.priority
+    FROM issues i
+    WHERE i.company_id = {company_subquery}
+    AND i.status = 'backlog'
+    AND NOT EXISTS (
+        SELECT 1 FROM work_queue_items wqi
+        WHERE wqi.issue_id = i.id
+        AND wqi.company_id = {company_subquery}
+    )
+    ORDER BY
+        CASE i.priority
+            WHEN 'urgent' THEN 1
+            WHEN 'high' THEN 2
+            WHEN 'medium' THEN 3
+            WHEN 'low' THEN 4
+            ELSE 5
+        END,
+        i.created_at;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0:
+        print(f"Erro ao buscar issues sem fila: {stderr}")
+        return []
+
+    created = []
+    for line in stdout.split("\n"):
+        if not line.strip():
+            continue
+        parts = line.split("|")
+        if len(parts) >= 3:
+            issue_id = parts[0].strip()
+            priority = parts[2].strip()
+            priority_num = {"urgent": 1, "high": 2, "medium": 3, "low": 4}.get(priority, 5)
+
+            query = f"""
+            INSERT INTO work_queue_items (queue_id, company_id, issue_id, status, priority, retry_count, max_retries)
+            VALUES ('{queue_id}', {company_subquery}, '{issue_id}', 'pending', {priority_num}, 0, 3)
+            RETURNING id;
+            """
+            stdout, stderr, rc = run_sql(query)
+            if rc == 0 and stdout.strip():
+                created.append({"id": issue_id, "title": parts[1].strip(), "queue_item_id": stdout.strip()})
+
+    print(f"✅ {len(created)} item(ns) de fila criado(s) para issues em backlog.")
+    return created
+
+
+def claim_queue_item(queue_item_id, agent_code):
+    """
+    Faz claim atômico de um item de fila para um agente (Domínio 04).
+    Usa UPDATE com RETURNING para garantir que apenas um agente pode claimar por vez.
+    """
+    agent = get_agent_by_code(agent_code)
+    if not agent:
+        print(f"❌ Agente {agent_code} não encontrado.")
+        return None
+    if agent["status"] != "active":
+        print(f"❌ Agente {agent_code} não está ativo (status: {agent['status']}).")
+        return None
+
+    company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
+    lease_expires = (datetime.now() + timedelta(hours=1)).isoformat()
+
+    query = f"""
+    UPDATE work_queue_items
+    SET status = 'claimed',
+        function_agent_id = '{agent['id']}',
+        claimed_by_agent_id = '{agent['id']}',
+        claimed_at = NOW(),
+        lease_expires_at = '{lease_expires}',
+        updated_at = NOW()
+    WHERE id = '{queue_item_id}'
+    AND company_id = {company_subquery}
+    AND status = 'pending'
+    RETURNING id, issue_id, status, function_agent_id, claimed_at, lease_expires_at;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível claimar o item {queue_item_id[:8]}... (pode já estar claimado ou não existir).")
+        if stderr:
+            print(f"   Detalhe: {stderr.strip()}")
+        return None
+
+    parts = stdout.strip().split("|")
+    return {
+        "id": parts[0].strip(),
+        "issue_id": parts[1].strip(),
+        "status": parts[2].strip(),
+        "function_agent_id": parts[3].strip(),
+        "claimed_at": parts[4].strip(),
+        "lease_expires_at": parts[5].strip(),
+    }
+
+
+def start_session(agent_code, trigger_source="manual", task_or_goal_id=None):
+    """Inicia uma sessão de execução (Domínio 05)."""
+    agent = get_agent_by_code(agent_code)
+    if not agent:
+        print(f"❌ Agente {agent_code} não encontrado.")
+        return None
+
+    company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
+    session_id = str(uuid4())
+
+    query = f"""
+    INSERT INTO sessions (id, company_id, execution_id, actor, trigger_source, task_or_goal_id, status, next_action, context)
+    VALUES ('{session_id}', {company_subquery}, '{session_id}', 'hermes', '{trigger_source}',
+            {f"'{task_or_goal_id}'" if task_or_goal_id else "NULL"}, 'active', 'iniciar_execucao', '{{"agent_code": "{agent_code}"}}'::jsonb)
+    RETURNING id, actor, trigger_source, status, started_at;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível iniciar sessão: {stderr}")
+        return None
+
+    parts = stdout.strip().split("|")
+    print(f"📋 Sessão iniciada: {parts[0].strip()[:8]}... | ator: {parts[1].strip()} | gatilho: {parts[2].strip()}")
+    return {"id": parts[0].strip(), "actor": parts[1].strip(), "trigger_source": parts[2].strip()}
+
+
+def start_execution(session_id, agent_code, task_or_goal_id=None, trigger_source="manual"):
+    """Inicia uma execução individual (Domínio 05)."""
+    agent = get_agent_by_code(agent_code)
+    if not agent:
+        print(f"❌ Agente {agent_code} não encontrado.")
+        return None
+
+    company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
+    execution_id = str(uuid4())
+
+    query = f"""
+    INSERT INTO executions (id, company_id, session_id, execution_id, actor, origin_trigger, task_or_goal_id, status, result_summary, artifacts, costs, next_action)
+    VALUES ('{execution_id}', {company_subquery}, '{session_id}', '{execution_id}', 'hermes', '{trigger_source}',
+            {f"'{task_or_goal_id}'" if task_or_goal_id else "NULL"}, 'started', NULL, '[]'::jsonb, '{{}}'::jsonb, 'iniciar_execucao')
+    RETURNING id, execution_id, actor, status, started_at;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível iniciar execução: {stderr}")
+        return None
+
+    parts = stdout.strip().split("|")
+    print(f"🚀 Execução iniciada: {parts[0].strip()[:8]}... | ID: {parts[1].strip()} | status: {parts[3].strip()}")
+    return {"id": parts[0].strip(), "execution_id": parts[1].strip(), "actor": parts[2].strip(), "status": parts[3].strip()}
+
+
+def add_execution_step(execution_id, step_number, name, description=""):
+    """Adiciona um passo de execução (Domínio 05)."""
+    query = f"""
+    INSERT INTO execution_steps (execution_id, step_number, name, description, status)
+    VALUES ('{execution_id}', {step_number}, '{name}', '{description}', 'pending')
+    RETURNING id, step_number, name, status;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível adicionar passo de execução: {stderr}")
+        return None
+
+    parts = stdout.strip().split("|")
+    return {"id": parts[0].strip(), "step_number": parts[1].strip(), "name": parts[2].strip()}
+
+
+def update_execution_step(execution_step_id, status, result=None, error=None):
+    """Atualiza o status de um passo de execução (Domínio 05)."""
+    result_sql = f"'{result}'" if result is not None else "result"
+    error_sql = f"'{error}'" if error is not None else "error"
+    query = f"""
+    UPDATE execution_steps
+    SET status = '{status}',
+        started_at = CASE WHEN status = 'in_progress' THEN NOW() ELSE started_at END,
+        completed_at = CASE WHEN status IN ('completed', 'failed', 'skipped') THEN NOW() ELSE completed_at END,
+        result = {result_sql},
+        error = {error_sql}
+    WHERE id = '{execution_step_id}'
+    RETURNING id, status;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível atualizar passo de execução: {stderr}")
+        return False
+    return True
+
+
+def add_tool_invocation(execution_id, step_id, tool_name, parameters_safe=None, authorized=False):
+    """Registra uma invocação de ferramenta (Domínio 05)."""
+    params_json = json.dumps(parameters_safe or {})
+    query = f"""
+    INSERT INTO tool_invocations (execution_id, execution_step_id, tool_name, parameters_safe, authorization_checked)
+    VALUES ('{execution_id}', {f"'{step_id}'" if step_id else "NULL"}, '{tool_name}', '{params_json}'::jsonb, {str(authorized).lower()})
+    RETURNING id, tool_name, authorization_checked, started_at;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível registrar invocação de ferramenta: {stderr}")
+        return None
+
+    parts = stdout.strip().split("|")
+    return {"id": parts[0].strip(), "tool_name": parts[1].strip()}
+
+
+def add_execution_artifact(execution_id, name, type_, content_url=None, content_hash=None, size_bytes=None):
+    """Registra um artefato de execução (Domínio 05)."""
+    query = f"""
+    INSERT INTO execution_artifacts (execution_id, name, type, content_url, content_hash, size_bytes)
+    VALUES ('{execution_id}', '{name}', '{type_}', {f"'{content_url}'" if content_url else "NULL"},
+            {f"'{content_hash}'" if content_hash else "NULL"}, {size_bytes if size_bytes else "NULL"})
+    RETURNING id, name, type;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível registrar artefato: {stderr}")
+        return None
+
+    parts = stdout.strip().split("|")
+    return {"id": parts[0].strip(), "name": parts[1].strip()}
+
+
+def create_checkpoint(execution_id, checkpoint_name, state_json=None):
+    """Cria um ponto de verificação para retomada (Domínio 05)."""
+    state = json.dumps(state_json or {})
+    query = f"""
+    INSERT INTO checkpoints (execution_id, checkpoint_name, state_json)
+    VALUES ('{execution_id}', '{checkpoint_name}', '{state}'::jsonb)
+    RETURNING id, checkpoint_name, created_at;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível criar checkpoint: {stderr}")
+        return None
+
+    parts = stdout.strip().split("|")
+    print(f"💾 Checkpoint criado: {parts[1].strip()} em {parts[2].strip()}")
+    return {"id": parts[0].strip(), "checkpoint_name": parts[1].strip()}
+
+
+def complete_execution(execution_id, result_summary="", errors="", next_action=""):
+    """Marca uma execução como concluída (Domínio 05)."""
+    query = f"""
+    UPDATE executions
+    SET status = 'completed',
+        completed_at = NOW(),
+        result_summary = {f"'{result_summary}'" if result_summary else "result_summary"},
+        errors = {f"'{errors}'" if errors else "errors"},
+        next_action = {f"'{next_action}'" if next_action else "next_action"},
+        updated_at = NOW()
+    WHERE id = '{execution_id}'
+    RETURNING id, status;
+    """
+    stdout, stderr, rc = run_sql(query)
+    if rc != 0 or not stdout.strip():
+        print(f"❌ Não foi possível completar execução: {stderr}")
+        return False
+    print(f"✅ Execução {execution_id[:8]}... concluída.")
+    return True
+
+
 def audit_audit_log():
     """Lista todas as alterações recentes de status de issues."""
     query = """
@@ -357,17 +666,19 @@ def audit_audit_log():
         if len(parts) >= 7:
             print(f"  {parts[0].strip()[:8]}... | {parts[1].strip()} | {parts[2].strip()} | {parts[3].strip()} | {parts[4].strip()} | {parts[5].strip()}")
 
-
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Execução de tarefas — Sistema Operacional NettosCorp")
     parser.add_argument("--list-backlog", action="store_true", help="Lista issues em backlog")
     parser.add_argument("--list-in-progress", action="store_true", help="Lista issues em andamento")
     parser.add_argument("--assign", metavar="AGENT_CODE", help="Atribui a próxima issue em backlog a um agente")
+    parser.add_argument("--agent-code", metavar="AGENT_CODE", help="Código do agente para atribuir/completar/executar")
     parser.add_argument("--complete", metavar="ISSUE_ID", help="Marca uma issue como concluída")
-    parser.add_argument("--agent", metavar="AGENT_CODE", help="Código do agente para atribuir/completar")
     parser.add_argument("--reassign-stuck", action="store_true", help="Reatribui issues travadas")
-    parser.add_argument("--audit", action="store_true", help="Mostra auditoria de alterações recentes")
+    parser.add_argument("--audit", action="store_true", help="Mostra auditoria de alterações recentes de issues")
+    parser.add_argument("--audit-executions", action="store_true", help="Mostra auditoria de execuções recentes")
+    parser.add_argument("--create-queue-items", action="store_true", help="Cria itens de fila para issues em backlog")
+    parser.add_argument("--execute-next", action="store_true", help="Executa a próxima issue da fila com claim atômico")
     args = parser.parse_args()
 
     if args.list_backlog:
@@ -387,29 +698,73 @@ def main():
         print(f"\nTotal: {len(issues)} issue(s) em andamento.")
 
     if args.assign:
-        if not args.agent:
-            print("❌ É necessário especificar --agent com --assign")
+        if not args.agent_code:
+            print("❌ É necessário especificar --agent-code com --assign")
             sys.exit(1)
-        # Pega a primeira issue em backlog
         issues = list_backlog_issues()
         if not issues:
             print("❌ Não há issues em backlog para atribuir.")
             return
         issue = issues[0]
-        print(f"Atribuindo issue {issue['id'][:8]}... ({issue['title']}) a {args.agent}...")
-        checkout_issue(issue["id"], args.agent)
+        print(f"Atribuindo issue {issue['id'][:8]}... ({issue['title']}) a {args.agent_code}...")
+        checkout_issue(issue["id"], args.agent_code)
 
     if args.complete:
-        if not args.agent:
-            print("❌ É necessário especificar --agent com --complete")
+        if not args.agent_code:
+            print("❌ É necessário especificar --agent-code com --complete")
             sys.exit(1)
-        complete_issue(args.complete, args.agent)
+        complete_issue(args.complete, args.agent_code)
+
+    if args.create_queue_items:
+        create_queue_items()
+
+    if args.execute_next:
+        if not args.agent_code:
+            print("❌ É necessário especificar --agent-code com --execute-next")
+            sys.exit(1)
+        create_queue_items()
+        company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
+        query = f"""
+        SELECT wqi.id, wqi.issue_id, wqi.priority
+        FROM work_queue_items wqi
+        WHERE wqi.company_id = {company_subquery}
+        AND wqi.status = 'pending'
+        ORDER BY wqi.priority, wqi.created_at
+        LIMIT 1;
+        """
+        stdout, stderr, rc = run_sql(query)
+        if rc != 0 or not stdout.strip():
+            print("❌ Não há itens pendentes na fila de trabalho.")
+            return
+
+        parts = stdout.strip().split("|")
+        queue_item_id = parts[0].strip()
+        issue_id = parts[1].strip()
+
+        claimed = claim_queue_item(queue_item_id, args.agent_code)
+        if not claimed:
+            return
+
+        checkout_issue(issue_id, args.agent_code)
+
+        session = start_session(args.agent_code, trigger_source="queue_claim", task_or_goal_id=issue_id)
+        if session:
+            execution = start_execution(session["id"], args.agent_code, task_or_goal_id=issue_id)
+            if execution:
+                step = add_execution_step(execution["id"], 1, "checkout_issue", f"Checkout da issue {issue_id[:8]}...")
+                if step:
+                    update_execution_step(step["id"], "completed", result="Issue atribuída com sucesso")
+                create_checkpoint(execution["id"], "apos_checkout", {"issue_id": issue_id, "status": "in_progress"})
+                complete_execution(execution["id"], result_summary=f"Issue {issue_id[:8]}... atribuída e em execução")
 
     if args.reassign_stuck:
         reassign_stuck_issues()
 
     if args.audit:
         audit_audit_log()
+
+    if args.audit_executions:
+        audit_executions()
 
 
 if __name__ == "__main__":
