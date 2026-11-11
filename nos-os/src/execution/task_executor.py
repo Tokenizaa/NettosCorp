@@ -20,10 +20,11 @@ Uso:
 import os
 import sys
 import json
+import re
 import subprocess
 import tempfile
 from datetime import datetime, timedelta
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 # Configuração do Supabase (obrigatória via variáveis de ambiente)
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
@@ -34,6 +35,29 @@ if not SUPABASE_URL or not SUPABASE_ANON_KEY:
     raise RuntimeError("SUPABASE_URL e SUPABASE_ANON_KEY são obrigatórios no ambiente.")
 if not DB_PASSWORD:
     raise RuntimeError("SUPABASE_PASSWORD não definida no ambiente. Não use credenciais hardcoded.")
+
+
+def sql_escape(value):
+    """Escapa aspas simples para uso seguro em strings SQL literais."""
+    if value is None:
+        return "NULL"
+    if isinstance(value, bool):
+        return "TRUE" if value else "FALSE"
+    if isinstance(value, (int, float)):
+        return str(value)
+    s = str(value)
+    return "'" + s.replace("'", "''") + "'"
+
+
+def is_valid_uuid(value):
+    """Valida se uma string é um UUID válido."""
+    if not value or not isinstance(value, str):
+        return False
+    try:
+        UUID(value)
+        return True
+    except (ValueError, AttributeError):
+        return False
 
 
 def run_sql(query, fetch=True):
@@ -81,11 +105,16 @@ def get_company_id():
 
 def get_agent_by_code(code):
     """Obtém um agente/código de função pelo código."""
+    if not code or not isinstance(code, str):
+        return None
+    # code pode conter hífens, validar caracteres permitidos
+    if not re.match(r'^[A-Za-z0-9\-_]+$', code):
+        return None
     query = f"""
     SELECT id, code, name, role, title, status, reports_to, capabilities
     FROM agents
     WHERE company_id = (SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)
-    AND code = '{code}';
+    AND code = {sql_escape(code)};
     """
     stdout, stderr, rc = run_sql(query)
     if rc != 0 or not stdout.strip():
@@ -192,28 +221,30 @@ def checkout_issue(issue_id, agent_code):
     2. O agente existe e está ativo
     3. A atribuição é feita atomicamente
 
-    Retorna True se o checkout foi bem-sucedido, False caso contrário.
+    Retorna um dict com os dados da issue atribuída ou None em caso de falha.
     """
-    company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
+    if not is_valid_uuid(issue_id):
+        print(f"❌ ID de issue inválido: {issue_id}")
+        return None
 
-    # Verifica se o agente existe e está ativo
     agent = get_agent_by_code(agent_code)
     if not agent:
         print(f"❌ Agente {agent_code} não encontrado.")
-        return False
+        return None
     if agent["status"] != "active":
         print(f"❌ Agente {agent_code} não está ativo (status: {agent['status']}).")
-        return False
+        return None
+
+    company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
 
     # Transação atômica: atribui a issue apenas se estiver em backlog
     query = f"""
     BEGIN;
-    -- Verifica se a issue existe e está em backlog
     UPDATE issues
-    SET assignee_agent_id = '{agent["id"]}',
+    SET assignee_agent_id = {sql_escape(agent['id'])},
         status = 'in_progress',
         updated_at = NOW()
-    WHERE id = '{issue_id}'
+    WHERE id = {sql_escape(issue_id)}
     AND company_id = {company_subquery}
     AND status = 'backlog'
     RETURNING id, title, assignee_agent_id, status;
@@ -225,31 +256,44 @@ def checkout_issue(issue_id, agent_code):
         print(f"❌ Issue {issue_id[:8]}... não pôde ser atribuída (não está em backlog ou já foi processada).")
         if stderr:
             print(f"   Detalhe: {stderr.strip()}")
-        return False
+        return None
 
-    # Verifica se o RETURNING retornou alguma linha (se a issue foi atualizada)
     if not stdout.strip():
         print(f"❌ Issue {issue_id[:8]}... não pôde ser atribuída (não está em backlog ou já foi processada).")
-        return False
+        return None
 
-    print(f"✅ Issue {issue_id[:8]}... atribuída a {agent['code']} ({agent['name']})")
-    return True
+    parts = stdout.strip().split("|")
+    result = {
+        "id": parts[0].strip(),
+        "title": parts[1].strip(),
+        "assignee_agent_id": parts[2].strip(),
+        "status": parts[3].strip(),
+    }
+    print(f"✅ Issue {result['id'][:8]}... atribuída a {agent['code']} ({agent['name']})")
+    return result
 
 
 def complete_issue(issue_id, agent_code, result_summary=""):
     """Marca uma issue como concluída, apenas se estiver atribuída ao agente."""
+    if not is_valid_uuid(issue_id):
+        print(f"❌ ID de issue inválido: {issue_id}")
+        return False
+
     agent = get_agent_by_code(agent_code)
     if not agent:
         print(f"❌ Agente {agent_code} não encontrado.")
+        return False
+    if agent["status"] != "active":
+        print(f"❌ Agente {agent_code} não está ativo (status: {agent['status']}).")
         return False
 
     query = f"""
     UPDATE issues
     SET status = 'concluido',
         updated_at = NOW()
-    WHERE id = '{issue_id}'
+    WHERE id = {sql_escape(issue_id)}
     AND company_id = (SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)
-    AND assignee_agent_id = '{agent["id"]}'
+    AND assignee_agent_id = {sql_escape(agent['id'])}
     AND status = 'in_progress'
     RETURNING id, title, status;
     """
@@ -422,7 +466,7 @@ def create_queue_items():
 
             query = f"""
             INSERT INTO work_queue_items (queue_id, company_id, issue_id, status, priority, retry_count, max_retries)
-            VALUES ('{queue_id}', {company_subquery}, '{issue_id}', 'pending', {priority_num}, 0, 3)
+            VALUES ({sql_escape(queue_id)}, {company_subquery}, {sql_escape(issue_id)}, 'pending', {priority_num}, 0, 3)
             RETURNING id;
             """
             stdout, stderr, rc = run_sql(query)
@@ -446,18 +490,22 @@ def claim_queue_item(queue_item_id, agent_code):
         print(f"❌ Agente {agent_code} não está ativo (status: {agent['status']}).")
         return None
 
+    if not is_valid_uuid(queue_item_id):
+        print(f"❌ ID de item de fila inválido: {queue_item_id}")
+        return None
+
     company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
     lease_expires = (datetime.now() + timedelta(hours=1)).isoformat()
 
     query = f"""
     UPDATE work_queue_items
     SET status = 'claimed',
-        function_agent_id = '{agent['id']}',
-        claimed_by_agent_id = '{agent['id']}',
+        function_agent_id = {sql_escape(agent['id'])},
+        claimed_by_agent_id = {sql_escape(agent['id'])},
         claimed_at = NOW(),
-        lease_expires_at = '{lease_expires}',
+        lease_expires_at = {sql_escape(lease_expires)},
         updated_at = NOW()
-    WHERE id = '{queue_item_id}'
+    WHERE id = {sql_escape(queue_item_id)}
     AND company_id = {company_subquery}
     AND status = 'pending'
     RETURNING id, issue_id, status, function_agent_id, claimed_at, lease_expires_at;
@@ -490,10 +538,13 @@ def start_session(agent_code, trigger_source="manual", task_or_goal_id=None):
     company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
     session_id = str(uuid4())
 
+    goal_sql = sql_escape(task_or_goal_id) if task_or_goal_id and is_valid_uuid(task_or_goal_id) else "NULL"
+    context_json = json.dumps({"agent_code": agent_code})
+
     query = f"""
     INSERT INTO sessions (id, company_id, execution_id, actor, trigger_source, task_or_goal_id, status, next_action, context)
-    VALUES ('{session_id}', {company_subquery}, '{session_id}', 'hermes', '{trigger_source}',
-            {f"'{task_or_goal_id}'" if task_or_goal_id else "NULL"}, 'active', 'iniciar_execucao', '{{"agent_code": "{agent_code}"}}'::jsonb)
+    VALUES ({sql_escape(session_id)}, {company_subquery}, {sql_escape(session_id)}, 'hermes', {sql_escape(trigger_source)},
+            {goal_sql}, 'active', 'iniciar_execucao', {sql_escape(context_json)}::jsonb)
     RETURNING id, actor, trigger_source, status, started_at;
     """
     stdout, stderr, rc = run_sql(query)
@@ -507,7 +558,11 @@ def start_session(agent_code, trigger_source="manual", task_or_goal_id=None):
 
 
 def start_execution(session_id, agent_code, task_or_goal_id=None, trigger_source="manual"):
-    """Inicia uma execução individual (Domínio 05)."""
+    """Inicia uma execução individual (Domínio 05). Marca como 'started', não 'completed'."""
+    if not is_valid_uuid(session_id):
+        print(f"❌ ID de sessão inválido: {session_id}")
+        return None
+
     agent = get_agent_by_code(agent_code)
     if not agent:
         print(f"❌ Agente {agent_code} não encontrado.")
@@ -516,10 +571,12 @@ def start_execution(session_id, agent_code, task_or_goal_id=None, trigger_source
     company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
     execution_id = str(uuid4())
 
+    goal_sql = sql_escape(task_or_goal_id) if task_or_goal_id and is_valid_uuid(task_or_goal_id) else "NULL"
+
     query = f"""
     INSERT INTO executions (id, company_id, session_id, execution_id, actor, origin_trigger, task_or_goal_id, status, result_summary, artifacts, costs, next_action)
-    VALUES ('{execution_id}', {company_subquery}, '{session_id}', '{execution_id}', 'hermes', '{trigger_source}',
-            {f"'{task_or_goal_id}'" if task_or_goal_id else "NULL"}, 'started', NULL, '[]'::jsonb, '{{}}'::jsonb, 'iniciar_execucao')
+    VALUES ({sql_escape(execution_id)}, {company_subquery}, {sql_escape(session_id)}, {sql_escape(execution_id)}, 'hermes', {sql_escape(trigger_source)},
+            {goal_sql}, 'started', NULL, '[]'::jsonb, '{{}}'::jsonb, 'iniciar_execucao')
     RETURNING id, execution_id, actor, status, started_at;
     """
     stdout, stderr, rc = run_sql(query)
@@ -534,9 +591,13 @@ def start_execution(session_id, agent_code, task_or_goal_id=None, trigger_source
 
 def add_execution_step(execution_id, step_number, name, description=""):
     """Adiciona um passo de execução (Domínio 05)."""
+    if not is_valid_uuid(execution_id):
+        print(f"❌ ID de execução inválido: {execution_id}")
+        return None
+
     query = f"""
     INSERT INTO execution_steps (execution_id, step_number, name, description, status)
-    VALUES ('{execution_id}', {step_number}, '{name}', '{description}', 'pending')
+    VALUES ({sql_escape(execution_id)}, {int(step_number)}, {sql_escape(name)}, {sql_escape(description)}, 'pending')
     RETURNING id, step_number, name, status;
     """
     stdout, stderr, rc = run_sql(query)
@@ -550,16 +611,20 @@ def add_execution_step(execution_id, step_number, name, description=""):
 
 def update_execution_step(execution_step_id, status, result=None, error=None):
     """Atualiza o status de um passo de execução (Domínio 05)."""
-    result_sql = f"'{result}'" if result is not None else "result"
-    error_sql = f"'{error}'" if error is not None else "error"
+    if not is_valid_uuid(execution_step_id):
+        print(f"❌ ID de passo de execução inválido: {execution_step_id}")
+        return False
+
+    result_sql = sql_escape(result) if result is not None else "result"
+    error_sql = sql_escape(error) if error is not None else "error"
     query = f"""
     UPDATE execution_steps
-    SET status = '{status}',
+    SET status = {sql_escape(status)},
         started_at = CASE WHEN status = 'in_progress' THEN NOW() ELSE started_at END,
         completed_at = CASE WHEN status IN ('completed', 'failed', 'skipped') THEN NOW() ELSE completed_at END,
         result = {result_sql},
         error = {error_sql}
-    WHERE id = '{execution_step_id}'
+    WHERE id = {sql_escape(execution_step_id)}
     RETURNING id, status;
     """
     stdout, stderr, rc = run_sql(query)
@@ -571,10 +636,16 @@ def update_execution_step(execution_step_id, status, result=None, error=None):
 
 def add_tool_invocation(execution_id, step_id, tool_name, parameters_safe=None, authorized=False):
     """Registra uma invocação de ferramenta (Domínio 05)."""
-    params_json = json.dumps(parameters_safe or {})
+    if not is_valid_uuid(execution_id):
+        print(f"❌ ID de execução inválido: {execution_id}")
+        return None
+
+    params_json = json.dumps(parameters_safe or {}).replace("'", "''")
+    step_sql = sql_escape(step_id) if step_id and is_valid_uuid(step_id) else "NULL"
+
     query = f"""
     INSERT INTO tool_invocations (execution_id, execution_step_id, tool_name, parameters_safe, authorization_checked)
-    VALUES ('{execution_id}', {f"'{step_id}'" if step_id else "NULL"}, '{tool_name}', '{params_json}'::jsonb, {str(authorized).lower()})
+    VALUES ({sql_escape(execution_id)}, {step_sql}, {sql_escape(tool_name)}, {sql_escape(params_json)}::jsonb, {str(authorized).lower()})
     RETURNING id, tool_name, authorization_checked, started_at;
     """
     stdout, stderr, rc = run_sql(query)
@@ -588,10 +659,14 @@ def add_tool_invocation(execution_id, step_id, tool_name, parameters_safe=None, 
 
 def add_execution_artifact(execution_id, name, type_, content_url=None, content_hash=None, size_bytes=None):
     """Registra um artefato de execução (Domínio 05)."""
+    if not is_valid_uuid(execution_id):
+        print(f"❌ ID de execução inválido: {execution_id}")
+        return None
+
     query = f"""
     INSERT INTO execution_artifacts (execution_id, name, type, content_url, content_hash, size_bytes)
-    VALUES ('{execution_id}', '{name}', '{type_}', {f"'{content_url}'" if content_url else "NULL"},
-            {f"'{content_hash}'" if content_hash else "NULL"}, {size_bytes if size_bytes else "NULL"})
+    VALUES ({sql_escape(execution_id)}, {sql_escape(name)}, {sql_escape(type_)},
+            {sql_escape(content_url)}, {sql_escape(content_hash)}, {size_bytes if size_bytes else "NULL"})
     RETURNING id, name, type;
     """
     stdout, stderr, rc = run_sql(query)
@@ -605,10 +680,14 @@ def add_execution_artifact(execution_id, name, type_, content_url=None, content_
 
 def create_checkpoint(execution_id, checkpoint_name, state_json=None):
     """Cria um ponto de verificação para retomada (Domínio 05)."""
-    state = json.dumps(state_json or {})
+    if not is_valid_uuid(execution_id):
+        print(f"❌ ID de execução inválido: {execution_id}")
+        return None
+
+    state = json.dumps(state_json or {}).replace("'", "''")
     query = f"""
     INSERT INTO checkpoints (execution_id, checkpoint_name, state_json)
-    VALUES ('{execution_id}', '{checkpoint_name}', '{state}'::jsonb)
+    VALUES ({sql_escape(execution_id)}, {sql_escape(checkpoint_name)}, {sql_escape(state)}::jsonb)
     RETURNING id, checkpoint_name, created_at;
     """
     stdout, stderr, rc = run_sql(query)
@@ -622,16 +701,20 @@ def create_checkpoint(execution_id, checkpoint_name, state_json=None):
 
 
 def complete_execution(execution_id, result_summary="", errors="", next_action=""):
-    """Marca uma execução como concluída (Domínio 05)."""
+    """Marca uma execução como concluída (Domínio 05). Apenas se o resultado for fornecido."""
+    if not is_valid_uuid(execution_id):
+        print(f"❌ ID de execução inválido: {execution_id}")
+        return False
+
     query = f"""
     UPDATE executions
     SET status = 'completed',
         completed_at = NOW(),
-        result_summary = {f"'{result_summary}'" if result_summary else "result_summary"},
-        errors = {f"'{errors}'" if errors else "errors"},
-        next_action = {f"'{next_action}'" if next_action else "next_action"},
+        result_summary = {sql_escape(result_summary)},
+        errors = {sql_escape(errors)},
+        next_action = {sql_escape(next_action)},
         updated_at = NOW()
-    WHERE id = '{execution_id}'
+    WHERE id = {sql_escape(execution_id)}
     RETURNING id, status;
     """
     stdout, stderr, rc = run_sql(query)
@@ -679,6 +762,8 @@ def main():
     parser.add_argument("--audit-executions", action="store_true", help="Mostra auditoria de execuções recentes")
     parser.add_argument("--create-queue-items", action="store_true", help="Cria itens de fila para issues em backlog")
     parser.add_argument("--execute-next", action="store_true", help="Executa a próxima issue da fila com claim atômico")
+    parser.add_argument("--complete-execution", metavar="EXECUTION_ID", help="Marca uma execução como concluída")
+    parser.add_argument("--result", metavar="TEXTO", help="Resumo do resultado da execução")
     args = parser.parse_args()
 
     if args.list_backlog:
@@ -745,17 +830,37 @@ def main():
         if not claimed:
             return
 
-        checkout_issue(issue_id, args.agent_code)
+        checkout_result = checkout_issue(issue_id, args.agent_code)
+        if not checkout_result:
+            print(f"❌ Checkout falhou para issue {issue_id[:8]}... — abortando execução.")
+            return
 
         session = start_session(args.agent_code, trigger_source="queue_claim", task_or_goal_id=issue_id)
-        if session:
-            execution = start_execution(session["id"], args.agent_code, task_or_goal_id=issue_id)
-            if execution:
-                step = add_execution_step(execution["id"], 1, "checkout_issue", f"Checkout da issue {issue_id[:8]}...")
-                if step:
-                    update_execution_step(step["id"], "completed", result="Issue atribuída com sucesso")
-                create_checkpoint(execution["id"], "apos_checkout", {"issue_id": issue_id, "status": "in_progress"})
-                complete_execution(execution["id"], result_summary=f"Issue {issue_id[:8]}... atribuída e em execução")
+        if not session:
+            print(f"❌ Falha ao iniciar sessão — abortando execução da issue {issue_id[:8]}...")
+            return
+
+        execution = start_execution(session["id"], args.agent_code, task_or_goal_id=issue_id)
+        if not execution:
+            print(f"❌ Falha ao iniciar execução — abortando execução da issue {issue_id[:8]}...")
+            return
+
+        step = add_execution_step(execution["id"], 1, "checkout_issue", f"Checkout da issue {issue_id[:8]}...")
+        if step:
+            update_execution_step(step["id"], "completed", result="Issue atribuída e execução iniciada")
+        create_checkpoint(execution["id"], "apos_checkout", {"issue_id": issue_id, "status": "in_progress"})
+
+        print(f"📋 Execução {execution['execution_id'][:8]}... iniciada para issue {issue_id[:8]}... — status: started")
+        print('   Use --complete-execution ' + execution['id'] + ' --agent-code ' + args.agent_code + ' --result "<resumo>" para concluir.')
+
+    if args.complete_execution:
+        if not args.agent_code:
+            print("❌ É necessário especificar --agent-code com --complete-execution")
+            sys.exit(1)
+        if not args.result:
+            print("❌ É necessário especificar --result com --complete-execution")
+            sys.exit(1)
+        complete_execution(args.complete_execution, args.result, "", "")
 
     if args.reassign_stuck:
         reassign_stuck_issues()

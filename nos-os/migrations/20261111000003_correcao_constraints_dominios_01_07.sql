@@ -3,10 +3,30 @@
 -- Domínios 01 e 07
 -- ====================================================================
 
--- Adicionar unique constraints faltantes
-ALTER TABLE roles ADD CONSTRAINT IF NOT EXISTS roles_company_code_unique UNIQUE (company_id, code);
-ALTER TABLE secret_references ADD CONSTRAINT IF NOT EXISTS secret_references_company_name_unique UNIQUE (company_id, name);
-ALTER TABLE role_permissions ADD CONSTRAINT IF NOT EXISTS role_permissions_unique UNIQUE (role_id, resource, action);
+-- Adicionar unique constraints faltantes (usando DO para evitar erro se já existirem)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'roles_company_code_unique') THEN
+        ALTER TABLE roles ADD CONSTRAINT roles_company_code_unique UNIQUE (company_id, code);
+    END IF;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'secret_references_company_name_unique') THEN
+        ALTER TABLE secret_references ADD CONSTRAINT secret_references_company_name_unique UNIQUE (company_id, name);
+    END IF;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'role_permissions_unique') THEN
+        ALTER TABLE role_permissions ADD CONSTRAINT role_permissions_unique UNIQUE (role_id, resource, action);
+    END IF;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
 
 -- Remover duplicatas de departamentos (manter o mais antigo por company_id, code)
 DELETE FROM departments d

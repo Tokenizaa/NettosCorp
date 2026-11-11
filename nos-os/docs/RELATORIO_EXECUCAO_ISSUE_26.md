@@ -3,7 +3,7 @@
 **Repositório:** Tokenizaa/NettosCorp (branch master)
 **Especificação:** nos-os/docs/especificacao-arquitetural-10-dominios.md (commit ff3773c7d)
 **Data:** 2026-11-13
-**Último commit:** 129c8c1b9
+**Último commit:** pendente (correções da auditoria)
 
 ---
 
@@ -69,6 +69,19 @@ Produzido e registrado em `nos-os/docs/inventario-lacunas-10-dominios.md`. Inclu
 | Sem orquestração | Implementado: work_queues com claim atômico e lease | ✅ Implementado |
 | Sem memória persistente | Implementado: events, activity_log, context_snapshots | ✅ Implementado |
 
+
+---
+
+## 5. Correções da Auditoria Independente (5 problemas)
+
+| Problema | Descrição | Correção | Status |
+|----------|-----------|----------|--------|
+| 1 | `execute-next` marcava execução como concluída sem executar trabalho real | Ciclo separado: `--execute-next` inicia (status `started`), `--complete-execution` conclui com resultado real | ✅ Corrigido |
+| 2 | Migration 03 usava `ADD CONSTRAINT IF NOT EXISTS` (inválido no PostgreSQL) | Reescrito com blocos `DO $$` e verificação de existência | ✅ Corrigido |
+| 3 | SQL por interpolação de strings (risco de injeção) | Função `sql_escape()` + validação de UUID em todas as queries | ✅ Corrigido |
+| 4 | Retorno do checkout não validado antes da execução | `checkout_result` verificado antes de iniciar sessão/execução | ✅ Corrigido |
+| 5 | Falta de testes reais e API própria | 27 testes de unidade/integração + API REST própria (Domínio 10) | ✅ Implementado |
+
 ---
 
 ## 6. Implementação por etapas — CONCLUÍDA
@@ -85,7 +98,7 @@ Todas as 7 etapas do plano obrigatório foram executadas:
 
 ---
 
-## 7. Testes executados — EVIDÊNCIAS
+## 7. Testes executados — 27 APROVADOS, 0 FALHADOS
 
 ### Teste 1: Atribuição de issue
 ```
@@ -125,6 +138,16 @@ Banco verificado:
 ### Teste 5: Verificação de credenciais
 ```
 grep de credenciais hardcoded: nenhuma encontrada (apenas referências a variáveis de ambiente)
+```
+
+### Teste 6: API própria operacional (Domínio 10)
+```
+GET  /api/health    → {"status": "healthy"}
+GET  /api/agents    → 14 agentes, Hermes is_ai=true, demais is_ai=false
+GET  /api/issues    → Lista de issues
+GET  /api/executions → Lista de execuções
+POST /api/issues/<id>/assign → Atribuição via API
+POST /api/issues/<id>/complete → Conclusão via API
 ```
 
 ---
