@@ -186,13 +186,12 @@ def get_in_progress_issues():
 def checkout_issue(issue_id, agent_code):
     """
     Faz checkout atômico de uma issue para uma função.
-    
-    Usa transação SQL para garantir que:
+
+    Usa UPDATE com RETURNING para garantir atomicidade:
     1. A issue existe e está em backlog
     2. O agente existe e está ativo
-    3. A issue não está já atribuída a outro agente
-    4. A atribuição é feita atomicamente
-    
+    3. A atribuição é feita atomicamente
+
     Retorna True se o checkout foi bem-sucedido, False caso contrário.
     """
     company_subquery = "(SELECT id FROM companies WHERE issue_prefix = 'NET' ORDER BY created_at DESC LIMIT 1)"
@@ -206,18 +205,10 @@ def checkout_issue(issue_id, agent_code):
         print(f"❌ Agente {agent_code} não está ativo (status: {agent['status']}).")
         return False
 
-    # Transação atômica: tenta atribuir a issue apenas se estiver em backlog
+    # Transação atômica: atribui a issue apenas se estiver em backlog
     query = f"""
     BEGIN;
-    -- Verifica se a issue existe, está em backlog e não tem assignee
-    SELECT id INTO STRICT issue_id FROM issues
-    WHERE id = '{issue_id}'
-    AND company_id = {company_subquery}
-    AND status = 'backlog'
-    AND assignee_agent_id IS NULL
-    FOR UPDATE;
-
-    -- Atribui a issue ao agente
+    -- Verifica se a issue existe e está em backlog
     UPDATE issues
     SET assignee_agent_id = '{agent["id"]}',
         status = 'in_progress',
@@ -225,25 +216,20 @@ def checkout_issue(issue_id, agent_code):
     WHERE id = '{issue_id}'
     AND company_id = {company_subquery}
     AND status = 'backlog'
-    AND assignee_agent_id IS NULL;
-
-    -- Verifica se a atualização afetou alguma linha (caso contrário, outra transação já pegou)
-    SELECT FOUND INTO assigned;
-
-    IF NOT assigned THEN
-        ROLLBACK;
-        RAISE EXCEPTION 'Issue já atribuída a outro agente ou não está mais em backlog';
-    END IF;
+    RETURNING id, title, assignee_agent_id, status;
 
     COMMIT;
-    RETURNING id, title, assignee_agent_id, status;
     """
     stdout, stderr, rc = run_sql(query)
     if rc != 0:
-        if "já atribuída" in stderr or "already assigned" in stderr.lower():
-            print(f"❌ Issue {issue_id[:8]}... já foi atribuída a outra função ou não está mais em backlog.")
-        else:
-            print(f"❌ Erro ao fazer checkout da issue: {stderr}")
+        print(f"❌ Issue {issue_id[:8]}... não pôde ser atribuída (não está em backlog ou já foi processada).")
+        if stderr:
+            print(f"   Detalhe: {stderr.strip()}")
+        return False
+
+    # Verifica se o RETURNING retornou alguma linha (se a issue foi atualizada)
+    if not stdout.strip():
+        print(f"❌ Issue {issue_id[:8]}... não pôde ser atribuída (não está em backlog ou já foi processada).")
         return False
 
     print(f"✅ Issue {issue_id[:8]}... atribuída a {agent['code']} ({agent['name']})")
