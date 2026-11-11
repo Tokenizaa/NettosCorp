@@ -52,6 +52,10 @@ Quatro agentes configurados com `reportsTo: Hermes`, rodando em `adapterType: pr
 
 Estrutura organizacional definida, aguardando homologação do fundador para implantação definitiva.
 
+## Instalação reproduzível do Hermes
+
+Veja `SETUP_HERMES.md` para baixar este repositório e instalar o Hermes com voz Piper, skills e agentes já configurados.
+
 ## Unificação
 
 Repositórios originais mantidos como referência:
