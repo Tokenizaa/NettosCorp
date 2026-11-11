@@ -32,9 +32,25 @@ NettosCorp/
     │   └── ...
 ```
 
-## Skill Hermes — nettoscorp-org
+## Skills Hermes
 
-Localizado em `skills/nettoscorp-org/SKILL.md`. Mapeia a estrutura do Paperclip (companies, agents, goals, issues) para recursos nativos do Hermes. Estrutura organizacional da NettosCorp definida, aguardando homologação do fundador para implantação definitiva.
+| Skill | Local | Descrição |
+|-------|-------|-----------|
+| nettoscorp-org | `skills/nettoscorp-org/SKILL.md` | Estrutura organizacional da NettosCorp (companies, agents, goals, issues) mapeada para Hermes |
+| nettoscorp-agents | `skills/nettoscorp-agents/SKILL.md` | 4 agentes básicos rodando nativamente no Hermes (Monitor Enterprise, Documentação Institucional, Operacional, Atendimento) |
+
+## Agentes Básicos (nettoscorp-agents)
+
+Quatro agentes configurados com `reportsTo: Hermes`, rodando em `adapterType: process`/`hermes-native`:
+
+| Agente | ID | Role | reportsTo |
+|--------|----|------|-----------|
+| Monitor Enterprise | net-ag-001 | monitoring | Hermes |
+| Documentação Institucional | net-ag-002 | documentation | Hermes |
+| Operacional | net-ag-003 | operations | Hermes |
+| Atendimento | net-ag-004 | support | Hermes |
+
+Estrutura organizacional definida, aguardando homologação do fundador para implantação definitiva.
 
 ## Unificação
 
