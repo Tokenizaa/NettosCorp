@@ -56,6 +56,10 @@ Estrutura organizacional definida, aguardando homologação do fundador para imp
 
 Veja `SETUP_HERMES.md` para baixar este repositório e instalar o Hermes com voz Piper, skills e agentes já configurados.
 
+Scripts incluídos no repositório:
+- `install-hermes.ps1` / `install-hermes.sh` — instalação completa (primeira vez)
+- `update-hermes.ps1` / `update-hermes.sh` — atualização após cada `git pull`
+
 ## Unificação
 
 Repositórios originais mantidos como referência:

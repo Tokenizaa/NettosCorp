@@ -17,15 +17,43 @@ git clone https://github.com/Tokenizaa/NettosCorp.git
 cd NettosCorp
 ```
 
-## 3. Instalar o Hermes
+## 3. Instalar o Hermes (automático)
 
-```bash
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+Após clonar, execute o script de instalação para ter o Hermes com voz Piper, skills e agentes já configurados:
+
+**Windows (PowerShell):**
+```powershell
+.\install-hermes.ps1
 ```
 
-Ou baixe o instalador oficial em: https://hermes-agent.nousresearch.com/docs/
+**WSL2 / Linux:**
+```bash
+chmod +x install-hermes.sh
+./install-hermes.sh
+```
 
-## 4. Configurar o Hermes
+O script faz:
+1. Instala o Hermes Agent via instalador oficial
+2. Instala Piper TTS e faster-whisper
+3. Baixa o modelo de voz brasileira (pt_BR-faber-medium)
+4. Configura `tts.provider = piper` e `tts.piper.voice`
+5. Copia os skills da NettosCorp para o diretório do Hermes
+
+## 4. Atualizar após cada `git pull`
+
+Sempre que der pull no repositório, rode o script de atualização para sincronizar skills e configuração:
+
+**Windows (PowerShell):**
+```powershell
+.\update-hermes.ps1
+```
+
+**WSL2 / Linux:**
+```bash
+./update-hermes.sh
+```
+
+## 5. Configurar provider e modelo
 
 Execute o setup interativo:
 
