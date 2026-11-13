@@ -232,9 +232,92 @@ Este documento nao toma essas decisoes em nome do fundador.
 
 Hermes deve coordenar a Etapa 1 e entregar primeiro a matriz canonica, sem iniciar a criacao em massa de agentes, cargos, bots ou grupos. Deve trabalhar a partir dos documentos e configuracoes reais, apontar divergencias, preservar o que ja funciona e apresentar recomendacoes com evidencias. A implantacao piloto e as etapas seguintes dependem de revisao e autorizacao do fundador.
 
+
+## 15. Framework Universal dos 13 Dominios — aplicacao transversal
+
+### 15.1 Natureza
+
+O Framework Universal dos 13 Dominios integra a metodologia corporativa da NettosCorp e deve ser aplicado transversalmente aos projetos. E um metodo de diagnostico, gestao, execucao e validacao; nao e organograma, nao exige 13 agentes/departamentos e nao altera automaticamente cargos, hierarquia, autoridade ou permissoes.
+
+Dominios de referencia:
+1. Produto & Jornada
+2. Frontend & UX
+3. Backend & Regras
+4. Dados & Isolamento
+5. Seguranca & Auth
+6. Inteligencia de Dominio
+7. Pagamentos & Billing
+8. Posicionamento & Copy
+9. Aquisicao & Canais
+10. IP & Licencas
+11. Privacidade & Conformidade
+12. Infra & Observabilidade
+13. QA & Validacao
+
+Adaptar cada dominio ao contexto do projeto. Em iniciativas nao digitais, reinterpretar seu escopo para processos, recursos, contatos e controles equivalentes. Nenhum dominio pode ser omitido sem justificativa registrada.
+
+### 15.2 Responsabilidades por camada
+
+- **Fundador:** define prioridades e aprova decisoes estrategicas, mudancas de autoridade e materias reservadas.
+- **Hermes:** garante aplicacao transversal, integracao entre areas, acompanhamento executivo e consolidacao de riscos e resultados. Nao se torna superior institucional dos diretores nem substitui o mandato tecnico do Orquestrador Global.
+- **Diretores/responsaveis de area, quando formalmente aprovados:** respondem gerencialmente pelos dominios relacionados a sua area, coordenam prioridades e dependencias e garantem responsaveis, criterios e evidencias.
+- **Especialistas/executores:** executam atividades autorizadas, produzem evidencias, identificam lacunas e atualizam tarefas e diagnosticos.
+- **Orquestrador Global:** distribui e acompanha tecnicamente tarefas dentro da autoridade operacional delegada e limitada.
+- **Validadores/revisores:** fazem verificacao independente quando risco ou criterio exigir separacao entre implementacao e validacao. Nao criar cargos permanentes apenas para cumprir essa funcao.
+
+Os dominios atravessam areas. Um dominio pode envolver varios agentes, mas cada atividade deve ter responsavel principal, colaboradores, criterio de conclusao e evidencias. Nao atribuir dominios inteiros a um unico especialista quando exigirem trabalho multidisciplinar.
+
+### 15.3 Aplicacao de referencia aos oito agentes prioritarios
+
+A proposta de equipe lista duas posicoes de direcao e seis especialistas. O status de aprovacao de cada cargo/agente continua regido pelos documentos institucionais; esta secao nao os declara automaticamente implantados.
+
+- **Diretoria de Tecnologia:** coordenacao gerencial dos dominios tecnicos sob mandato aprovado: arquitetura, engenharia, dados, seguranca tecnica, infraestrutura e qualidade tecnica.
+- **Diretoria de Gestao de Projetos:** planejamento integrado, prioridades, dependencias, riscos, acompanhamento, criterios de conclusao e atualizacao das matrizes, sem substituir autoridade tecnica.
+- **Software Architect:** arquitetura, integracao, impactos cruzados e decisoes estruturais.
+- **Backend Architect:** backend, regras, dados, integracoes e controles de seguranca relacionados ao backend.
+- **Frontend Developer:** frontend, UX implementada, acessibilidade e jornada digital.
+- **DevOps Automator:** infraestrutura, automacao, implantacao, observabilidade e confiabilidade.
+- **Project Manager Senior:** planos, tarefas, prazos, dependencias, riscos e criterios de aceite; nao declara validacao tecnica sem evidencia.
+- **Technical Writer:** documentacao, decisoes, procedimentos, matrizes e evidencias rastreaveis.
+
+Esta e uma referencia funcional inicial, nao uma alteracao automatica de cargos, departamentos, hierarquia ou permissoes. A distribuicao definitiva depende de reconciliar mandatos e agentes reais no Paperclip.
+
+### 15.4 Matriz por projeto e maturidade
+
+Todo projeto deve possuir matriz propria, proporcional a sua complexidade, com: dominio, escopo, maturidade, situacao, evidencias, lacunas, riscos, prioridade, responsavel, proxima acao e criterio de conclusao.
+
+Escala: 0 Inexistente; 1 Inicial; 2 Em desenvolvimento; 3 Implementado; 4 Validado; 5 Maduro; N/A com justificativa. Niveis 4 e 5 exigem evidencias de funcionamento. Distinguir fatos comprovados, declaracoes, hipoteses e itens nao investigados.
+
+Prioridades: P0 critico, P1 alto, P2 medio e P3 baixo. Medias nao podem ocultar P0/P1. Atualizar a matriz apos diagnosticos, mudancas relevantes, validacoes e conclusoes.
+
+### 15.5 Ciclo operacional
+
+Aplicar: **Diagnosticar → Classificar → Priorizar → Planejar → Executar → Validar → Atualizar**. Antes de alteracoes relevantes, avaliar impactos e dependencias entre dominios. Toda tarefa deve ter responsavel, resultado esperado, dependencias, criterio de aceite e evidencia. Implementacao nao equivale a validacao.
+
+### 15.6 Primeiro ciclo de implementacao no Paperclip via Cell e Hermes
+
+A implementacao operacional deve ocorrer prioritariamente no Paperclip, reutilizando recursos existentes e evitando sistemas paralelos. Cell sera interlocutor operacional com Hermes conforme integracao e identidades efetivamente disponiveis; nao presumir capacidades ou comunicacao bot-a-bot sem teste.
+
+1. Cell e Hermes leem este documento, o Framework Universal e os documentos de governanca, autoridade e proposta de equipe.
+2. Auditarem o estado real do Paperclip: organizacao, agentes, cargos, departamentos, projetos, tarefas, instrucoes, hierarquia, permissoes e recursos.
+3. Reconciliar os oito agentes prioritarios com agentes existentes e status documentado; registrar divergencias sem inventar ou substituir identidades.
+4. Elaborar matriz de responsabilidade funcional dos 13 dominios, com responsavel gerencial, executores, colaboradores, validacao e lacunas. Nao alterar hierarquia formal para acomodar a matriz.
+5. Selecionar um projeto piloto real e produzir diagnostico dos 13 dominios com evidencias, maturidade, riscos, prioridades e plano.
+6. Converter acoes aprovadas em tarefas Paperclip com responsaveis, dependencias, criterios de aceite e evidencias.
+7. Apresentar ao fundador relatorio de reconciliacao, plano de implantacao e decisoes que exigem homologacao.
+
+Auditoria, diagnostico e planejamento nao autorizam criacao em massa de agentes, alteracao hierarquica, mudanca de permissoes, gastos ou mudancas destrutivas. Preservar configuracoes e historico. Mudancas estruturais exigem autorizacao explicita conforme as regras institucionais.
+
+### 15.7 Criterios de aceite
+
+A integracao so sera considerada implantada quando houver: framework acessivel e compreendido; inventario Paperclip reconciliado; responsabilidades definidas sem confundir hierarquia e colaboracao; ao menos uma matriz de projeto preenchida com evidencias e riscos; tarefas piloto rastreaveis no Paperclip; entregas validadas; registros relevantes no GitHub; e homologacao do fundador para decisoes reservadas.
+
+Nao criar 13 agentes, camadas artificiais ou maturidade ficticia. Nao omitir dominios sem justificativa. Nao deixar a matriz desatualizada. Nao declarar conclusao sem criterio e verificacao.
+
 ## 14. Historico
 
 - v1.0 — 13/11/2026: registro inicial da proposta de identidades, vozes, comunicacao adaptativa e ambiente colaborativo Telegram, alinhada aos documentos institucionais consultados.
+- v1.1 — 13/11/2026: incorporacao do Framework Universal dos 13 Dominios, responsabilidades transversais e primeiro ciclo de implementacao no Paperclip via Cell e Hermes.
 
 ---
 
