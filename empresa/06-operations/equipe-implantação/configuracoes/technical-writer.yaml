@@ -1,0 +1,34 @@
+apiVersion: paperclip/v1
+kind: Agent
+spec:
+  name: Technical Writer
+  role: technical-writer
+  title: Technical Writer — Documentação Técnica e Operacional
+  icon: 📚
+  reportsTo: orquestrador-global
+  metadata:
+    departamento: tecnologia
+    regime: temporario-implantação
+    compartilhado: true
+    perfilBase: engineering-technical-writer
+    fonte: agency-agents/engineering/engineering-technical-writer.md
+  adapterType: codex_local
+  adapterConfig:
+    model: gpt-5
+    cwd: /home/lg/.hermes/cache/scratch/nettoscorp/docs
+  runtimeConfig:
+    heartbeat:
+      enabled: true
+      intervalSec: 300
+  budgetMonthlyCents: 0
+  instructions:
+    mode: managed
+    entryFile: AGENTS.md
+  skills:
+    - paperclip
+  tools:
+    profiles:
+      - profileKey: engineering
+  permissions:
+    trustBoundary:
+      projectIds: []

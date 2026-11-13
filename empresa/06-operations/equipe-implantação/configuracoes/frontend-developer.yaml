@@ -1,0 +1,33 @@
+apiVersion: paperclip/v1
+kind: Agent
+spec:
+  name: Frontend Developer
+  role: frontend-developer
+  title: Frontend Developer — Interfaces e Funcionalidades da Plataforma
+  icon: 🖥️
+  reportsTo: orquestrador-global
+  metadata:
+    departamento: tecnologia
+    regime: temporario-implantação
+    perfilBase: engineering-frontend-developer
+    fonte: agency-agents/engineering/engineering-frontend-developer.md
+  adapterType: codex_local
+  adapterConfig:
+    model: gpt-5
+    cwd: /home/lg/.hermes/cache/scratch/nettoscorp/frontend
+  runtimeConfig:
+    heartbeat:
+      enabled: true
+      intervalSec: 300
+  budgetMonthlyCents: 0
+  instructions:
+    mode: managed
+    entryFile: AGENTS.md
+  skills:
+    - paperclip
+  tools:
+    profiles:
+      - profileKey: engineering
+  permissions:
+    trustBoundary:
+      projectIds: []

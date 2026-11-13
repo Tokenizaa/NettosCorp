@@ -1,0 +1,33 @@
+apiVersion: paperclip/v1
+kind: Agent
+spec:
+  name: QA Engineer
+  role: qa-engineer
+  title: QA Engineer — Testes Automatizados e Qualidade
+  icon: 🎭
+  reportsTo: orquestrador-global
+  metadata:
+    departamento: tecnologia
+    regime: temporario-implantação
+    perfilBase: testing-test-automation-engineer
+    fonte: agency-agents/testing/testing-test-automation-engineer.md
+  adapterType: codex_local
+  adapterConfig:
+    model: gpt-5
+    cwd: /home/lg/.hermes/cache/scratch/nettoscorp/qa
+  runtimeConfig:
+    heartbeat:
+      enabled: true
+      intervalSec: 300
+  budgetMonthlyCents: 0
+  instructions:
+    mode: managed
+    entryFile: AGENTS.md
+  skills:
+    - paperclip
+  tools:
+    profiles:
+      - profileKey: engineering
+  permissions:
+    trustBoundary:
+      projectIds: []

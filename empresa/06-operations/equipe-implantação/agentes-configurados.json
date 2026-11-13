@@ -1,0 +1,1303 @@
+{
+  "company_id": "da110a22-ca31-412d-be28-5caddcabb801",
+  "company_name": "NettosCorp",
+  "data_configuracao": "2026-11-07",
+  "agentes": [
+    {
+      "nome": "Orquestrador Global",
+      "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
+      "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/orquestrador",
+      "update": {
+        "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Orquestrador Global",
+        "role": "general",
+        "title": "Orquestrador Global — Coordenação Técnica Operacional",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "orchid-peach"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/orquestrador",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/f17a8bf5-4631-4add-870b-6286eaecba59/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/f17a8bf5-4631-4add-870b-6286eaecba59/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:01.891Z",
+        "updatedAt": "2026-11-07T06:58:03.727Z",
+        "urlKey": "orquestrador-global",
+        "avatarUrl": "/api/agent-avatars/cap-v1/orchid-peach/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Orquestrador Global",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        },
+        "configurationRevision": "022a25ff2915bf5866745acb4151fd2319743738ea17ba506127037a41b99211"
+      },
+      "retry": {
+        "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Orquestrador Global",
+        "role": "general",
+        "title": "Orquestrador Global — Coordenação Técnica Operacional",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "orchid-peach"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/orquestrador",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/f17a8bf5-4631-4add-870b-6286eaecba59/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/f17a8bf5-4631-4add-870b-6286eaecba59/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:01.891Z",
+        "updatedAt": "2026-11-07T06:58:03.727Z",
+        "urlKey": "orquestrador-global",
+        "avatarUrl": "/api/agent-avatars/cap-v1/orchid-peach/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Orquestrador Global",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        }
+      }
+    },
+    {
+      "nome": "Project Manager Senior",
+      "id": "dd81019c-0ffa-4115-a555-c699399b4323",
+      "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/pm",
+      "update": {
+        "id": "dd81019c-0ffa-4115-a555-c699399b4323",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Project Manager Senior",
+        "role": "general",
+        "title": "Project Manager Senior — Planejamento e Acompanhamento de Entregas",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "lime-lagoon"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/pm",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/dd81019c-0ffa-4115-a555-c699399b4323/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/dd81019c-0ffa-4115-a555-c699399b4323/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:07.236Z",
+        "updatedAt": "2026-11-07T06:58:04.190Z",
+        "urlKey": "project-manager-senior",
+        "avatarUrl": "/api/agent-avatars/cap-v1/lime-lagoon/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "dd81019c-0ffa-4115-a555-c699399b4323",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Project Manager Senior",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        },
+        "configurationRevision": "02ea0aaec22c1658bbacfe86cb59cc6dda02d6d2134f987d27a0f1ffa05e74b3"
+      },
+      "retry": {
+        "id": "dd81019c-0ffa-4115-a555-c699399b4323",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Project Manager Senior",
+        "role": "general",
+        "title": "Project Manager Senior — Planejamento e Acompanhamento de Entregas",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "lime-lagoon"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/pm",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/dd81019c-0ffa-4115-a555-c699399b4323/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/dd81019c-0ffa-4115-a555-c699399b4323/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:07.236Z",
+        "updatedAt": "2026-11-07T06:58:04.348Z",
+        "urlKey": "project-manager-senior",
+        "avatarUrl": "/api/agent-avatars/cap-v1/lime-lagoon/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "dd81019c-0ffa-4115-a555-c699399b4323",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Project Manager Senior",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        }
+      }
+    },
+    {
+      "nome": "Software Architect",
+      "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
+      "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/arquitetura",
+      "update": {
+        "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Software Architect",
+        "role": "general",
+        "title": "Software Architect — Arquitetura e Padrões Técnicos",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "solar-flare"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/arquitetura",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:08.929Z",
+        "updatedAt": "2026-11-07T06:58:04.489Z",
+        "urlKey": "software-architect",
+        "avatarUrl": "/api/agent-avatars/cap-v1/solar-flare/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Software Architect",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        },
+        "configurationRevision": "1dbc04a3031c1330665986ea38ff649c91d75e4d12cb918da5165158014ef8ba"
+      },
+      "retry": {
+        "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Software Architect",
+        "role": "general",
+        "title": "Software Architect — Arquitetura e Padrões Técnicos",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "solar-flare"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/arquitetura",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:08.929Z",
+        "updatedAt": "2026-11-07T06:58:04.653Z",
+        "urlKey": "software-architect",
+        "avatarUrl": "/api/agent-avatars/cap-v1/solar-flare/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Software Architect",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        }
+      }
+    },
+    {
+      "nome": "Backend Architect",
+      "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
+      "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/backend",
+      "update": {
+        "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Backend Architect",
+        "role": "general",
+        "title": "Backend Architect — Banco, APIs, Autenticação e RLS",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "arctic-blue"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/backend",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/df988cdf-e894-47c7-b34b-296f8f2960eb/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/df988cdf-e894-47c7-b34b-296f8f2960eb/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:11.333Z",
+        "updatedAt": "2026-11-07T06:58:04.800Z",
+        "urlKey": "backend-architect",
+        "avatarUrl": "/api/agent-avatars/cap-v1/arctic-blue/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Backend Architect",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        },
+        "configurationRevision": "58c897c83999cf49b31f082ee1cdbd8ed83232617ec77fb86582a3fdfc7321aa"
+      },
+      "retry": {
+        "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Backend Architect",
+        "role": "general",
+        "title": "Backend Architect — Banco, APIs, Autenticação e RLS",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "arctic-blue"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/backend",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/df988cdf-e894-47c7-b34b-296f8f2960eb/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/df988cdf-e894-47c7-b34b-296f8f2960eb/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:11.333Z",
+        "updatedAt": "2026-11-07T06:58:04.924Z",
+        "urlKey": "backend-architect",
+        "avatarUrl": "/api/agent-avatars/cap-v1/arctic-blue/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Backend Architect",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        }
+      }
+    },
+    {
+      "nome": "Frontend Developer",
+      "id": "a8088f13-4573-43f8-9654-be716218e262",
+      "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/frontend",
+      "update": {
+        "id": "a8088f13-4573-43f8-9654-be716218e262",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Frontend Developer",
+        "role": "general",
+        "title": "Frontend Developer — Interfaces e Funcionalidades da Plataforma",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "turquoise-cherry"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/frontend",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/a8088f13-4573-43f8-9654-be716218e262/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/a8088f13-4573-43f8-9654-be716218e262/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:12.988Z",
+        "updatedAt": "2026-11-07T06:58:05.068Z",
+        "urlKey": "frontend-developer",
+        "avatarUrl": "/api/agent-avatars/cap-v1/turquoise-cherry/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "a8088f13-4573-43f8-9654-be716218e262",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Frontend Developer",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        },
+        "configurationRevision": "0c1a4c35db8287df6d8a95ccc1b44c01c9522585c59f0ee6cab742c0f278fcce"
+      },
+      "retry": {
+        "id": "a8088f13-4573-43f8-9654-be716218e262",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Frontend Developer",
+        "role": "general",
+        "title": "Frontend Developer — Interfaces e Funcionalidades da Plataforma",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "turquoise-cherry"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/frontend",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/a8088f13-4573-43f8-9654-be716218e262/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/a8088f13-4573-43f8-9654-be716218e262/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:12.988Z",
+        "updatedAt": "2026-11-07T06:58:05.187Z",
+        "urlKey": "frontend-developer",
+        "avatarUrl": "/api/agent-avatars/cap-v1/turquoise-cherry/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "a8088f13-4573-43f8-9654-be716218e262",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Frontend Developer",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        }
+      }
+    },
+    {
+      "nome": "DevOps Automator",
+      "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
+      "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/infra",
+      "update": {
+        "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "DevOps Automator",
+        "role": "general",
+        "title": "DevOps Automator — Infraestrutura, CI/CD e Deploy",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "coral-current"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/infra",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/12be1a99-84af-45d5-b90f-fd236a6773f7/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/12be1a99-84af-45d5-b90f-fd236a6773f7/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:14.545Z",
+        "updatedAt": "2026-11-07T06:58:05.348Z",
+        "urlKey": "devops-automator",
+        "avatarUrl": "/api/agent-avatars/cap-v1/coral-current/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "DevOps Automator",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        },
+        "configurationRevision": "fcc33e0860d87cf7ebe9e8b1646cc5f92fb5fec7bebf7231fa99bcc60eedf1ad"
+      },
+      "retry": {
+        "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "DevOps Automator",
+        "role": "general",
+        "title": "DevOps Automator — Infraestrutura, CI/CD e Deploy",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "coral-current"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/infra",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/12be1a99-84af-45d5-b90f-fd236a6773f7/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/12be1a99-84af-45d5-b90f-fd236a6773f7/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:14.545Z",
+        "updatedAt": "2026-11-07T06:58:05.530Z",
+        "urlKey": "devops-automator",
+        "avatarUrl": "/api/agent-avatars/cap-v1/coral-current/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "DevOps Automator",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        }
+      }
+    },
+    {
+      "nome": "Technical Writer",
+      "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
+      "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/docs",
+      "update": {
+        "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Technical Writer",
+        "role": "general",
+        "title": "Technical Writer — Documentação Técnica e Operacional",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "bubblegum-sky"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/docs",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/1b037f76-530d-47bf-988b-66f41a8d2463/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/1b037f76-530d-47bf-988b-66f41a8d2463/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:16.564Z",
+        "updatedAt": "2026-11-07T06:58:05.630Z",
+        "urlKey": "technical-writer",
+        "avatarUrl": "/api/agent-avatars/cap-v1/bubblegum-sky/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Technical Writer",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        },
+        "configurationRevision": "b66e50f4b616f3e42ab9f07a492135cae854d735a9f0e0286eb5d80c8178c535"
+      },
+      "retry": {
+        "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "Technical Writer",
+        "role": "general",
+        "title": "Technical Writer — Documentação Técnica e Operacional",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "bubblegum-sky"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/docs",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/1b037f76-530d-47bf-988b-66f41a8d2463/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/1b037f76-530d-47bf-988b-66f41a8d2463/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:16.564Z",
+        "updatedAt": "2026-11-07T06:58:05.630Z",
+        "urlKey": "technical-writer",
+        "avatarUrl": "/api/agent-avatars/cap-v1/bubblegum-sky/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "Technical Writer",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        }
+      }
+    },
+    {
+      "nome": "QA Engineer",
+      "id": "708497eb-d506-41c4-99ba-a059f2b41096",
+      "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/qa",
+      "update": {
+        "id": "708497eb-d506-41c4-99ba-a059f2b41096",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "QA Engineer",
+        "role": "general",
+        "title": "QA Engineer — Testes Automatizados e Qualidade",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "coral-mint"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/qa",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/708497eb-d506-41c4-99ba-a059f2b41096/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/708497eb-d506-41c4-99ba-a059f2b41096/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:18.208Z",
+        "updatedAt": "2026-11-07T06:58:06.042Z",
+        "urlKey": "qa-engineer",
+        "avatarUrl": "/api/agent-avatars/cap-v1/coral-mint/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "708497eb-d506-41c4-99ba-a059f2b41096",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "QA Engineer",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        },
+        "configurationRevision": "bad1bd88c0dd399afe2ee0f5132dac5be9f172f3abe4b609cbeb4469c1de18b3"
+      },
+      "retry": {
+        "id": "708497eb-d506-41c4-99ba-a059f2b41096",
+        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "name": "QA Engineer",
+        "role": "general",
+        "title": "QA Engineer — Testes Automatizados e Qualidade",
+        "icon": null,
+        "appearance": {
+          "schemaVersion": 1,
+          "characterVersion": "cap-v1",
+          "paletteId": "coral-mint"
+        },
+        "status": "paused",
+        "lifecycleState": "verifying",
+        "lifecycleHolds": [],
+        "lifecycleVersion": 4,
+        "lifecycleError": null,
+        "reportsTo": null,
+        "capabilities": null,
+        "adapterType": "codex_local",
+        "adapterConfig": {
+          "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/qa",
+          "model": "gpt-5",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/708497eb-d506-41c4-99ba-a059f2b41096/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/708497eb-d506-41c4-99ba-a059f2b41096/instructions",
+          "instructionsEntryFile": "AGENTS.md",
+          "instructionsBundleMode": "managed",
+          "dangerouslyBypassApprovalsAndSandbox": true
+        },
+        "runtimeConfig": {
+          "heartbeat": {
+            "enabled": true,
+            "intervalSec": 300,
+            "maxConcurrentRuns": 20
+          }
+        },
+        "defaultEnvironmentId": null,
+        "budgetMonthlyCents": 0,
+        "spendMonthUtc": null,
+        "spentMonthlyCents": 0,
+        "pauseReason": null,
+        "pausedAt": null,
+        "errorReason": null,
+        "permissions": {
+          "trustBoundary": {
+            "projectIds": []
+          },
+          "canCreateAgents": true,
+          "canCreateSkills": true
+        },
+        "lastHeartbeatAt": null,
+        "metadata": null,
+        "createdByUserId": "local-board",
+        "createdAt": "2026-11-07T06:57:18.208Z",
+        "updatedAt": "2026-11-07T06:58:06.042Z",
+        "urlKey": "qa-engineer",
+        "avatarUrl": "/api/agent-avatars/cap-v1/coral-mint/rest.png?size=512&scale=1",
+        "orgChainHealth": {
+          "status": "healthy",
+          "reason": "healthy",
+          "fullChain": [
+            {
+              "id": "708497eb-d506-41c4-99ba-a059f2b41096",
+              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "name": "QA Engineer",
+              "status": "paused",
+              "reportsTo": null,
+              "depth": 0,
+              "relation": "self"
+            }
+          ],
+          "firstInvalidAncestor": null,
+          "invalidAncestors": [],
+          "repairGuidance": null,
+          "pausedAncestors": [],
+          "escalationWarning": null
+        }
+      }
+    }
+  ]
+}
