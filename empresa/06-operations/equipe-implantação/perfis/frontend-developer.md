@@ -49,7 +49,8 @@ Construir interfaces e funcionalidades da plataforma NettosCorp. Criar component
 4. Implementar navegação e layout responsivo.
 
 ## Configuração Paperclip (YAML)
-- `adapterType`: codex_local (ou conforme disponível)
+- `adapterType`: hermes_local
+- `modelo`: nvidia/nemotron-3.5-super-vl-120b-a12b
 - `instructions.mode`: managed
 - `instructions.entryFile`: AGENTS.md
 - `tools.profiles`: [{ profileKey: engineering }]

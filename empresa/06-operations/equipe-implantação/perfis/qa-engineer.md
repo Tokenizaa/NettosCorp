@@ -53,7 +53,8 @@ Construir e manter suítes de teste automatizadas (Playwright/Cypress). Garantir
 5. Estabelecer métricas de saúde da suíte de testes.
 
 ## Configuração Paperclip (YAML)
-- `adapterType`: codex_local (ou conforme disponível)
+- `adapterType`: hermes_local
+- `modelo`: nvidia/nemotron-3.5-super-vl-120b-a12b
 - `instructions.mode`: managed
 - `instructions.entryFile`: AGENTS.md
 - `tools.profiles`: [{ profileKey: engineering }]

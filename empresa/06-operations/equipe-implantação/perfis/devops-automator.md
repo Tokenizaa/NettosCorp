@@ -51,7 +51,8 @@ Automatizar infraestrutura, CI/CD e deploy. Garantir que a equipe possa entregar
 5. Configurar monitoramento básico de infraestrutura.
 
 ## Configuração Paperclip (YAML)
-- `adapterType`: codex_local (ou conforme disponível)
+- `adapterType`: hermes_local
+- `modelo`: nvidia/nemotron-3.5-super-vl-120b-a12b
 - `instructions.mode`: managed
 - `instructions.entryFile`: AGENTS.md
 - `tools.profiles`: [{ profileKey: engineering }]

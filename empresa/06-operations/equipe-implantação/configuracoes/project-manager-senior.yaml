@@ -5,15 +5,15 @@ spec:
   role: project-manager-senior
   title: Project Manager Senior — Planejamento e Acompanhamento de Entregas
   icon: 📝
-  reportsTo: fundador-netto-farias
+  reportsTo: orquestrador-global
   metadata:
     departamento: gestao-de-projetos
     regime: temporario-implantação
     perfilBase: project-manager-senior
     fonte: agency-agents/project-management/project-manager-senior.md
-  adapterType: codex_local
+  adapterType: hermes_local
   adapterConfig:
-    model: gpt-5
+    model: nvidia/nemotron-3.5-super-vl-120b-a12b
     cwd: /home/lg/.hermes/cache/scratch/nettoscorp/pm
   runtimeConfig:
     heartbeat:

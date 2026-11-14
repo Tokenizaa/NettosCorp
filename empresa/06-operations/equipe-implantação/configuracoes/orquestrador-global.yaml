@@ -5,15 +5,15 @@ spec:
   role: orquestrador-global
   title: Orquestrador Global — Coordenação Técnica Operacional
   icon: 🎛️
-  reportsTo: hermes-chefe-de-gabinete
+  reportsTo: null
   metadata:
     departamento: direcao-executiva
     regime: temporario-implantação
     perfilBase: agents-orchestrator
     fonte: agency-agents/specialized/agents-orchestrator.md
-  adapterType: codex_local
+  adapterType: hermes_local
   adapterConfig:
-    model: gpt-5
+    model: nvidia/nemotron-3.5-super-vl-120b-a12b
     cwd: /home/lg/.hermes/cache/scratch/nettoscorp/orquestrador
   runtimeConfig:
     heartbeat:

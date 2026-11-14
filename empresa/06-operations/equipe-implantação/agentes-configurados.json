@@ -1,15 +1,15 @@
 {
-  "company_id": "da110a22-ca31-412d-be28-5caddcabb801",
+  "company_id": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
   "company_name": "NettosCorp",
   "data_configuracao": "2026-11-07",
   "agentes": [
     {
       "nome": "Orquestrador Global",
-      "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
+      "id": "7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299",
       "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/orquestrador",
       "update": {
-        "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Orquestrador Global",
         "role": "general",
         "title": "Orquestrador Global — Coordenação Técnica Operacional",
@@ -30,8 +30,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/orquestrador",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/f17a8bf5-4631-4add-870b-6286eaecba59/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/f17a8bf5-4631-4add-870b-6286eaecba59/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -69,8 +69,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Orquestrador Global",
               "status": "paused",
               "reportsTo": null,
@@ -87,8 +87,8 @@
         "configurationRevision": "022a25ff2915bf5866745acb4151fd2319743738ea17ba506127037a41b99211"
       },
       "retry": {
-        "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Orquestrador Global",
         "role": "general",
         "title": "Orquestrador Global — Coordenação Técnica Operacional",
@@ -109,8 +109,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/orquestrador",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/f17a8bf5-4631-4add-870b-6286eaecba59/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/f17a8bf5-4631-4add-870b-6286eaecba59/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -148,8 +148,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "f17a8bf5-4631-4add-870b-6286eaecba59",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Orquestrador Global",
               "status": "paused",
               "reportsTo": null,
@@ -167,11 +167,11 @@
     },
     {
       "nome": "Project Manager Senior",
-      "id": "dd81019c-0ffa-4115-a555-c699399b4323",
+      "id": "6b89630b-9a16-4c51-99a6-9a758180dd6d",
       "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/pm",
       "update": {
-        "id": "dd81019c-0ffa-4115-a555-c699399b4323",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "6b89630b-9a16-4c51-99a6-9a758180dd6d",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Project Manager Senior",
         "role": "general",
         "title": "Project Manager Senior — Planejamento e Acompanhamento de Entregas",
@@ -192,8 +192,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/pm",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/dd81019c-0ffa-4115-a555-c699399b4323/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/dd81019c-0ffa-4115-a555-c699399b4323/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/6b89630b-9a16-4c51-99a6-9a758180dd6d/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/6b89630b-9a16-4c51-99a6-9a758180dd6d/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -231,8 +231,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "dd81019c-0ffa-4115-a555-c699399b4323",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "6b89630b-9a16-4c51-99a6-9a758180dd6d",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Project Manager Senior",
               "status": "paused",
               "reportsTo": null,
@@ -249,8 +249,8 @@
         "configurationRevision": "02ea0aaec22c1658bbacfe86cb59cc6dda02d6d2134f987d27a0f1ffa05e74b3"
       },
       "retry": {
-        "id": "dd81019c-0ffa-4115-a555-c699399b4323",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "6b89630b-9a16-4c51-99a6-9a758180dd6d",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Project Manager Senior",
         "role": "general",
         "title": "Project Manager Senior — Planejamento e Acompanhamento de Entregas",
@@ -271,8 +271,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/pm",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/dd81019c-0ffa-4115-a555-c699399b4323/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/dd81019c-0ffa-4115-a555-c699399b4323/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/6b89630b-9a16-4c51-99a6-9a758180dd6d/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/6b89630b-9a16-4c51-99a6-9a758180dd6d/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -310,8 +310,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "dd81019c-0ffa-4115-a555-c699399b4323",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "6b89630b-9a16-4c51-99a6-9a758180dd6d",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Project Manager Senior",
               "status": "paused",
               "reportsTo": null,
@@ -329,11 +329,11 @@
     },
     {
       "nome": "Software Architect",
-      "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
+      "id": "f0d7dcc5-7432-4471-8ebd-7b6ea7077d36",
       "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/arquitetura",
       "update": {
-        "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "f0d7dcc5-7432-4471-8ebd-7b6ea7077d36",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Software Architect",
         "role": "general",
         "title": "Software Architect — Arquitetura e Padrões Técnicos",
@@ -354,8 +354,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/arquitetura",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/f0d7dcc5-7432-4471-8ebd-7b6ea7077d36/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/f0d7dcc5-7432-4471-8ebd-7b6ea7077d36/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -393,8 +393,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "f0d7dcc5-7432-4471-8ebd-7b6ea7077d36",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Software Architect",
               "status": "paused",
               "reportsTo": null,
@@ -411,8 +411,8 @@
         "configurationRevision": "1dbc04a3031c1330665986ea38ff649c91d75e4d12cb918da5165158014ef8ba"
       },
       "retry": {
-        "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "f0d7dcc5-7432-4471-8ebd-7b6ea7077d36",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Software Architect",
         "role": "general",
         "title": "Software Architect — Arquitetura e Padrões Técnicos",
@@ -433,8 +433,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/arquitetura",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/f0d7dcc5-7432-4471-8ebd-7b6ea7077d36/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/f0d7dcc5-7432-4471-8ebd-7b6ea7077d36/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -472,8 +472,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "0d8d1c17-eb14-4cc6-a2d9-7f79fc88bacd",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "f0d7dcc5-7432-4471-8ebd-7b6ea7077d36",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Software Architect",
               "status": "paused",
               "reportsTo": null,
@@ -491,11 +491,11 @@
     },
     {
       "nome": "Backend Architect",
-      "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
+      "id": "c883cc49-7dc1-4ce7-b777-15a98b387894",
       "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/backend",
       "update": {
-        "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "c883cc49-7dc1-4ce7-b777-15a98b387894",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Backend Architect",
         "role": "general",
         "title": "Backend Architect — Banco, APIs, Autenticação e RLS",
@@ -516,8 +516,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/backend",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/df988cdf-e894-47c7-b34b-296f8f2960eb/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/df988cdf-e894-47c7-b34b-296f8f2960eb/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/c883cc49-7dc1-4ce7-b777-15a98b387894/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/c883cc49-7dc1-4ce7-b777-15a98b387894/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -555,8 +555,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "c883cc49-7dc1-4ce7-b777-15a98b387894",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Backend Architect",
               "status": "paused",
               "reportsTo": null,
@@ -573,8 +573,8 @@
         "configurationRevision": "58c897c83999cf49b31f082ee1cdbd8ed83232617ec77fb86582a3fdfc7321aa"
       },
       "retry": {
-        "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "c883cc49-7dc1-4ce7-b777-15a98b387894",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Backend Architect",
         "role": "general",
         "title": "Backend Architect — Banco, APIs, Autenticação e RLS",
@@ -595,8 +595,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/backend",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/df988cdf-e894-47c7-b34b-296f8f2960eb/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/df988cdf-e894-47c7-b34b-296f8f2960eb/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/c883cc49-7dc1-4ce7-b777-15a98b387894/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/c883cc49-7dc1-4ce7-b777-15a98b387894/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -634,8 +634,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "df988cdf-e894-47c7-b34b-296f8f2960eb",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "c883cc49-7dc1-4ce7-b777-15a98b387894",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Backend Architect",
               "status": "paused",
               "reportsTo": null,
@@ -653,11 +653,11 @@
     },
     {
       "nome": "Frontend Developer",
-      "id": "a8088f13-4573-43f8-9654-be716218e262",
+      "id": "cd15e7c6-791f-4d5d-b945-68295b46bb65",
       "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/frontend",
       "update": {
-        "id": "a8088f13-4573-43f8-9654-be716218e262",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "cd15e7c6-791f-4d5d-b945-68295b46bb65",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Frontend Developer",
         "role": "general",
         "title": "Frontend Developer — Interfaces e Funcionalidades da Plataforma",
@@ -678,8 +678,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/frontend",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/a8088f13-4573-43f8-9654-be716218e262/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/a8088f13-4573-43f8-9654-be716218e262/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/cd15e7c6-791f-4d5d-b945-68295b46bb65/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/cd15e7c6-791f-4d5d-b945-68295b46bb65/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -717,8 +717,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "a8088f13-4573-43f8-9654-be716218e262",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "cd15e7c6-791f-4d5d-b945-68295b46bb65",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Frontend Developer",
               "status": "paused",
               "reportsTo": null,
@@ -735,8 +735,8 @@
         "configurationRevision": "0c1a4c35db8287df6d8a95ccc1b44c01c9522585c59f0ee6cab742c0f278fcce"
       },
       "retry": {
-        "id": "a8088f13-4573-43f8-9654-be716218e262",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "cd15e7c6-791f-4d5d-b945-68295b46bb65",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Frontend Developer",
         "role": "general",
         "title": "Frontend Developer — Interfaces e Funcionalidades da Plataforma",
@@ -757,8 +757,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/frontend",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/a8088f13-4573-43f8-9654-be716218e262/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/a8088f13-4573-43f8-9654-be716218e262/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/cd15e7c6-791f-4d5d-b945-68295b46bb65/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/cd15e7c6-791f-4d5d-b945-68295b46bb65/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -796,8 +796,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "a8088f13-4573-43f8-9654-be716218e262",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "cd15e7c6-791f-4d5d-b945-68295b46bb65",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Frontend Developer",
               "status": "paused",
               "reportsTo": null,
@@ -815,11 +815,11 @@
     },
     {
       "nome": "DevOps Automator",
-      "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
+      "id": "4e4ad0f0-70e4-4290-9662-d66cdb138c97",
       "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/infra",
       "update": {
-        "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "4e4ad0f0-70e4-4290-9662-d66cdb138c97",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "DevOps Automator",
         "role": "general",
         "title": "DevOps Automator — Infraestrutura, CI/CD e Deploy",
@@ -840,8 +840,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/infra",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/12be1a99-84af-45d5-b90f-fd236a6773f7/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/12be1a99-84af-45d5-b90f-fd236a6773f7/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/4e4ad0f0-70e4-4290-9662-d66cdb138c97/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/4e4ad0f0-70e4-4290-9662-d66cdb138c97/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -879,8 +879,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "4e4ad0f0-70e4-4290-9662-d66cdb138c97",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "DevOps Automator",
               "status": "paused",
               "reportsTo": null,
@@ -897,8 +897,8 @@
         "configurationRevision": "fcc33e0860d87cf7ebe9e8b1646cc5f92fb5fec7bebf7231fa99bcc60eedf1ad"
       },
       "retry": {
-        "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "4e4ad0f0-70e4-4290-9662-d66cdb138c97",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "DevOps Automator",
         "role": "general",
         "title": "DevOps Automator — Infraestrutura, CI/CD e Deploy",
@@ -919,8 +919,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/infra",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/12be1a99-84af-45d5-b90f-fd236a6773f7/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/12be1a99-84af-45d5-b90f-fd236a6773f7/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/4e4ad0f0-70e4-4290-9662-d66cdb138c97/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/4e4ad0f0-70e4-4290-9662-d66cdb138c97/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -958,8 +958,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "12be1a99-84af-45d5-b90f-fd236a6773f7",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "4e4ad0f0-70e4-4290-9662-d66cdb138c97",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "DevOps Automator",
               "status": "paused",
               "reportsTo": null,
@@ -977,11 +977,11 @@
     },
     {
       "nome": "Technical Writer",
-      "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
+      "id": "3badd366-87a8-4b5d-9d98-ae30105e25d2",
       "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/docs",
       "update": {
-        "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "3badd366-87a8-4b5d-9d98-ae30105e25d2",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Technical Writer",
         "role": "general",
         "title": "Technical Writer — Documentação Técnica e Operacional",
@@ -1002,8 +1002,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/docs",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/1b037f76-530d-47bf-988b-66f41a8d2463/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/1b037f76-530d-47bf-988b-66f41a8d2463/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/3badd366-87a8-4b5d-9d98-ae30105e25d2/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/3badd366-87a8-4b5d-9d98-ae30105e25d2/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -1041,8 +1041,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "3badd366-87a8-4b5d-9d98-ae30105e25d2",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Technical Writer",
               "status": "paused",
               "reportsTo": null,
@@ -1059,8 +1059,8 @@
         "configurationRevision": "b66e50f4b616f3e42ab9f07a492135cae854d735a9f0e0286eb5d80c8178c535"
       },
       "retry": {
-        "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "3badd366-87a8-4b5d-9d98-ae30105e25d2",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "Technical Writer",
         "role": "general",
         "title": "Technical Writer — Documentação Técnica e Operacional",
@@ -1081,8 +1081,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/docs",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/1b037f76-530d-47bf-988b-66f41a8d2463/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/1b037f76-530d-47bf-988b-66f41a8d2463/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/3badd366-87a8-4b5d-9d98-ae30105e25d2/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/3badd366-87a8-4b5d-9d98-ae30105e25d2/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -1120,8 +1120,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "1b037f76-530d-47bf-988b-66f41a8d2463",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "3badd366-87a8-4b5d-9d98-ae30105e25d2",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "Technical Writer",
               "status": "paused",
               "reportsTo": null,
@@ -1139,11 +1139,11 @@
     },
     {
       "nome": "QA Engineer",
-      "id": "708497eb-d506-41c4-99ba-a059f2b41096",
+      "id": "e8a4cb30-bf8e-4def-b365-04db8808bfd1",
       "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/qa",
       "update": {
-        "id": "708497eb-d506-41c4-99ba-a059f2b41096",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "e8a4cb30-bf8e-4def-b365-04db8808bfd1",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "QA Engineer",
         "role": "general",
         "title": "QA Engineer — Testes Automatizados e Qualidade",
@@ -1164,8 +1164,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/qa",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/708497eb-d506-41c4-99ba-a059f2b41096/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/708497eb-d506-41c4-99ba-a059f2b41096/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/e8a4cb30-bf8e-4def-b365-04db8808bfd1/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/e8a4cb30-bf8e-4def-b365-04db8808bfd1/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -1203,8 +1203,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "708497eb-d506-41c4-99ba-a059f2b41096",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "e8a4cb30-bf8e-4def-b365-04db8808bfd1",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "QA Engineer",
               "status": "paused",
               "reportsTo": null,
@@ -1221,8 +1221,8 @@
         "configurationRevision": "bad1bd88c0dd399afe2ee0f5132dac5be9f172f3abe4b609cbeb4469c1de18b3"
       },
       "retry": {
-        "id": "708497eb-d506-41c4-99ba-a059f2b41096",
-        "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+        "id": "e8a4cb30-bf8e-4def-b365-04db8808bfd1",
+        "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
         "name": "QA Engineer",
         "role": "general",
         "title": "QA Engineer — Testes Automatizados e Qualidade",
@@ -1243,8 +1243,8 @@
         "adapterConfig": {
           "cwd": "/home/lg/.hermes/cache/scratch/nettoscorp/qa",
           "model": "gpt-5",
-          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/708497eb-d506-41c4-99ba-a059f2b41096/instructions/AGENTS.md",
-          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/da110a22-ca31-412d-be28-5caddcabb801/agents/708497eb-d506-41c4-99ba-a059f2b41096/instructions",
+          "instructionsFilePath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/e8a4cb30-bf8e-4def-b365-04db8808bfd1/instructions/AGENTS.md",
+          "instructionsRootPath": "/home/lg/.paperclip/instances/default/companies/88af1dda-ef60-41c4-851e-65e2b1f50a9f/agents/e8a4cb30-bf8e-4def-b365-04db8808bfd1/instructions",
           "instructionsEntryFile": "AGENTS.md",
           "instructionsBundleMode": "managed",
           "dangerouslyBypassApprovalsAndSandbox": true
@@ -1282,8 +1282,8 @@
           "reason": "healthy",
           "fullChain": [
             {
-              "id": "708497eb-d506-41c4-99ba-a059f2b41096",
-              "companyId": "da110a22-ca31-412d-be28-5caddcabb801",
+              "id": "e8a4cb30-bf8e-4def-b365-04db8808bfd1",
+              "companyId": "88af1dda-ef60-41c4-851e-65e2b1f50a9f",
               "name": "QA Engineer",
               "status": "paused",
               "reportsTo": null,

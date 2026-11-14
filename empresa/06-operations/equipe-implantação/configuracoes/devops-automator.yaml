@@ -11,9 +11,9 @@ spec:
     regime: temporario-implantação
     perfilBase: engineering-devops-automator
     fonte: agency-agents/engineering/engineering-devops-automator.md
-  adapterType: codex_local
+  adapterType: hermes_local
   adapterConfig:
-    model: gpt-5
+    model: nvidia/nemotron-3.5-super-vl-120b-a12b
     cwd: /home/lg/.hermes/cache/scratch/nettoscorp/infra
   runtimeConfig:
     heartbeat:
