@@ -1,0 +1,82 @@
+# HERMES — Configuração de referência da NettosCorp
+#
+# Copie este arquivo para ~/.hermes/config.yaml (ou use `hermes config set <secao.chave> <valor>`)
+# e preencha os valores que dizem respeito ao seu ambiente.
+#
+# Nunca comite ~/.hermes/.env com chaves reais. Este repositório só versiona exemplos.
+# Veja hermes/.env.example para as variáveis de ambiente.
+
+_config_version: 52
+
+# ── Banco de dados (SQLite local do Hermes) ──────────────────────────────────
+database:
+  journal_mode: "wal"
+
+# ── Limites de runtime ───────────────────────────────────────────────────────
+runtime:
+  nofile_soft_limit: 4096
+  malloc_arena_max: 4
+
+# ── Anexo de arquivos ────────────────────────────────────────────────────────
+attachments:
+  storage: "hermes-home"
+
+# ── Plugin installation ──────────────────────────────────────────────────────
+plugins:
+  clone_timeout_seconds: 300
+
+# ── Modelo / Provider (padrão da NettosCorp: NVIDIA Nemotron) ────────────────
+model:
+  default: "nvidia/nemotron-3.5-super-vl-120b-a12b"
+  provider: "nvidia"
+  base_url: "https://integrate.api.nvidia.com/v1"
+  # api_key: "${NVIDIA_API_KEY}"  # defina em ~/.hermes/.env ou via `hermes config set`
+  fallback_providers:
+    - provider: nous
+      model: upstage/solar-mini4:free
+      base_url: https://inference-api.nousresearch.com/v1
+
+# ── Plugins ativos ───────────────────────────────────────────────────────────
+# plugins:
+#   enabled:
+#     - agent-importers
+
+# ── Telemetria (desligada por padrão) ────────────────────────────────────────
+telemetry:
+  shared_metrics:
+    enabled: false
+    send: false
+
+# ── Atualizações ─────────────────────────────────────────────────────────────
+updates:
+  check: true
+  pre_update_backup: false
+  backup_keep: 5
+  non_interactive_local_changes: "stash"
+
+# ── Exibição ─────────────────────────────────────────────────────────────────
+display:
+  compact: false
+  skin: default
+  streaming: true
+
+# ── Privacidade ──────────────────────────────────────────────────────────────
+# privacy:
+#   redact_pii: false
+
+# ── Política de aprovação (destrutivo) ───────────────────────────────────────
+approvals:
+  destructive_slash_confirm: false
+
+# ── MCP (servidores úteis para o dia a dia da NettosCorp) ────────────────────
+mcp_servers:
+  supabase:
+    url: https://mcp.supabase.com/mcp
+    auth: oauth
+    enabled: true
+
+# ── Onboarding ───────────────────────────────────────────────────────────────
+onboarding:
+  seen:
+    tool_progress_prompt: true
+    busy_input_prompt: true
