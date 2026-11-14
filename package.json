@@ -1,7 +1,7 @@
 {
-  "name": "paperclip",
+  "name": "nettoscorp",
   "version": "1.0.0",
-  "description": "AI Provider Integration Platform",
+  "description": "Monorepo unificado da NettosCorp — Paperclip (control plane), plataforma enterprise e documentação institucional",
   "private": true,
   "scripts": {
     "build": "turbo run build",
