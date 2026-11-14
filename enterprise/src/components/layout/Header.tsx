@@ -18,16 +18,25 @@ import {
   ChevronDown,
   ExternalLink,
   Check,
-  X
+  X,
+  Menu
 } from 'lucide-react';
 
 interface HeaderProps {
   user: UserProfile | null;
   onNavigate: (route: string) => void;
   breadcrumbs: React.ReactNode;
+  mobileOpen: boolean;
+  onToggleMobile: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ user, onNavigate, breadcrumbs }) => {
+export const Header: React.FC<HeaderProps> = ({
+  user,
+  onNavigate,
+  breadcrumbs,
+  mobileOpen,
+  onToggleMobile,
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -80,9 +89,21 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, breadcrumbs })
   };
 
   return (
-    <header className="h-14 bg-zinc-950 border-b border-zinc-800 px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
+    <header className="h-14 bg-nc-surface border-b border-nc-border px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
       {/* Zone 1: Contextual Breadcrumb */}
-      <div className="flex items-center min-w-0">
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          onClick={onToggleMobile}
+          className="lg:hidden p-2 text-nc-text-secondary hover:text-nc-text hover:bg-nc-surface-hover rounded border border-transparent hover:border-nc-border transition-colors"
+          aria-label={mobileOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
+          aria-expanded={mobileOpen}
+        >
+          {mobileOpen ? (
+            <X className="w-5 h-5" />
+          ) : (
+            <Menu className="w-5 h-5" />
+          )}
+        </button>
         {breadcrumbs}
       </div>
 

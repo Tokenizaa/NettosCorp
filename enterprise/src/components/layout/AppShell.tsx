@@ -1,6 +1,8 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * NettosCorp — App Shell
+ * Root layout: collapsible sidebar (desktop drawer on mobile), sticky header,
+ * breadcrumbs and page content area. Responsive: below the `lg` breakpoint the
+ * sidebar becomes a fixed off-canvas drawer opened from the header.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -42,6 +44,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   children,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [metrics, setMetrics] = useState({
     tasks: 0,
     agents: 0,
@@ -59,6 +62,11 @@ export const AppShell: React.FC<AppShellProps> = ({
     updateCounts();
     return localStore.subscribe(updateCounts);
   }, []);
+
+  // Close mobile drawer when navigating to a new route
+  useEffect(() => {
+    if (mobileOpen) setMobileOpen(false);
+  }, [currentRoute, mobileOpen]);
 
   // Compute breadcrumbs
   const getBreadcrumbs = (): BreadcrumbItem[] => {
@@ -148,15 +156,30 @@ export const AppShell: React.FC<AppShellProps> = ({
   };
 
   return (
-    <div className="flex h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
+    <div
+      className={`flex h-screen bg-nc-surface text-nc-text overflow-hidden font-sans ${
+        mobileOpen ? 'overflow-hidden' : ''
+      }`}
+    >
       {/* Sidebar Navigation */}
       <Sidebar
         currentRoute={currentRoute}
         onNavigate={onNavigate}
         collapsed={collapsed}
         onToggleCollapse={() => setCollapsed(!collapsed)}
+        mobileOpen={mobileOpen}
+        onToggleMobile={() => setMobileOpen(!mobileOpen)}
         counts={metrics}
       />
+
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-[45] bg-black/40 backdrop-blur-sm lg:hidden"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Main Viewport */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -165,6 +188,8 @@ export const AppShell: React.FC<AppShellProps> = ({
           user={user}
           onNavigate={onNavigate}
           breadcrumbs={<Breadcrumb items={getBreadcrumbs()} />}
+          onToggleMobile={() => setMobileOpen(!mobileOpen)}
+          mobileOpen={mobileOpen}
         />
 
         {/* Content Area */}

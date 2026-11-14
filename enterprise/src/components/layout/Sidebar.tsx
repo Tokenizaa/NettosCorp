@@ -30,6 +30,8 @@ interface SidebarProps {
   onNavigate: (route: string) => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  mobileOpen: boolean;
+  onToggleMobile: () => void;
   counts?: {
     tasks?: number;
     agents?: number;
@@ -42,12 +44,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNavigate,
   collapsed,
   onToggleCollapse,
+  mobileOpen,
+  onToggleMobile,
   counts,
 }) => {
   return (
     <aside
-      className={`bg-zinc-950 border-r border-zinc-850 h-screen flex flex-col justify-between transition-all duration-200 z-40 shrink-0 ${
-        collapsed ? 'w-16' : 'w-64'
+      className={`fixed inset-y-0 left-0 z-50 border-r border-nc-border bg-nc-surface h-screen flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
+        mobileOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:static lg:inset-0 lg:translate-x-0 lg:block lg:z-auto ${
+        collapsed ? 'lg:w-16' : 'lg:w-64'
       }`}
     >
       {/* Brand Zone */}
@@ -75,8 +81,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={onToggleCollapse}
-            className={`p-1.5 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 rounded transition-colors ${
-              collapsed ? 'hidden' : 'block'
+            className={`p-1.5 text-nc-text-muted hover:text-nc-text hover:bg-nc-surface-hover rounded transition-colors ${
+              collapsed || mobileOpen ? 'hidden' : 'lg:block'
             }`}
             aria-label="Recolher menu lateral"
           >
@@ -250,11 +256,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer toggle for collapsed mode */}
-      <div className="p-3 border-t border-zinc-850">
+      <div className={`p-3 border-t border-nc-border ${collapsed && !mobileOpen ? 'block' : 'hidden'} lg:block`}>
         {collapsed && (
           <button
             onClick={onToggleCollapse}
-            className="w-full flex items-center justify-center p-2 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 rounded transition-colors"
+            className="w-full flex items-center justify-center p-2 text-nc-text-muted hover:text-nc-text hover:bg-nc-surface-hover rounded transition-colors"
             title="Expandir barra lateral"
           >
             <PanelLeftOpen className="w-4 h-4" />

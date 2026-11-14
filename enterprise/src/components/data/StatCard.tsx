@@ -1,10 +1,12 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * NettosCorp — StatCard
+ * Primary KPI card built on the design-system Card primitive.
  */
 
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
+import { Card } from '../../design-system';
+import { Badge } from '../../design-system';
 
 interface StatCardProps {
   label: string;
@@ -19,6 +21,15 @@ interface StatCardProps {
   className?: string;
 }
 
+const TREND_CLASSES: Record<
+  'up' | 'down' | 'neutral',
+  { color: string; marker: string }
+> = {
+  up: { color: 'text-emerald-400', marker: '↑' },
+  down: { color: 'text-rose-400', marker: '↓' },
+  neutral: { color: 'text-nc-text-muted', marker: '·' },
+};
+
 export const StatCard: React.FC<StatCardProps> = ({
   label,
   value,
@@ -28,45 +39,42 @@ export const StatCard: React.FC<StatCardProps> = ({
   onClick,
   className = '',
 }) => {
+  const trendStyle =
+    TREND_CLASSES[
+      (trend?.direction ?? 'neutral') as keyof typeof TREND_CLASSES
+    ];
+
   return (
-    <div
+    <Card
+      padded
+      paddingSize="md"
+      className={`${onClick ? 'cursor-pointer hover:border-nc-border-hover transition-all' : ''} ${className}`}
       onClick={onClick}
-      className={`p-4 bg-zinc-900/80 border border-zinc-800/80 rounded-lg hover:border-zinc-700/80 transition-all ${
-        onClick ? 'cursor-pointer hover:bg-zinc-800/40' : ''
-      } ${className}`}
     >
-      <div className="flex items-center justify-between text-zinc-400 mb-2">
+      <div className="flex items-center justify-between text-nc-text-muted mb-2">
         <span className="text-xs font-medium tracking-wide uppercase">{label}</span>
-        {Icon && <Icon className="w-4 h-4 text-zinc-500" />}
+        {Icon && <Icon className="w-4 h-4 text-nc-text-muted" />}
       </div>
 
       <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold tracking-tight text-zinc-100 font-mono tabular-nums">
+        <span className="text-2xl font-bold tracking-tight text-nc-text font-mono tabular-nums">
           {value}
         </span>
         {subValue && (
-          <span className="text-xs text-zinc-500 font-normal">
+          <span className="text-xs text-nc-text-muted font-normal">
             {subValue}
           </span>
         )}
       </div>
 
       {trend && (
-        <div className="mt-2 text-xs flex items-center gap-1.5 text-zinc-400 font-mono">
-          <span
-            className={
-              trend.direction === 'up'
-                ? 'text-emerald-400'
-                : trend.direction === 'down'
-                ? 'text-rose-400'
-                : 'text-zinc-400'
-            }
-          >
-            {trend.direction === 'up' ? '↑' : trend.direction === 'down' ? '↓' : '·'}
-          </span>
-          <span>{trend.text}</span>
+        <div className="mt-2 text-xs flex items-center gap-1.5 font-mono">
+          <span className={trendStyle.color}>{trendStyle.marker}</span>
+          <span className="text-nc-text-secondary">{trend.text}</span>
         </div>
       )}
-    </div>
+    </Card>
   );
 };
+
+StatCard.displayName = 'StatCard';
