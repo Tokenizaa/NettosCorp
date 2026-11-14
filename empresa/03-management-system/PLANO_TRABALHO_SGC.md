@@ -74,8 +74,8 @@ Evidências: <arquivos/itens no repositório>
 |---------|------------------|--------|--------------------|
 | 0.1 | NET-30 | F0-1 | Memória institucional (identidade, proposta, autoridade) |
 | 0.2 | NET-39 | F0-2 | Estrutura de autoridade (fundador, conselho IA, chefe de gabinete) |
-| 0.3 | NET-32 | F0-3 | Repositório institucional de documentação (pastas empresa/) |
-| 0.4 | NET-42 | F0-4 | Princípios de governança e documentação |
+| 0.3 | NET-40 | F0-3 | Repositório institucional de documentação (pastas empresa/) |
+| 0.4 | NET-41 | F0-4 | Princípios de governança e documentação |
 
 - **Entregáveis:** MEMORIA_INSTITUCIONAL_NETTOSCORP.md v1.0; pasta empresa/{00-governance..09-reports}; documento de princípios.
 - **Criador:** Hermes, com aprovação do fundador.
@@ -213,8 +213,8 @@ read_file(path="/home/lg/workspace/NettosCorp/empresa/03-management-system/PLANO
 |--------|--------|---------------------|--------------|----------|
 | F0-1 | MEMORIA_INSTITUCIONAL_NETTOSCORP.md (subfase 0.1) | backlog | NET-30 | high |
 | F0-2 | Estrutura de autoridade (subfase 0.2) | backlog | NET-39 | high |
-| F0-3 | Repositório de documentação (subfase 0.3) | backlog | NET-32 | medium |
-| F0-4 | Princípios de governança (subfase 0.4) | backlog | NET-42 | medium |
+| F0-3 | Repositório de documentação (subfase 0.3) | backlog | NET-40 | medium |
+| F0-4 | Princípios de governança (subfase 0.4) | backlog | NET-41 | medium |
 | F0-5 | Homologação Fase 0 | backlog | NET-42 | high |
 | F1-1 | Levantamento PMI/PMBOK (subfase 1.1) | backlog | NET-47 | medium |
 | F1-2 | Levantamento ITIL 4 (subfase 1.2) | backlog | NET-50 | medium |
