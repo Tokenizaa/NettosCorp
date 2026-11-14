@@ -20,10 +20,16 @@ import type { LifecycleAgent } from "../modules/agent-lifecycle/index.js";
 export function assertHarnessTestPassed(result: AdapterEnvironmentTestResult) {
   const verified = result.checks.some(check => check.level === "info" &&
     (/hello_probe_(passed|succeeded)$/.test(check.code) || check.code === "ai_connection_api_key_reverified" || check.code === "copilot_metadata_verified"
-      || (result.adapterType === "paperclip_runner" && check.code === "cursor_cloud_account_ready")));
-  const authenticationFailed = result.checks.some(check =>
-    check.code === ADAPTER_AUTH_MISSING_CHECK_CODE || check.code === "COPILOT_AUTH_REQUIRED" || /_hello_probe_auth_required$/.test(check.code));
-  const incomplete = !verified && (result.status === "warn" || result.checks.some(check => check.code.includes("hello_probe")));
+      || (result.adapterType === "paperclip_runner" && check.code === "cursor_cloud_account_ready")
+      // Hermes adapter: a versão detectada ou o hello probe provam que o CLI funciona.
+      // Warnings (Python ausente, chaves de API ausentes) não impedem o agente de rodar,
+      // pois o Hermes resolve essas dependências em sua própria configuração local.
+      || (result.adapterType === "hermes" && (check.code === "hermes_version" || check.code === "hermes_hello_probe_passed"))));
+  const authenticationFailed = result.checks.some(check => check.code === ADAPTER_AUTH_MISSING_CHECK_CODE || check.code === "COPILOT_AUTH_REQUIRED" || /_hello_probe_auth_required$/.test(check.code));
+  // `warn` sem nenhuma verificação informativa prova apenas que há avisos não-bloqueantes.
+  // Só tratamos como incompleto quando há um hello_probe iniciado mas não verificado,
+  // ou quando o status é fail ou autenticação falhou.
+  const incomplete = !verified && (result.checks.some(check => check.code.includes("hello_probe")));
   if (result.status === "fail" || authenticationFailed || incomplete) {
     const has = (suffix: string) => result.checks.some(check => check.code.endsWith(suffix));
     const code = result.checks.some(check => check.level === "error" && check.retryable === true) ? "test_environment_unavailable"

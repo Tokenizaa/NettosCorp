@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    branches: [master]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-nettoscorp
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event.workflow_run == null || github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Implanta imagem
+        run: |
+          echo "Implantando imagem nettoscorp:${{ github.sha }}."
+          echo "ATENCAO: credenciais do registro de container (REGISTRY_USER/REGISTRY_TOKEN) e alvo de deploy nao estao configuradas."
+          echo "O fundador deve adicionar esses secrets ao GitHub antes de habilitar o deploy real."
+          exit 0
+      - name: Registra versao
+        run: echo "Deploy solicitado em $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY

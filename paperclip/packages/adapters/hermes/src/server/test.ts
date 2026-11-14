@@ -33,8 +33,13 @@ async function checkCliInstalled(
   command: string,
 ): Promise<AdapterEnvironmentCheck | null> {
   try {
-    // Try to run the command to see if it exists
-    await execFileAsync(command, ["--version"], { timeout: 10_000 });
+    // Try to run the command to see if it exists.
+    // killSignal garante que o processo seja encerrado mesmo no Windows
+    // quando o CLI não termina sozinho após imprimir a versão.
+    await execFileAsync(command, ["--version"], {
+      timeout: 10_000,
+      killSignal: "SIGKILL",
+    });
     return null; // OK — it ran successfully
   } catch (err: unknown) {
     const e = err as NodeJS.ErrnoException;
@@ -46,8 +51,8 @@ async function checkCliInstalled(
         code: "hermes_cli_not_found",
       };
     }
-    // Command exists but --version might have failed for some reason
-    // Still consider it installed
+    // Command exists but --version might have failed or timed out.
+    // Still consider it installed — the version check below reports details.
     return null;
   }
 }
@@ -58,6 +63,7 @@ async function checkCliVersion(
   try {
     const { stdout } = await execFileAsync(command, ["--version"], {
       timeout: 10_000,
+      killSignal: "SIGKILL",
     });
     const version = stdout.trim();
     if (version) {
@@ -84,33 +90,46 @@ async function checkCliVersion(
 }
 
 async function checkPython(): Promise<AdapterEnvironmentCheck | null> {
-  try {
-    const { stdout } = await execFileAsync("python3", ["--version"], {
-      timeout: 5_000,
-    });
-    const version = stdout.trim();
-    const match = version.match(/(\d+)\.(\d+)/);
-    if (match) {
-      const major = parseInt(match[1], 10);
-      const minor = parseInt(match[2], 10);
-      if (major < 3 || (major === 3 && minor < 10)) {
-        return {
-          level: "error",
-          message: `Python ${version} found — Hermes requires Python 3.10+`,
-          hint: "Upgrade Python to 3.10 or later",
-          code: "hermes_python_old",
-        };
+  // No Windows o executável costuma ser `python`; no Linux/WSL é `python3`.
+  // Tenta ambos para não reportar falso-negativo em qualquer plataforma.
+  const pythonCandidates = ["python", "python3"];
+  let lastError: unknown = null;
+  for (const candidate of pythonCandidates) {
+    try {
+      const { stdout } = await execFileAsync(candidate, ["--version"], {
+        timeout: 5_000,
+        killSignal: "SIGKILL",
+      });
+      const version = stdout.trim();
+      const match = version.match(/(\d+)\.(\d+)/);
+      if (match) {
+        const major = parseInt(match[1], 10);
+        const minor = parseInt(match[2], 10);
+        if (major < 3 || (major === 3 && minor < 10)) {
+          return {
+            level: "error",
+            message: `Python ${version} found — Hermes requires Python 3.10+`,
+            hint: "Upgrade Python to 3.10 or later",
+            code: "hermes_python_old",
+          };
+        }
       }
+      return null; // OK — Python encontrado e versão suficiente
+    } catch (err) {
+      lastError = err;
+      // Se o executável não existe, tenta o próximo candidato.
+      const e = err as NodeJS.ErrnoException;
+      if (e.code === "ENOENT") continue;
+      // Outro erro (timeout, kill) — não tenta o próximo candidato.
+      break;
     }
-    return null; // OK
-  } catch {
-    return {
-      level: "warn",
-      message: "python3 not found in PATH",
-      hint: "Hermes Agent requires Python 3.10+. Install it from python.org",
-      code: "hermes_python_missing",
-    };
   }
+  return {
+    level: "warn",
+    message: "Python not found in PATH (tried python and python3)",
+    hint: "Hermes Agent requires Python 3.10+. Install it from python.org",
+    code: "hermes_python_missing",
+  };
 }
 
 function checkModel(
@@ -349,7 +368,11 @@ export async function testEnvironment(
       if (provider && provider !== "auto") args.push("--provider", provider);
       try {
         const { stdout } = await execFileAsync(command, args, {
-          env, cwd: asString(config.cwd), timeout: 45_000, maxBuffer: 1024 * 1024,
+          env,
+          cwd: asString(config.cwd),
+          timeout: 45_000,
+          maxBuffer: 1024 * 1024,
+          killSignal: "SIGKILL",
         });
         if (!/\bhello\b/i.test(stdout)) throw new Error("No hello response");
         checks.push({ level: "info", code: "hermes_hello_probe_passed", message: "Hermes responded through the selected connection." });

@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PNPM_VERSION: 9.0.0
+  NODE_VERSION: '22'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm run lint
+
+  typecheck:
+    name: TypeScript typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm run typecheck
+
+  test:
+    name: Testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [lint, typecheck]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+      - name: Testes
+        run: pnpm run test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+      - name: Build de producao
+        run: pnpm run build
+
+  docker-build:
+    name: Build imagem Docker (containerizacao)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Construir imagem
+        run: docker build -t nettoscorp:${{ github.sha }} -t nettoscorp:latest .
+
+  deploy-ready:
+    name: Libera para deploy
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    steps:
+      - name: Sinalizar deploy
+        run: |
+          echo "Imagem nettoscorp:${{ github.sha }} aprovada pelo CI."
+          echo "O deploy para producao e acionado separadamente (workflow Deploy) e requer credenciais do fundador."

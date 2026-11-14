@@ -9,6 +9,28 @@ export function createLifecycleWorker(store: LifecycleStore, driver: LifecycleDr
   const active = new Map<string, Promise<void>>();
   let running: Promise<void> | undefined;
 
+  // Hard timeout for runHost so a hung hello probe (e.g. Hermes CLI that does
+  // not exit on Windows) cannot leave the lifecycle worker blocked forever.
+  // The hello probe in the Hermes adapter already sets a 45s exec timeout;
+  // this worker-level timeout is the safety net that guarantees the lease is
+  // released and the agent is deferred instead of stuck in `verifying` forever.
+  const HOST_TIMEOUT_MS = 60_000;
+
+  function withTimeout<T>(work: () => Promise<T>, ms: number): Promise<T> {
+    return new Promise((resolve, reject) => {
+      let timer: NodeJS.Timeout | null = null;
+      const cleanup = () => { if (timer) clearTimeout(timer); };
+      work()
+        .then(resolve)
+        .catch(reject)
+        .finally(cleanup);
+      timer = setTimeout(() => {
+        cleanup();
+        reject(new Error(`host verification timed out after ${ms}ms`));
+      }, ms);
+    });
+  }
+
   async function attempt<T>(context: LifecycleFailure, work: () => Promise<T>): Promise<T> {
     try { return await work(); }
     catch (error) { reportFailure(context, error); throw error; }
@@ -41,7 +63,7 @@ export function createLifecycleWorker(store: LifecycleStore, driver: LifecycleDr
         }
         if (!operation.hostComplete) {
           if (!await runStep("renew", () => store.renew(agent, owner, new Date()))) continue;
-          if (await runStep("host", () => driver.runHost(agent)) === "pending") {
+          if (await runStep("host", () => withTimeout(() => driver.runHost(agent), HOST_TIMEOUT_MS)) === "pending") {
             if (!await runStep("defer", () => store.defer(agent, owner, null, new Date()))) continue;
             return;
           }
