@@ -1,7 +1,7 @@
 # Plano de Execução — Integração dos Agentes Paperclip ao Telegram
 
 **Data:** 15 de novembro de 2026  
-**Status:** Em execução — documentação e auditoria inicial  
+**Status:** Em execução — Etapa B concluída; piloto pelo router independente decidido  
 **Repositório:** `Tokenizaa/NettosCorp`  
 **Branch:** `docs/telegram-paperclip-integration-plan`
 
@@ -204,8 +204,8 @@ Não criar agentes, não excluir agentes, não trocar tokens/webhooks do Hermes 
 | Data | Etapa | Estado | Evidência / observação |
 |---|---|---|---|
 | 15/11/2026 | Auditoria GitHub inicial | Em andamento | Plano institucional localizado; arquivos do MVP não encontrados no branch padrão; commits recentes de Render identificados, sem comprovação de deploy atual. |
-| 15/11/2026 | Diagnóstico local | Pendente | Aguardando execução de Hermes no ambiente Paperclip/Telegram. |
-| 15/11/2026 | Piloto Telegram | Pendente | Não iniciar antes do diagnóstico e da escolha técnica. |
+| 15/11/2026 | Diagnóstico local (Etapa B) | Concluída | Paperclip 2026.1106.0 / commit 6e6ba2ec58c24f258c6620aacc45251bab8077c0; 8 agentes inventariados; conector nativo presente no código, sem chat-endpoint; deployment private, sem túnel HTTPS/webhook; Hermes Gateway PID 213870 conectado; MVP e handoffs localizados fora do Git. |
+| 15/11/2026 | Decisão técnica | Concluída | Priorizar piloto pelo router independente existente; adiar conector nativo até haver necessidade e HTTPS público. |\n| 15/11/2026 | Piloto Telegram | Aguardando execução | Orquestrador Global recomendado como piloto; exige prova de execução e resposta identificada no grupo. |
 
 ## 10. Histórico
 
@@ -214,3 +214,109 @@ Não criar agentes, não excluir agentes, não trocar tokens/webhooks do Hermes 
 ---
 
 **Regra de conclusão:** priorizar fazer funcionar, mas não confundir velocidade com declarar sucesso sem prova. Trabalhar em paralelo, preservar as integrações existentes, testar primeiro um agente real e expandir somente com evidência.
+
+
+## 11. Resultado do diagnóstico local — Etapa B (15/11/2026)
+
+Diagnóstico executado por Hermes no ambiente local, em paralelo à auditoria GitHub. Resultados fornecidos com evidências operacionais; credenciais foram omitidas.
+
+### 11.1 Paperclip em execução
+
+- Versão reportada pela API `/api/health`: **2026.1106.0**.
+- Commit: `6e6ba2ec58c24f258c6620aacc45251bab8077c0` (short `6e6ba2ec5`), branch `master`.
+- Repositório local: `/home/lg/workspace/NettosCorp/NettosCorp/paperclip`.
+- Servidor: PID `1591`, escutando em `127.0.0.1:3100`.
+- Health: `status=ok`, `bootstrapStatus=ready`, `authReady=true`.
+- Empresa NettosCorp: `88af1dda-ef60-41c4-851e-65e2b1f50a9f`.
+
+### 11.2 Inventário dos agentes
+
+Endpoint consultado: `GET /api/companies/{companyId}/agents`. Foram retornados **8 agentes**, todos com `adapterType=hermes_local`. O Orquestrador Global é a raiz (`reportsTo=null)); os outros sete reportam a ele.
+
+| Agente | ID (prefixo) | Estado |
+|---|---|---|
+| Orquestrador Global | `7cebf5d9` | running |
+| Frontend Developer | `cd15e7c6` | running |
+| Software Architect | `f0d7dcc5` | running |
+| Technical Writer | `3badd366` | running |
+| Backend Architect | `c883cc49` | running |
+| DevOps Automator | `4e4ad0f0` | idle |
+| QA Engineer | `e8a4cb30` | running |
+| Project Manager Senior | `6b89630b` | running |
+
+Os estados acima são o snapshot reportado no momento da consulta, não uma garantia de disponibilidade contínua.
+
+### 11.3 Conector Paperclip nativo
+
+- Implementação Telegram presente em `packages/shared/src/app-definitions/telegram.json` e `server/src/services/chat-channels/telegram/`, registrada em `server/src/services/chat-channels/configuration.ts`.
+- `GET /api/companies/{companyId}/chat-endpoints` retornou lista vazia: nenhum endpoint de chat Telegram foi provisionado para a empresa.
+- Portanto, **código do conector presente não equivale a canal ativo/configurado**.
+
+### 11.4 Rede e webhook
+
+- `deploymentExposure=private`.
+- Nenhum processo `cloudflared` ou `ngrok` estava ativo.
+- Existe configuração local `.cloudflared/config.yml`, mas sem túnel em execução.
+- `PAPERCLIP_CHAT_WEBHOOK_PUBLIC_URL` não está definida no ambiente.
+- Conclusão: não há HTTPS público/webhook Telegram operacional neste ambiente no momento do diagnóstico.
+
+### 11.5 Gateway Hermes
+
+- Gateway ativo: PID `213870`.
+- `HERMES_HOME=/home/lg/.hermes`.
+- Socket e PID files presentes.
+- Estado reportado: `gateway_state=running`, versão `0.23.0`, plataforma Telegram `connected`.
+- **Requisito de preservação atendido no snapshot:** não foi relatada alteração no bot, token ou webhook do Gateway.
+
+### 11.6 MVP e handoffs locais
+
+Localizados, mas fora do repositório e sem versionamento Git:
+
+- `/home/lg/HANDOFF.md`
+- `/home/lg/HANDOFF_INDEPENDENT_ROUTER.md`
+- `/home/lg/independent_telegram_router_final.py`
+- `/home/lg/independent_telegram_bot.py`
+- variantes `independent_telegram_router_v1.py`, `v2.py`, `v3.py`
+- `/tmp/agent_mention_parser.py`
+
+O diagnóstico reporta que `git ls-files | grep -i telegram` não encontrou arquivos rastreados. O MVP deve ser incorporado ao repositório somente depois de inspeção de conteúdo, remoção de credenciais/dados locais e confirmação de quais arquivos são a versão canônica. Não copiar cegamente todas as variantes.
+
+### 11.7 Decisão técnica após Etapa B
+
+**Decisão: avançar primeiro com um piloto pelo router independente existente; adiar o provisionamento do conector nativo Paperclip.**
+
+Justificativas:
+1. O Paperclip local está saudável e os agentes já existem.
+2. O Hermes Gateway já está conectado ao Telegram e deve ser preservado.
+3. O conector nativo não tem endpoint provisionado para a empresa.
+4. A instalação está privada, sem túnel HTTPS ativo e sem `PAPERCLIP_CHAT_WEBHOOK_PUBLIC_URL`; ativar o webhook nativo agora exige trabalho adicional de infraestrutura.
+5. O router independente já foi implementado e há relato de teste funcional, mas seu código ainda precisa ser auditado e versionado.
+
+**Agente-piloto recomendado:** Orquestrador Global (`7cebf5d9-b9c1-4db8-85fc-5bec8e7e9299`), por ser a raiz hierárquica (`reportsTo=null`) e ponto natural de entrada para encaminhamento à equipe. Esta é uma recomendação operacional, não uma validação de que o fluxo de resposta esteja correto.
+
+### 11.8 Condições obrigatórias para aprovar o piloto
+
+O router não será considerado solução concluída apenas por chamar `POST /api/agents/{id}/wakeup` ou enviar uma confirmação “acionado”. O teste precisa demonstrar:
+
+1. mensagem no grupo identificando o Orquestrador Global;
+2. wakeup do ID correto no Paperclip;
+3. execução real do agente, com evidência no Paperclip/logs;
+4. resposta final entregue ao grupo, identificada como produzida pelo agente correto;
+5. distinção inequívoca entre confirmação do router e resposta do agente;
+6. ausência de regressão no Gateway Hermes;
+7. ausência de loops, respostas duplicadas ou confusão entre identidades.
+
+**Ponto de atenção arquitetural:** o diagnóstico relata que o agente usa `hermes_local` e que a resposta assíncrona pode chegar pelo Gateway Hermes existente. Antes de aprovar, deve-se comprovar que o grupo identifica a autoria real do agente e não apresenta uma resposta do Hermes como se fosse diretamente do agente Paperclip. Se essa distinção não puder ser garantida, o router atual será considerado apenas um mecanismo de acionamento, e não a integração final desejada.
+
+### 11.9 Próxima ação operacional
+
+Hermes deve prosseguir com a inspeção do MVP e preparar o piloto do Orquestrador Global, sem implantação em massa. Antes de executar o teste no grupo:
+
+- identificar qual dos arquivos locais é a versão canônica;
+- revisar aliases, descoberta de agentes, wakeup, contexto enviado, callback/resposta, tratamento de falhas e deduplicação;
+- confirmar como a resposta final é publicada no grupo e como a identidade do agente é preservada;
+- apresentar o diff/arquivos para versionamento em branch de trabalho;
+- executar o piloto com evidências correlacionadas.
+
+Não provisionar ainda o conector nativo, não iniciar túnel público e não alterar o Gateway Hermes nesta fase.
+
