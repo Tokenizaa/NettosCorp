@@ -130,6 +130,21 @@ const HERMES_SYSTEM_PROMPT_TEMPLATE = [
   "    --data-binary @-",
   "```",
   "",
+  "Comunicação com o usuário (ASD-STE100):",
+  "- Uma ideia por frase.",
+  "- Frases curtas e diretas.",
+  "- Vocabulário claro, sem rodeios.",
+  "- Instruções objetivas.",
+  "- Separe resultados de hipóteses.",
+  "- Descreva problemas sem rodeios.",
+  "- Detalhes completos ficam nos registros de execução, não na conversa.",
+  "",
+  "Exemplo de comunicação ineficiente:",
+  "\"Após uma análise abrangente dos componentes envolvidos, foram identificadas possíveis inconsistências que eventualmente poderiam estar relacionadas à configuração.\"",
+  "",
+  "Exemplo de comunicação operacional:",
+  "\"O adaptador procura apenas python3. O Windows disponibiliza python. Essa diferença impede a inicialização.\"",
+  "",
   DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE,
 ].join("\n");
 
@@ -347,12 +362,22 @@ export async function execute(
 ): Promise<AdapterExecutionResult> {
   const config = (ctx.config ?? ctx.agent?.adapterConfig ?? {}) as Record<string, unknown>;
 
-  // ── Resolve configuration ──────────────────────────────────────────────
+  // ── Nível de esforço ──────────────────────────────────────────────────
+  // Define quantos recursos o Hermes pode gastar na tarefa. Baixo = tarefas
+  // rotineiras, Médio = trabalho especializado, Alto = problemas críticos.
+  // O Hermes escala automaticamente quando o nível atual não consegue concluir.
+  const TIER_TURNS: Record<string, number> = { low: 5, medium: 15, high: 50 };
+  const TIER_TIMEOUT: Record<string, number> = { low: 300, medium: 1800, high: 3600 };
+  const tier = (cfgString(config.tier) || "medium") as "low" | "medium" | "high";
+  const defaultMaxTurns = TIER_TURNS[tier] ?? TIER_TURNS.medium;
+  const defaultTimeoutSec = TIER_TIMEOUT[tier] ?? TIER_TIMEOUT.medium;
+
+  // ── Resolve configuration ─────────────────────────────────────────────
   const hermesCmd = resolveHermesCommand(config);
   const model = cfgString(config.model) || DEFAULT_MODEL;
-  const timeoutSec = cfgNumber(config.timeoutSec) || DEFAULT_TIMEOUT_SEC;
+  const timeoutSec = cfgNumber(config.timeoutSec) ?? defaultTimeoutSec;
   const graceSec = cfgNumber(config.graceSec) || DEFAULT_GRACE_SEC;
-  const maxTurns = cfgNumber(config.maxTurnsPerRun);
+  const maxTurns = cfgNumber(config.maxTurnsPerRun) ?? defaultMaxTurns;
   const toolsets = cfgString(config.toolsets) || cfgStringArray(config.enabledToolsets)?.join(",");
   const extraArgs = cfgStringArray(config.extraArgs);
   const persistSession = cfgBoolean(config.persistSession) !== false;
@@ -549,7 +574,7 @@ export async function execute(
   // ── Log start ──────────────────────────────────────────────────────────
   await ctx.onLog(
     "stdout",
-    `[hermes] Starting Hermes Agent (model=${model}, provider=${resolvedProvider} [${resolvedFrom}], timeout=${timeoutSec}s${maxTurns ? `, max_turns=${maxTurns}` : ""})\n`,
+    `[hermes] Starting Hermes Agent (tier=${tier}, model=${model}, provider=${resolvedProvider} [${resolvedFrom}], timeout=${timeoutSec}s, max_turns=${maxTurns})\n`,
   );
   if (sessionId) {
     await ctx.onLog(
@@ -634,6 +659,8 @@ export async function execute(
   executionResult.resultJson = {
     result: parsed.response || "",
     session_id: parsed.sessionId || null,
+    tier,
+    model,
     usage: parsed.usage || null,
     cost_usd: parsed.costUsd ?? null,
   };

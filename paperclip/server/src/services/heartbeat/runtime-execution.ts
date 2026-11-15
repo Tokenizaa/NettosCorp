@@ -47,6 +47,12 @@ import { isConversation } from "../agent-conversations.js";
 import { withAdapterExecutionPhase } from "@paperclipai/adapter-utils/execution-phase";
 import { remoteExecutionHasStopped } from "../remote-execution-termination.js";
 import { registerAdapterExecutionControl } from "../adapter-execution-control.js";
+import { executarComEscalonamento, NivelEsforco } from "./escalonamento.js";
+import {
+  verificarIndependentemente,
+  registrarEvidenciaNoResultado,
+  CRITERIOS_PADRAO,
+} from "./verificacao-independente.js";
 import { resolveManagedOpenAiBilling } from "@paperclipai/adapter-utils";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { heartbeatRuns, nativeRunFinalizations, workspaceOperations } from "@paperclipai/db";
@@ -842,86 +848,176 @@ export async function executeHeartbeatRuntime(db: Db, input: HeartbeatRuntimeExe
         await dispatchWithTiming(
           (markDispatchStarted) => {
             input.effects.onLegacyAdapterEntered();
-            return withAdapterExecutionPhase(executionPhaseContext, "adapter_execution", () => adapter.execute({
-              getFreshSessionHandoff,
-              agentIdentity,
-              observability,
-              runId: run.id,
-              agent,
-              runtime: runtimeForAdapter,
-              config: runtimeConfig,
-              context: adapterContext,
-              executionContinuation: executionContinuation ?? null,
-              runtimeCommandSpec:
-                adapter.getRuntimeCommandSpec?.(runtimeConfig) ?? null,
-              executionTarget,
-              executionTransport: remoteExecution
-                ? {
-                    remoteExecution: remoteExecution as unknown as Record<
-                      string,
-                      unknown
-                    >,
-                  }
-                : undefined,
-              runtimeMcp,
-              runtimeTools,
-              onLog,
-              onMeta: onAdapterMeta,
-              onEvent: onAdapterEvent,
-              onUsage: usageRecorder ? async receipt => { await usageRecorder.capture(receipt); } : undefined,
-              onExecutionPhase: executionControl.phases.enter,
-              startupTraceContext: getStartupTraceContext(),
-              onRuntimeProgress: async (progress) => {
-                await recordCurrentHeartbeatRunRuntimeProgress(
-                  run,
-                  progress,
-                  issueId,
+
+            // ── Nível de esforço inicial ──
+            // O Hermes começa no nível configurado e escala automaticamente
+            // se a execução falhar, sem exigir aprovação a cada passo.
+            const TIER_PARA_NIVEL: Record<string, NivelEsforco> = {
+              low: "baixo",
+              medium: "medio",
+              high: "alto",
+              baixo: "baixo",
+              medio: "medio",
+              alto: "alto",
+            };
+            const NIVEL_PARA_TIER: Record<NivelEsforco, string> = {
+              baixo: "low",
+              medio: "medium",
+              alto: "high",
+            };
+            const nivelInicial: NivelEsforco =
+              typeof runtimeConfig?.tier === "string" && TIER_PARA_NIVEL[runtimeConfig.tier]
+                ? TIER_PARA_NIVEL[runtimeConfig.tier]
+                : "medio";
+
+            return withAdapterExecutionPhase(
+              executionPhaseContext,
+              "adapter_execution",
+              async () => {
+                const escalacao = await executarComEscalonamento(
+                  async (nivel: NivelEsforco) => {
+                    const configComNivel = {
+                      ...runtimeConfig,
+                      tier: NIVEL_PARA_TIER[nivel],
+                    };
+                    return adapter.execute({
+                      getFreshSessionHandoff,
+                      agentIdentity,
+                      observability,
+                      runId: run.id,
+                      agent,
+                      runtime: runtimeForAdapter,
+                      config: configComNivel,
+                      context: adapterContext,
+                      executionContinuation: executionContinuation ?? null,
+                      runtimeCommandSpec:
+                        adapter.getRuntimeCommandSpec?.(configComNivel) ?? null,
+                      executionTarget,
+                      executionTransport: remoteExecution
+                        ? {
+                            remoteExecution: remoteExecution as unknown as Record<
+                              string,
+                              unknown
+                            >,
+                          }
+                        : undefined,
+                      runtimeMcp,
+                      runtimeTools,
+                      onLog,
+                      onMeta: onAdapterMeta,
+                      onEvent: onAdapterEvent,
+                      onUsage: usageRecorder
+                        ? async (receipt) => {
+                            await usageRecorder.capture(receipt);
+                          }
+                        : undefined,
+                      onExecutionPhase: executionControl.phases.enter,
+                      startupTraceContext: getStartupTraceContext(),
+                      onRuntimeProgress: async (progress) => {
+                        await recordCurrentHeartbeatRunRuntimeProgress(
+                          run,
+                          progress,
+                          issueId,
+                        );
+                      },
+                      onProviderStopped: collectStoppedInstructions,
+                      onDispatch: markDispatchStarted,
+                      signal: executionControl.controller.signal,
+                      ...(executionTarget?.kind === "remote" &&
+                      executionTarget.transport === "sandbox"
+                        ? {
+                            stopRemoteStartup: async () => {
+                              if (
+                                !executionControl.controller.signal.aborted
+                              ) {
+                                throw new Error(
+                                  "Remote startup stop requires a cancelled run",
+                                );
+                              }
+                              const release =
+                                await envOrchestrator.releaseForRun({
+                                  heartbeatRunId: run.id,
+                                  companyId: agent.companyId,
+                                  agentId: agent.id,
+                                  status: "released",
+                                  providerResourceDisposition:
+                                    "stop_and_retain",
+                                  cancelActiveWork: true,
+                                });
+                              if (
+                                release.errors.length ||
+                                !(await remoteExecutionHasStopped(
+                                  db,
+                                  agent.companyId,
+                                  run.id,
+                                ))
+                              ) {
+                                throw new Error(
+                                  "Could not verify remote startup stopped",
+                                );
+                              }
+                            },
+                          }
+                        : {}),
+                      onCancellationReady: async () => {
+                        await registerAdapterExecutionControl(
+                          run.id,
+                          executionControl,
+                        );
+                        const current = await getRun(run.id);
+                        if (
+                          !current ||
+                          isHeartbeatRunTerminalStatus(current.status)
+                        ) {
+                          executionControl.controller.abort(
+                            new Error(
+                              "Run stopped before provider startup",
+                            ),
+                          );
+                        }
+                      },
+                      onSpawn: async (meta) => {
+                        markDispatchStarted();
+                        await persistRunProcessMetadata(run.id, {
+                          pid: meta.pid,
+                          processGroupId:
+                            "processGroupId" in meta &&
+                            typeof meta.processGroupId === "number"
+                              ? meta.processGroupId
+                              : null,
+                          startedAt: meta.startedAt,
+                        });
+                      },
+                      authToken: authToken ?? undefined,
+                    });
+                  },
+                  nivelInicial,
                 );
-              },
-              onProviderStopped: collectStoppedInstructions,
-              onDispatch: markDispatchStarted,
-              signal: executionControl.controller.signal,
-              ...(executionTarget?.kind === "remote" && executionTarget.transport === "sandbox" ? {
-                stopRemoteStartup: async () => {
-                  // Scope comes from the running host invocation, never agent
-                  // config. Keep adapter ownership until setup has unwound.
-                  if (!executionControl.controller.signal.aborted) {
-                    throw new Error("Remote startup stop requires a cancelled run");
-                  }
-                  const release = await envOrchestrator.releaseForRun({
-                    heartbeatRunId: run.id,
-                    companyId: agent.companyId,
-                    agentId: agent.id,
-                    status: "released",
-                    providerResourceDisposition: "stop_and_retain",
-                    cancelActiveWork: true,
-                  });
-                  if (release.errors.length || !await remoteExecutionHasStopped(db, agent.companyId, run.id)) {
-                    throw new Error("Could not verify remote startup stopped");
-                  }
-                },
-              } : {}),
-              onCancellationReady: async () => {
-                await registerAdapterExecutionControl(run.id, executionControl);
-                const current = await getRun(run.id);
-                if (!current || isHeartbeatRunTerminalStatus(current.status)) {
-                  executionControl.controller.abort(new Error("Run stopped before provider startup"));
+
+                // Registra histórico de escalonamento no resultado para visibilidade
+                if (
+                  escalacao.escalou ||
+                  escalacao.historico.length > 1
+                ) {
+                  escalacao.resultado.resultJson = {
+                    ...escalacao.resultado.resultJson,
+                    escalonamento: {
+                      nivel_usado: escalacao.nivelUsado,
+                      escalou: escalacao.escalou,
+                      historico: escalacao.historico.map((h) => ({
+                        nivel: h.nivel,
+                        tentativa: h.tentativa,
+                        exit_code: h.exitCode,
+                        timeout: h.timedOut,
+                        error_message: h.errorMessage,
+                      })),
+                    },
+                  };
                 }
+
+                return escalacao.resultado;
               },
-              onSpawn: async (meta) => {
-                markDispatchStarted();
-                await persistRunProcessMetadata(run.id, {
-                  pid: meta.pid,
-                  processGroupId:
-                    "processGroupId" in meta &&
-                    typeof meta.processGroupId === "number"
-                      ? meta.processGroupId
-                      : null,
-                  startedAt: meta.startedAt,
-                });
-              },
-              authToken: authToken ?? undefined,
-            }));
+            );
           },
         );
       if (!guardedDispatch.dispatched) return { dispatched: false };
@@ -946,6 +1042,29 @@ export async function executeHeartbeatRuntime(db: Db, input: HeartbeatRuntimeExe
     }
     const instructionSave = input.instructions.getInstructionSave();
     if (instructionSave) adapterResult.resultJson = { ...adapterResult.resultJson, instructionSave };
+
+    // ── Verificação independente (QA Tester) ──
+    // Quem implementa não valida o próprio trabalho. O QA Tester (ou outro agente
+    // diferente do implementador) confirma os critérios de aceitação antes de
+    // a tarefa ser considerada concluída. As evidências ficam registradas no
+    // resultJson para visibilidade no Paperclip.
+    const AGENTE_IMPLEMENTADOR = ctx.agent?.id ?? "hermes-diretor";
+    const AGENTE_VERIFICADOR = "qa-tester-1"; // Em produção, resolver dinamicamente o agente QA da empresa
+    const verificacao = verificarIndependentemente(
+      adapterResult,
+      CRITERIOS_PADRAO,
+      AGENTE_VERIFICADOR,
+      AGENTE_IMPLEMENTADOR,
+    );
+    adapterResult = registrarEvidenciaNoResultado(adapterResult, verificacao);
+
+    if (!verificacao.podeEncerrar) {
+      adapterResult.resultJson = {
+        ...adapterResult.resultJson,
+        bloqueado_por_verificacao: true,
+        motivo: verificacao.resumo,
+      };
+    }
 
     if (parseObject(adapterResult.executionRecovery).providerWorkStarted !== false) {
       if (usageRecorder) {
