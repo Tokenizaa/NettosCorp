@@ -1,0 +1,15 @@
+name: Keepalive Paperclip
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint do Paperclip
+        run: curl -fsS -o /dev/null -w "HTTP %{http_code}\n" "${PAPERCLIP_HEALTH_URL}"
+        env:
+          PAPERCLIP_HEALTH_URL: ${{ secrets.PAPERCLIP_HEALTH_URL }}
