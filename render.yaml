@@ -1,31 +1,47 @@
-# Render Blueprint — NettosCorp: Paperclip + Hermes (plano gratuito, US$ 0)
+# Render Blueprint — NettosCorp (aplicação principal, plano gratuito, US$ 0)
 #
-# Implanta um único Web Service gratuito no Render contendo:
-#   - Paperclip (control plane, API Express) na porta $PORT
-#   - Hermes (agente/gateway) como processo background no mesmo container
+# Arquitetura: NettosCorp é a aplicação/repositório central. Paperclip, Hermes e
+# Enterprise são componentes integrados, cada um com seu próprio ciclo de
+# construcao e execucao. Nao e um container monolítico com tres aplicacoes.
+#
+# Servicos declarados neste blueprint:
+#   1. nettoscorp-paperclip (Web Service, plano free)
+#      - Paperclip (control plane, API Express) na porta $PORT
+#      - Hermes (agente/gateway) como processo background no mesmo container
+#      - Build nativo em paperclip/ (pnpm workspace). Lockfile proprio em
+#        paperclip/pnpm-lock.yaml (separado do lockfile da raiz).
+#   2. nettoscorp-enterprise (Static Site, plano free)
+#      - Frontend corporativo (Vite + React) em enterprise/
+#      - Build independente (vite build -> dist/). Atualizavel sem reconstruir
+#        o backend Paperclip.
+#      - Consome a API do Paperclip via PAPERCLIP_API_URL / PAPERCLIP_API_KEY.
 #
 # Persistencia ($0, sem expiracao de 30 dias):
 #   - Paperclip: Supabase PostgreSQL (projeto pakzvwpldlkvvdnqgdgq) via DATABASE_URL
-#   - Hermes: estado em ~/.hermes/ (efemero no plano free do Render — veja LIMITACOES.md)
+#   - Enterprise: Supabase (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY) com
+#     fallback localStorage quando nao configurado
+#   - Hermes: estado em ~/.hermes/ (efemero no plano free — nao confiar em state
+#     persistente do Hermes aqui)
 #
-# Health check: GET /api/liveness (sem SQL, sem auth — ideal para keepalive externo)
+# Nao usar Postgres nem Key Value gratuitos do Render (expiram em 30 dias /
+# sao in-memory). Nao usar disco local para SQLite no Paperclip.
+#
+# Health check: GET /api/liveness (sem SQL, sem auth — ideal para keepalive)
 # Auto-deploy: Render conecta ao repositorio GitHub e redeploya em push para master.
 #
 # Instrucoes:
 #   1. Conecte o repositorio https://github.com/Tokenizaa/NettosCorp.git ao Render
-#   2. Use este render.yaml como blueprint (ou crie o Web Service manualmente com
-#      os mesmos comandos de build/start e variaveis de ambiente)
-#   3. Defina DATABASE_URL (Supabase) e HERMES_* segredos no dashboard do Render
-#      (NUNCA no repositorio)
+#   2. Use este render.yaml como blueprint (ou crie os servicos manualmente)
+#   3. Defina os segredos (sync: false) no dashboard do Render — NUNCA neste arquivo
 #
 # Limite do plano free: 750 instance-horas/mes, spin-down apos 15 min ocioso,
-# filesystem efemero, 1 Postgres free por workspace (expira em 30 dias — nao usamos).
+# filesystem efemero, 1 servico Web + Static Sites gratuitos por workspace.
 
 services:
   - type: web
-    name: nettoscorp-paperclip-hermes
+    name: nettoscorp-paperclip
     env: node
-    region: ohio  # ou mais proxima de voce
+    region: ohio
     plan: free
     # Root directory onde esta o pnpm-workspace.yaml do Paperclip
     rootDir: paperclip
@@ -35,8 +51,6 @@ services:
     startCommand: bash scripts/render-start.sh
     # Health check usado pelo Render para determinar se o servico esta vivo
     healthCheckPath: /api/liveness
-    # Variaveis de ambiente (valores reais sao definidos no dashboard do Render,
-    # nunca neste arquivo nem no repositorio)
     envVars:
       - key: NODE_ENV
         value: production
@@ -62,4 +76,26 @@ services:
       - key: RENDER_API_KEY
         sync: false
       - key: NVIDIA_API_KEY
+        sync: false
+
+  - type: web
+    name: nettoscorp-enterprise
+    env: static
+    region: ohio
+    plan: free
+    # Root directory onde esta o Vite + package.json do Enterprise
+    rootDir: enterprise
+    # Build: instala dependencias e constroi o frontend estatico (dist/)
+    buildCommand: pnpm install && pnpm run build
+    # Caminho publicado pelo Render como Static Site
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      # URL da API Paperclip (definir apos o deploy do servico nettoscorp-paperclip)
+      - key: PAPERCLIP_API_URL
+        sync: false
+      - key: PAPERCLIP_API_KEY
         sync: false
