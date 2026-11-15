@@ -20,8 +20,11 @@ RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 FROM base AS deps
 WORKDIR /app
-# Copia apenas o workspace do Paperclip (lockfile proprio).
+# Copia o workspace do Paperclip (lockfile proprio) e o diretorio de patches
+# (necessario para aplicar os patches declarados no lockfile, ex:
+# embedded-postgres). Sem ele, pnpm falha na chamada ao patch.
 COPY paperclip/package.json paperclip/pnpm-workspace.yaml paperclip/pnpm-lock.yaml ./
+COPY paperclip/patches ./patches
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
