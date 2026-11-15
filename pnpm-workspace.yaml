@@ -1,6 +1,6 @@
 # Workspaces da raiz do monorepo NettosCorp.
 # Cada sub-repositorio (enterprise, institutional, Projetos/*) gerencia
 # suas proprias dependencias com pnpm-workspace.yaml e pnpm-lock.yaml proprios.
-# A raiz nao contem pacotes pnpm propios; o codigo do Paperclip vive em paperclip/.
+# A raiz nao contem pacotes pnpm proprios; o codigo do Paperclip vive em paperclip/.
 packages:
-  - "enterprise"
+  - "paperclip"

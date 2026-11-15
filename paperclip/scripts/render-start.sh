@@ -10,11 +10,13 @@
 # ambiente injetadas pelo Render (DATABASE_URL, RENDER_API_KEY, NVIDIA_API_KEY,
 # BETTER_AUTH_SECRET, etc.).
 # =============================================================================
-set -euo pipefail
+set -uo pipefail
 
 PORT="${PORT:-10000}"
 PAPERCLIP_HOME="${PAPERCLIP_HOME:-$PWD}"
 HERMES_HOME="${HERMES_HOME:-/opt/render/.hermes}"
+PAPERCLIP_PID=""
+HERMES_PID=""
 
 echo "[render-start] Iniciando Paperclip + Hermes (porta $PORT)"
 
@@ -37,10 +39,23 @@ fi
 export PAPERCLIP_MIGRATION_AUTO_APPLY="${PAPERCLIP_MIGRATION_AUTO_APPLY:-true}"
 export PAPERCLIP_MIGRATION_PROMPT="${PAPERCLIP_MIGRATION_PROMPT:-never}"
 
-# Inicia o Paperclip em background, anexado ao log de saida
-node server/dist/index.js > /tmp/paperclip.log 2>&1 &
+# Inicia o Paperclip em background, anexado ao stdout/stderr do container
+# (Render captura esses fluxos como logs do servico).
+node server/dist/index.js > /dev/stdout 2>&1 &
 PAPERCLIP_PID=$!
 echo "[render-start] Paperclip PID=$PAPERCLIP_PID"
+
+# Aguarda o health check do Paperclip ficar disponível (máx ~60s).
+for i in $(seq 1 60); do
+  if curl -fsS "http://127.0.0.1:${PORT}/api/liveness" >/dev/null 2>&1; then
+    echo "[render-start] Paperclip respondendo em /api/liveness (HTTP 200)."
+    break
+  fi
+  if [ "$i" -eq 60 ]; then
+    echo "[render-start] AVISO: Paperclip nao respondeu ao health check a tempo."
+  fi
+  sleep 1
+done
 
 # -----------------------------------------------------------------------------
 # 2. Hermes (instalacao best-effort no container)
@@ -77,9 +92,10 @@ start_hermes() {
   hermes config set model.default nvidia/nemotron-3.5-super-vl-120b-a12b 2>/dev/null || true
   hermes config set model.base_url https://integrate.api.nvidia.com/v1 2>/dev/null || true
 
-  # Inicia Hermes como processo background (gateway/servidor)
+  # Inicia Hermes como processo background (best-effort).
+  # Logs vão para stdout/stderr do container (Render captura como logs).
   echo "[render-start] Iniciando Hermes agent..."
-  nohup hermes serve > /tmp/hermes.log 2>&1 &
+  nohup hermes serve > /dev/stdout 2>&1 &
   HERMES_PID=$!
   echo "[render-start] Hermes PID=$HERMES_PID"
 }
@@ -87,14 +103,21 @@ start_hermes() {
 start_hermes || true
 
 # -----------------------------------------------------------------------------
-# 3. Espera pelos processos (o container fica vivo enquanto qualquer um rodar)
+# 3. Espera pelo processo principal (Paperclip). O container fica vivo
+#    enquanto o Paperclip rodar. Hermes e best-effort: se morrer, nao derruba
+#    o servico.
 # -----------------------------------------------------------------------------
-echo "[render-start] Ambos os processos iniciados. Aguardando..."
-wait -n $PAPERCLIP_PID $HERMES_PID 2>/dev/null || true
+echo "[render-start] Aguardando o Paperclip (PID=$PAPERCLIP_PID)..."
+if [ -n "$PAPERCLIP_PID" ]; then
+  wait "$PAPERCLIP_PID" 2>/dev/null
+  EXIT_CODE=$?
+else
+  echo "[render-start] ERRO: PAPERCLIP_PID nao definido."
+  EXIT_CODE=1
+fi
 
-# Se um processo morrer, encerra o outro e sai (o Render reinicia o container)
-EXIT_CODE=$?
-echo "[render-start] Um processo encerrou (codigo $EXIT_CODE). Encerrando o outro..."
-kill $HERMES_PID 2>/dev/null || true
-kill $PAPERCLIP_PID 2>/dev/null || true
-exit $EXIT_CODE
+echo "[render-start] Paperclip encerrou (codigo $EXIT_CODE)."
+if [ -n "${HERMES_PID:-}" ] && kill -0 "$HERMES_PID" 2>/dev/null; then
+  kill "$HERMES_PID" 2>/dev/null || true
+fi
+exit "$EXIT_CODE"
