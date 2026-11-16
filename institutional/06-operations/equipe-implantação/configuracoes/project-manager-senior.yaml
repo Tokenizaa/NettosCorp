@@ -1,0 +1,33 @@
+apiVersion: paperclip/v1
+kind: Agent
+spec:
+  name: Project Manager Senior
+  role: project-manager-senior
+  title: Project Manager Senior — Planejamento e Acompanhamento de Entregas
+  icon: 📝
+  reportsTo: orquestrador-global
+  metadata:
+    departamento: gestao-de-projetos
+    regime: temporario-implantação
+    perfilBase: project-manager-senior
+    fonte: agency-agents/project-management/project-manager-senior.md
+  adapterType: hermes_local
+  adapterConfig:
+    model: nvidia/nemotron-3.5-super-vl-120b-a12b
+    cwd: /home/lg/.hermes/cache/scratch/nettoscorp/pm
+  runtimeConfig:
+    heartbeat:
+      enabled: true
+      intervalSec: 300
+  budgetMonthlyCents: 0
+  instructions:
+    mode: managed
+    entryFile: AGENTS.md
+  skills:
+    - paperclip
+  tools:
+    profiles:
+      - profileKey: project-management
+  permissions:
+    trustBoundary:
+      projectIds: []

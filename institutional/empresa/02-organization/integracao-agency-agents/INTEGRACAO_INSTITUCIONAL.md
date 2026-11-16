@@ -3,7 +3,7 @@
 Versão: 1.0
 Data: 15 de novembro de 2026
 Local: /home/lg/workspace/NettosCorp/institutional/empresa/02-organization/integracao-agency-agents/INTEGRACAO_INSTITUCIONAL.md
-Status: DOCUMENTO INSTITUCIONAL OFICIAL — homologado para uso como fonte de verdade
+Status: DOCUMENTO INSTITUCIONAL EM REVISÃO — submetido à avaliação do Fundador (Netto Farias); homologação formal pendente
 
 ---
 
@@ -252,4 +252,4 @@ Após homologação da liderança fundadora:
 
 ---
 
-**Homologação:** Este documento aguarda homologação final da liderança fundadora (Netto Farias) para tornar-se fonte de verdade vinculante. Até lá, tem status de **proposta institucional documentada**.
+**Homologação:** Esta integração é **documental e arquitetural** (não cria, exclui, pausa ou altera agentes no Paperclip; não altera IDs, hierarquia, modelos, adaptadores ou configurações operacionais). Aguarda homologação formal do Fundador (Netto Farias) para tornar-se fonte de verdade vinculante. Até a homologação, o documento tem status de **Em revisão** e não produz efeitos vinculantes sobre cargos, autoridade ou implantação de agentes.

@@ -31,11 +31,11 @@ Cada entrada deve ser rastreável, com status claro, responsável e prazo.
 
 ## 3. Pendências atuais (base: 15 nov 2026)
 
-### 3.1 Decisões estruturais (críticas — bloqueiam implantação)
+### 3.1 Decisões estruturais (pendentes)
 
 | ID | Título | Descrição | Status | Responsável | Prazo | Decisão Necessária |
 |----|--------|-----------|--------|-------------|-------|-------------------|
-| PEND-001 | **Homologação Modelo Autoridade v1.2** | Estrutura: Fundador, Conselheiro, Hermes (CdG), Orquestrador Global (subord. adm. a Hermes), **sem Diretor de Operações**. Diretores respondem ao Fundador; Hermes coordena integração. | `AGUARDANDO_FUNDADOR` | Fundador (Netto Farias) | Imediato | Aprovar / Rejeitar / Ajustar modelo |
+| PEND-001 | **Homologação Modelo Autoridade v1.2** | Estrutura: Fundador, Conselheiro, Hermes (CdG), Orquestrador Global (subord. adm. a Hermes), **sem Diretor de Operações**. Diretores respondem ao Fundador; Hermes coordena integração. **Já homologado via DELIB-014 (07/11/2026)**. | `DECIDIDA` / `IMPLEMENTADA` | Fundador (Netto Farias) | — | **Homologado em 07/11/2026** — DELIB-014. Não requer nova decisão. |
 | PEND-002 | **Orçamentos mensais (budgetMonthlyCents)** | Definir budget para cada um dos 8 cargos iniciais + Hermes + Orquestrador. Base: complexidade, modelo, uso estimado. | `ABERTA` | Fundador + Conselheiro | Semana 1-2 | Valores por cargo (R$/mês) |
 | PEND-003 | **Adapters e configuração de execução** | Definir `adapterType` e `adapterConfig` para cada agente (process/claude-code, http/openclaw, etc.). Ambiente de execução no Paperclip. | `ABERTA` | Diretor de Tecnologia + Hermes | Semana 2-3 | Tipo + config por agente |
 | PEND-004 | **requireBoardApprovalForNewAgents** | Se cada novo agente precisa de aprovação individual do board (Fundador) ou se a aprovação da estrutura inicial basta. | `ABERTA` | Fundador | Semana 1 | true / false |
@@ -89,13 +89,25 @@ Cada entrada deve ser rastreável, com status claro, responsável e prazo.
 
 ---
 
+### 3.6 Resumo de quantidades e observação sobre solapamento
+
+| Categoria | Itens | Quantidade |
+|-----------|-------|------------|
+| Decisões estruturais (pendentes) | PEND-002 a PEND-006 | 5 |
+| Decisões de adoção de agentes | ADO-001 a ADO-008 | 8 |
+| Conflitos conhecidos | CONF-001 a CONF-005 | 5 |
+| Lacunas de cargos | GAP-001 a GAP-008 | 8 |
+| Decisões de sincronização | SYNC-001 a SYNC-004 | 4 |
+
+**Observação sobre a contagem:** o relatório original apresentava 6 "decisões estruturais críticas", 8 "adoções", 5 "conflitos" e 8 "lacunas". Considerando a homologação de PEND-001 via DELIB-014 (07/11/2026), as decisões estruturais reais em aberto são PEND-002 a PEND-006 (5 itens). Os pares PEND-005/GAP-001 e PEND-006/GAP-002 referem-se ao mesmo cargo (Diretor de Tecnologia, Diretor de Gestão de Projetos) em duas vertentes — a pendência de criação do cargo e a lacuna de especialidade equivalente no catálogo — e não devem ser somados como decisões independentes.
+
 ## 4. Decisões já tomadas (histórico)
 
 | ID | Título | Decisão | Data | Decisor | Referência |
 |----|--------|---------|------|---------|------------|
 | DEC-001 | Integração documental Agency Agents → NettosCorp | **APROVADA** — Criar integração arquitetural documental (4 camadas) sem implantação operacional | 2026-11-15 | Hermes (autonomia operacional) | `INTEGRACAO_INSTITUCIONAL.md` |
 | DEC-002 | Modelo de 4 camadas (A/B/C/D) | **APROVADA** — Agency Agents (fonte), NettosCorp (governança), Paperclip (control plane), Hermes (coordenação) | 2026-11-15 | Hermes | `INTEGRACAO_INSTITUCIONAL.md` seção 3 |
-| DEC-003 | 8 cargos iniciais mapeados | **IDENTIFICADOS** — Software Arch, Backend Arch, Frontend Dev, DevOps, PM Senior, Tech Writer, Orquestrador, Hermes | 2026-11-15 | Hermes | `MATRIZ_CORRESPONDENCIA.md` seção 2 |
+| DEC-003 | 8 correspondências documentadas | **IDENTIFICADOS** — 6 especialistas (Software Architect, Backend Architect, Frontend Developer, DevOps Automator, Project Manager Senior, Technical Writer), Orquestrador Global, Chefe de Gabinete Executivo (Hermes) | 2026-11-15 | Hermes | `MATRIZ_CORRESPONDENCIA.md` seção 2 |
 | DEC-004 | Preservação de origem (não sobrescrita) | **APROVADA** — Adaptações apenas aditivas (seção 🏛️), original intacto | 2026-11-15 | Hermes | `POLITICA_SINCRONIZACAO.md` seção 1 |
 | DEC-005 | Hermes já implantado e validado | **CONFIRMADO** — Chefe de Gabinete Executivo operacional no Paperclip | 2026-11-15 | Fundador (implantação anterior) | `MEMORIA_INSTITUCIONAL.md`, `MODELO_AUTORIDADE.md` |
 
@@ -105,7 +117,7 @@ Cada entrada deve ser rastreável, com status claro, responsável e prazo.
 
 | Ação | Responsável | Prazo | Dependência |
 |------|-------------|-------|-------------|
-| Apresentar PEND-001 a PEND-006 ao Fundador | Hermes | Imediato | — |
+| Apresentar PEND-002 a PEND-006 ao Fundador | Hermes | Imediato | — |
 | Definir orçamentos (PEND-002) | Fundador + Conselheiro | Semana 1-2 | PEND-001 |
 | Definir adapters (PEND-003) | Dir. Tecnologia + Hermes | Semana 2-3 | PEND-001, PEND-002 |
 | Analisar CONF-001 a CONF-005 | Hermes + Diretores | Semana 1-2 | — |

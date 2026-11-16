@@ -23,13 +23,22 @@ Status: DOCUMENTO INSTITUCIONAL OFICIAL — matriz verificada, aguarda homologa�
 | **Agente Paperclip (quando existente)** | UUID ou identificador no control plane |
 | **ID Técnico (Paperclip)** | UUID do agente (quando criado) |
 | **Situação** | `identificado` \| `proposto` \| `aprovado` \| `implementado` \| `validado` |
-| **Pendências/Decisões** | O que falta para avançar |
+|| **Pendências/Decisões** | O que falta para avançar |
 
 ---
 
-## 2. Cargos previstos na documentação institucional (fase 0-1)
+> **Nota de categorização — leia antes de consultar as tabelas.**
+> Esta matriz agrupa 8 registros em **3 categorias** distintas. Não trate todos os registros como "cargos institucionais" no mesmo nível:
+>
+> - **Especialistas com correspondência direta** (itens 1 a 6): agentes reais do catálogo Agency Agents, mapeados 1:1 para cargos institucionais já definidos. São eles: Software Architect, Backend Architect, Frontend Developer, DevOps Automator, Project Manager Senior, Technical Writer.
+> - **Agentes operacionais já existentes/implantados** (itens 7 a 8): Agente Corporativo Global de Orquestração (item 7) e Chefe de Gabinete Executivo — Hermes (item 8). Não são cargos de direção: o Orquestrador reporta administrativamente à Hermes, e esta ao Fundador.
+> - **Cargos de direção previstos, sem agente correspondente** (ver seção 4): Diretor de Tecnologia e Diretor de Gestão de Projetos. Estão registrados como lacunas (GAP-001, GAP-002) até sua definição institucional.
+>
+> A nomenclatura segue a regra: **especialidade → cargo → departamento → agente Paperclip**; as três camadas nunca devem ser confundidas.
 
-Estes 8 cargos derivam da `PROPOSTA_EQUIPE.md` v1.2 e da investigação do Agency Agents.
+## 2. Categorias de registros previstos na documentação institucional (fase 0-1)
+
+Estas 8 entradas são agrupadas em 3 categorias: especialistas com correspondência direta, agentes operacionais já existentes/implantados, e cargos de direção sem agente correspondente (lacunas).
 
 | # | Especialidade (Agency Agents) | Slug | Especialidade Original | Cargo Institucional | Departamento | Nome Inst. | Persona Preservada | Adaptações | Agente Paperclip | ID Técnico | Situação | Pendências |
 |---|-------------------------------|------|------------------------|---------------------|--------------|------------|-------------------|------------|------------------|------------|----------|------------|

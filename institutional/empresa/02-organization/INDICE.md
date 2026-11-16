@@ -26,10 +26,10 @@ Este índice organiza a investigação organizacional e tecnológica executada s
 |-----------|-----------|
 | `integracao-agency-agents/INTEGRACAO_INSTITUCIONAL.md` | **Documento central** — Arquitetura de 4 camadas (Agency Agents, NettosCorp, Paperclip, Hermes), princípios, responsabilidades, estrutura documental, validação |
 | `integracao-agency-agents/INVENTARIO_AGENCY_AGENTS.md` | Inventário completo do catálogo: 17 divisões, 264 agentes, modelo de definição, lista completa engineering (65), project-management (7), specialized (59), runbooks, ferramentas, limitações |
-| `integracao-agency-agents/MATRIZ_CORRESPONDENCIA.md` | Matriz de rastreabilidade: especialidade → cargo → departamento → agente Paperclip. 8 cargos iniciais mapeados + 18 expansão futura + 5 lacunas + 5 compartilháveis + mapeamento divisões→diretorias |
+| `integracao-agency-agents/MATRIZ_CORRESPONDENCIA.md` | Matriz de rastreabilidade: especialidade → cargo → departamento → agente Paperclip. 8 correspondências documentadas: 6 especialistas com correspondência direta, 1 orquestrador, 1 chefe de gabinetes já implantado + 18 expansão futura + 5 lacunas + 5 compartilháveis + mapeamento divisões→diretorias |
 | `integracao-agency-agents/POLITICA_SINCRONIZACAO.md` | Política de manutenção da relação com upstream: método Git (branch integração), ciclo de sincronização, versionamento, tratamento de conflitos, autoridade decisória, scripts recomendados, checklist |
 | `integracao-agency-agents/PROCEDIMENTO_ADOCAO_AGENTES.md` | Procedimento oficial de adoção: 5 etapas (Identificação → Avaliação → Proposta+Homologação → Implementação Paperclip → Validação), templates, prazos, casos especiais, checklist mestre |
-| `integracao-agency-agents/REGISTRO_PENDENCIAS_DECISOES.md` | Registro vivo de 6 decisões estruturais críticas, 8 adoções bloqueadas, 5 conflitos conhecidos, 8 lacunas de cargos, 4 decisões de sync, 5 decisões já tomadas, próximas ações agendadas |
+| `integracao-agency-agents/REGISTRO_PENDENCIAS_DECISOES.md` | Registro vivo de 6 decisões estruturais (1 homologada via DELIB-014, 5 em aberto), 8 adoções, 5 conflitos conhecidos, 8 lacunas de cargos, 4 decisões de sincronização, 5 decisões já tomadas, próximas ações agendadas |
 
 ---
 
