@@ -9,7 +9,7 @@ Toda atividade relevante da NettosCorp devera ser documentada, versionada, rastr
 | Pasta | Conteudo |
 |-------|----------|
 | `00-governance/` | Governanca, memoria institucional, estrutura de autoridade, documentos oficiais de fundacao, arquitetura documental, protocolos operacionais, referencias bibliograficas, modelo de autoridade e direcao executiva |
-| `01-strategy/` | Visao empresarial, objetivos, prioridades, direcionamentos da lideranca fundadora, identidade e estrategia, roadmap corporativo, planejamento e controle da implantacao |
+| `01-strategy/` | Visao empresarial, objetivos, prioridades, identidade e estrategia, benchmark estrategico de empresas AI-native, roadmap corporativo e planejamento da implantacao |
 | `02-organization/` | Organograma conceitual, modelo operacional, diretorias, departamentos, papeis e responsabilidades, investigacao Agency Agents, investigacao Paperclip, estudo de integracao, proposta de primeira equipe |
 | `03-management-system/` | Sistema de Gestao Corporativa, metodologias (PMI/PMBOK, ITIL 4, ISO 9001, ISO 27001, TOGAF, Agile, Scrum, Kanban), politicas e procedimentos |
 | `04-portfolio/` | Reconhecimento e catalogo de projetos existentes, portifolio de software, inventario de repositorios GitHub, relatorios de sincronizacao, padronizacao .gitignore, procedimentos de auditoria |
@@ -24,6 +24,7 @@ Toda atividade relevante da NettosCorp devera ser documentada, versionada, rastr
 | Documento | Local | Descricao | Status |
 |-----------|-------|-----------|--------|
 | Memoria institucional | `00-governance/MEMORIA_INSTITUCIONAL_NETTOSCORP.md` | Identidade, proposta, autoridade, cargo de Hermes, visao organizacional, principios de documentacao, roadmap inicial | Versao 1.0 — registro de fundacao |
+| Benchmark estrategico de empresas AI-native | `01-strategy/BENCHMARK_ESTRATEGICO_EMPRESARIAL.md` | Pesquisa internacional de empresas AI-native, arquiteturas organizacionais, modelos de governanca, topologias de agentes e diretrizes de aplicacao para a NettosCorp | Versao 1.0 — estudo de referencia; nao constitui decisao institucional |
 | Identidade e estrategia empresarial | `01-strategy/IDENTIDADE_ESTRATEGIA_EMPRESARIAL.md` | Proposito, missao, visao, valores, posicionamento, modelo de negocio, objetivos, diretrizes | Versao 1.0 — proposta |
 | Governanca corporativa | `00-governance/GOVERNANCA_CORPORATIVA.md` | Estrutura de autoridade, responsabilidades, papeis, limites, delegacao, decisoes, prestação de contas | Versao 1.0 — proposta |
 | Arquitetura documental | `00-governance/ARQUITETURA_DOCUMENTAL.md` | Hierarquia, classificacao, nomenclatura, versionamento, responsaveis, fonte de verdade, modelos | Versao 1.0 — proposta |
