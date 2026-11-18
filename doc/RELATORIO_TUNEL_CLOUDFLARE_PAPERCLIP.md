@@ -61,6 +61,8 @@ cloudflared tunnel route dns --overwrite-dns 9cb11663-c26a-4517-a865-b14a1c46e3d
 
 **Resultado:** CNAME `paperclip.olfnetto.workers.dev.defesai.com.br` → túnel `paperclip-netto` (ID: `9cb11663-...`).
 
+**Observação importante:** O `cloudflared tunnel route dns` adiciona automaticamente o sufixo da zona padrão da conta (`.defesai.com.br`) ao hostname especificado. O domínio `olfnetto.workers.dev` é uma zona válida (confirmedo via error 1042 do Cloudflare), mas o CNAME foi criado com sufixo `.defesai.com.br`, resultando em `paperclip.olfnetto.workers.dev.defesai.com.br` que pode não ser uma zona DNS válida.
+
 ### 2.5 Allowed hostname no Paperclip
 
 ```sh
@@ -70,8 +72,8 @@ pnpm paperclipai allowed-hostname paperclip.olfnetto.workers.dev.defesai.com.br
 **Resultado:** Hostname adicionado à lista de allowed hostnames do Paperclip. O servidor foi reiniciado para aplicar.
 
 Hostnames permitidos atualmente:
-- `prescription-harvest-innovative-seven.trycloudflare.com`
 - `pair-montreal-mediterranean-sku.trycloudflare.com`
+- `prescription-harvest-innovative-seven.trycloudflare.com`
 - `paperclip.olfnetto.workers.dev.defesai.com.br`
 
 ---
@@ -92,21 +94,29 @@ curl http://127.0.0.1:3100/api/health
 curl https://paperclip.olfnetto.workers.dev.defesai.com.br/api/health
 ```
 
-**Resultado:** DNS não resolveu. O CNAME foi criado no Cloudflare mas não está resolvendo via DNS público. Possíveis causas:
-- Zona DNS `olfnetto.workers.dev.defesai.com.br` pode não estar configurada corretamente
-- Propagação DNS pendente
-- O subdomínio `olfnetto.workers.dev` pode não existir dentro da zona `defesai.com.br`
+**Resultado:** HTTP 000 (falha de conexão). O DNS não resolve para `paperclip.olfnetto.workers.dev.defesai.com.br` porque essa zona composta não existe.
 
-**Status:** ⚠️ Pendente — DNS não resolve
+```sh
+curl https://paperclip.olfnetto.workers.dev/api/health
+```
+
+**Resultado:** HTTP 404 com `error code: 1042` do Cloudflare. O domínio `olfnetto.workers.dev` é uma zona válida (responde), mas não há um CNAME configurado para `paperclip` nessa zona apontando para o túnel `paperclip-netto`. O CNAME existente aponta para `paperclip.olfnetto.workers.dev.defesai.com.br` (zona incorreta).
+
+**Status:** ❌ Falhou — DNS route criado na zona errada
 
 ### 3.3 Acesso externo via trycloudflare (túnel efêmero)
 
-Vários URLs trycloudflare foram gerados:
+Vários URLs trycloudflare foram gerados e testados com o servidor rodando em bind `loopback`:
+
 - `https://prescription-harvest-innovative-seven.trycloudflare.com`
 - `https://pair-montreal-mediterranean-sku.trycloudflare.com`
 - `https://significance-vegetables-identity-informed.trycloudflare.com`
+- `https://dropped-diagnosis-fioricet-factors.trycloudflare.com`
+- `https://pair-montreal-mediterranean-sku.trycloudflare.com`
+- `https://amount-healthcare-nec-flickr.trycloudflare.com`
+- `https://encounter-doctors-webmasters-acrobat.trycloudflare.com`
 
-**Resultado:** HTTP 000 (falha de conexão) em todos os testes. O trycloudflare não está funcionando neste ambiente.
+**Resultado:** HTTP 000 ou HTTP 404. O trycloudflare não está funcionando de forma estável neste ambiente — o Cloudflare recebe a requisição mas não consegue entregar para o túnel local.
 
 **Status:** ❌ Falhou
 
@@ -128,35 +138,38 @@ Antes de adicionar o allowed-hostname, o Paperclip rejeitava requisições exter
 |------|--------|-----------|
 | Servidor Paperclip na porta 3100 | ✅ Ativo | `curl http://127.0.0.1:3100/api/health` → 200 OK |
 | Túnel Cloudflare nomeado | ✅ Ativo | 4 conexões (1xgru02, 2xgru14, 1xgru21) |
-| DNS route configurado | ✅ Criado | CNAME `paperclip.olfnetto.workers.dev.defesai.com.br` → túnel |
+| DNS route configurado | ⚠️ Parcial | CNAME criado na zona `.defesai.com.br` (incorreta), não na zona `olfnetto.workers.dev` (válida) |
 | Allowed hostname no Paperclip | ✅ Configurado | `paperclip.olfnetto.workers.dev.defesai.com.br` na lista |
-| Acesso externo funcional | ❌ Não validado | DNS não resolve / trycloudflare falha |
+| Acesso externo funcional | ❌ Não alcançado | DNS não resolve corretamente para o túnel |
 
 ---
 
 ## 5. Próximos Passos Recomendados
 
-Para expor a porta 3100 externamente de forma estável, é necessário:
+Para expor a porta 3100 externamente de forma estável, é necessário criar um CNAME na zona DNS válida `olfnetto.workers.dev` apontando para o túnel `paperclip-netto`.
 
-1. **Verificar a zona DNS:** Confirmar que `defesai.com.br` (ou `olfnetto.workers.dev`) é uma zona DNS válida na conta Cloudflare do usuário.
+### Opção A: Via Cloudflare Dashboard (recomendado)
 
-2. **Criar DNS route com hostname válido:** Usar um domínio que já esteja configurado na conta Cloudflare, por exemplo:
+1. Acessar https://dash.cloudflare.com/
+2. Selecionar a zona `olfnetto.workers.dev`
+3. Criar um registro CNAME: `paperclip` → `paperclip-netto.cfargotunnel.com` (ou usar o tunnel route dns)
+4. Adicionar ao Paperclip:
    ```sh
-   cloudflared tunnel route dns --overwrite-dns 9cb11663-c26a-4517-a865-b14a1c46e3db <seu-dominio>.com.br
-   ```
-
-3. **Adicionar allowed-hostname:** Após escolher o hostname definitivo:
-   ```sh
-   pnpm paperclipai allowed-hostname <seu-dominio>.com.br
+   pnpm paperclipai allowed-hostname paperclip.olfnetto.workers.dev
    pnpm dev:stop && pnpm dev:once
    ```
-
-4. **Testar acesso externo:**
+5. Testar:
    ```sh
-   curl https://<seu-dominio>.com.br/api/health
+   curl https://paperclip.olfnetto.workers.dev/api/health
    ```
 
-5. **Considerar produção:** O trycloudflare é para testes temporários. Para produção, use um túnel nomeado com domínio próprio e certificado SSL gerenciado pelo Cloudflare.
+### Opção B: Via cloudflared com zona específica
+
+O comando `cloudflared tunnel route dns` não permite especificar a zona diretamente — ele usa a zona padrão da conta (`.defesai.com.br`). Para criar o CNAME na zona `olfnetto.workers.dev`, é necessário usar a API do Cloudflare ou o Dashboard.
+
+### Opção C: Usar domínio existente já configurado
+
+O domínio `evolution-api.olfnetto.workers.dev` já está configurado na conta (túnel `evolution-api`). Verificar se é possível criar um CNAME `paperclip` nessa mesma zona apontando para o túnel `paperclip-netto`.
 
 ---
 
@@ -174,11 +187,22 @@ Para expor a porta 3100 externamente de forma estável, é necessário:
 
 ## 7. Segurança
 
-- O servidor Paperclip está em modo `local_trusted` com `exposure: private`
+- O servidor Paperclip está em modo `local_trusted` com `exposure: private` e `bind: loopback` — só aceita conexões de localhost
 - O cloudflared cria uma conexão outbound para o Cloudflare (não expõe a porta 3100 no firewall local)
-- O allowed-hostname restringe quais hostnames podem acessar a instância
+- O allowed-hostname restringe quais hostnames podem acessar a instância (enforced only in authenticated/private mode)
 - As credenciais do túnel estão em `/home/lg/.cloudflared/*.json` (permissões 400, não versionar)
 
 ---
 
-**Fim do relatório.** O túnel está tecnicamente ativo e conectado ao Cloudflare, mas o acesso externo depende de um hostname DNS válido que resolva corretamente.
+## 8. Diagnóstico Técnico
+
+| Sintoma | Causa | Solução |
+|---------|-------|---------|
+| HTTP 000 (trycloudflare) | trycloudflare não funciona neste ambiente | Usar túnel nomeado com domínio válido |
+| HTTP 404 error 1042 (paperclip.olfnetto.workers.dev) | CNAME não existe na zona `olfnetto.workers.dev` | Criar CNAME na zona correta via Cloudflare Dashboard/API |
+| DNS não resolve (paperclip.olfnetto.workers.dev.defesai.com.br) | Zona composta não existe | Criar CNAME na zona `olfnetto.workers.dev` válida |
+| Rejeição de hostname | allowed-hostname não configurado | `pnpm paperclipai allowed-hostname <host>` (já feito) |
+
+---
+
+**Fim do relatório.** O túnel Cloudflare está tecnicamente ativo e conectado ao Cloudflare (4 conexões nos PoPs GRU), mas o acesso externo requer a criação de um CNAME na zona DNS válida `olfnetto.workers.dev` apontando para o túnel `paperclip-netto`.
