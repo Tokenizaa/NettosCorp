@@ -171,6 +171,14 @@ O comando `cloudflared tunnel route dns` não permite especificar a zona diretam
 
 O domínio `evolution-api.olfnetto.workers.dev` já está configurado na conta (túnel `evolution-api`). Verificar se é possível criar um CNAME `paperclip` nessa mesma zona apontando para o túnel `paperclip-netto`.
 
+### Processos Cloudflared Ativos
+
+Ao final da execução, 2 processos cloudflared estão em execução:
+1. `cloudflared tunnel --config config-paperclip.yml run` (túnel nomeado `paperclip-netto`) — ativo com 4 conexões
+2. `cloudflared tunnel --url http://localhost:3100` (túnel efêmero trycloudflare) — ativo, mas não entregando tráfego corretamente
+
+Para produção, recomenda-se manter apenas o túnel nomeado (`paperclip-netto`) e encerrar o túnel efêmero.
+
 ---
 
 ## 6. Arquivos de Configuração
