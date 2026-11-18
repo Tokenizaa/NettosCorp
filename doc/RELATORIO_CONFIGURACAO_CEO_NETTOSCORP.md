@@ -39,6 +39,9 @@ Configurar e validar o agente CEO da NettosCorp no Paperclip como executivo inte
 - `server/src/routes/agents.ts`, `server/src/routes/company-skills.ts`
 - `packages/shared/src/validators/agent.ts`, `packages/shared/src/constants.ts`
 
+### Fonte obrigatória de descoberta de skills
+- **skills.sh** (https://www.skills.sh/) — fonte institucional obrigatória para pesquisa e seleção de skills da NettosCorp, conforme protocolo na skill `nettoscorp-skill-discovery-and-governance`
+
 ---
 
 ## 3. Auditoria técnica inicial (estado anterior)
@@ -110,18 +113,19 @@ Escrito em `/home/lg/.paperclip/instances/default/companies/1ad50023-2215-4d61-b
 
 ## 6. Skills instaladas e atribuídas ao CEO
 
-A skill institucional `nettoscorp-paperclip-operations` já estava na company library e anexada ao CEO (execução anterior). Foram adicionadas 3 skills da biblioteca da empresa:
+A skill institucional `nettoscorp-paperclip-operations` já estava na company library e anexada ao CEO (execução anterior). Foram adicionadas 4 skills da biblioteca da empresa:
 
 | # | Skill | Key | Origem | Finalidade para o CEO | Atribuída via |
 |---|-------|-----|--------|----------------------|---------------|
-| 1 | nettoscorp-paperclip-operations | company/1ad50023-.../nettoscorp-paperclip-operations | Institucional NettosCorp | Manual de operação e administração do Paperclip | `skills agent sync --mode add` |
-| 2 | paperclip | paperclipai/paperclip/paperclip | Bundled Paperclip | Tarefas, heartbeats, documentos, aprovações, rotinas, governança | `skills agent sync --mode add` |
-| 3 | paperclip-board | paperclipai/paperclip/paperclip-board | Bundled Paperclip | Gestão da empresa como board member via chat | `skills agent sync --mode add` |
-| 4 | paperclip-converting-plans-to-tasks | paperclipai/paperclip/paperclip-converting-plans-to-tasks | Bundled Paperclip | Converter planos autorizados em tarefas com owners e dependências | `skills agent sync --mode add` |
+| 1 | nettoscorp-paperclip-operations | company/1ad50023-.../nettoscorp-paperclip-operations | Institucional NettosCorp | Manual de operação e administração do Paperclip para a NettosCorp | `skills agent sync --mode add` |
+| 2 | nettoscorp-skill-discovery-and-governance | company/1ad50023-.../nettoscorp-skill-discovery-and-governance | Institucional NettosCorp | Protocolo obrigatório de pesquisa, seleção, auditoria e atribuição de skills; skills.sh como fonte obrigatória de descoberta | `skills agent sync --mode add` |
+| 3 | paperclip | paperclipai/paperclip/paperclip | Bundled Paperclip | Tarefas, heartbeats, documentos, aprovações, rotinas, governança | `skills agent sync --mode add` |
+| 4 | paperclip-board | paperclipai/paperclip/paperclip-board | Bundled Paperclip | Gestão da empresa como board member via chat | `skills agent sync --mode add` |
+| 5 | paperclip-converting-plans-to-tasks | paperclipai/paperclip/paperclip-converting-plans-to-tasks | Bundled Paperclip | Converter planos autorizados em tarefas com owners e dependências | `skills agent sync --mode add` |
 
 **Confirmação via API** (`GET /api/agents/{id}/skills`):
 - `supported: true`, `mode: ephemeral`
-- 6 `desiredSkills` listadas (incluindo `complain` e `suggestion-box` que estavam no estado de sincronização anterior)
+- 7 `desiredSkills` listadas (incluindo `complain` e `suggestion-box` que estavam no estado de sincronização anterior)
 - Todas com `versionId: null` (seguem versão corrente)
 
 **Não foram instaladas** as 5 skills que precisam ser criadas (nettoscorp-ceo-dashboard, nettoscorp-approval-workflow, nettoscorp-governance-audit, nettoscorp-hiring-gate, nettoscorp-budget-oversight) — não existem e sua criação depende de decisão/priorização posterior.
@@ -242,7 +246,7 @@ Conforme `doc/PENDENCIAS_DECISOES_FUNDADOR.md`:
 | Instruções completas e salvas | ✅ | AGENTS.md no diretório gerenciado |
 | Harness e modelo configurados | ✅ | claude_local + claude-3-5-sonnet-20241022 + conexão anthropic |
 | Diretório de trabalho válido | ✅ | instructionsFilePath configurado e existente |
-| Skills instaladas e atribuídas | ✅ | 6 skills, supported: true, mode: ephemeral |
+| Skills instaladas e atribuídas | ✅ | 7 skills, supported: true, mode: ephemeral (inclui nettoscorp-skill-discovery-and-governance) |
 | Permissões verificadas | ✅ | 14 grants listados na API |
 | Testes executados e documentados | ⚠️ | Configuração validada; teste comportamental pendente |
 | CEO compreende governança | ✅ | AGENTS.md seção 6 (limites de autoridade) |

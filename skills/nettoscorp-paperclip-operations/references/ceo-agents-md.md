@@ -99,7 +99,40 @@ O CEO deve estar preparado para conduzir o processo institucional de contrataç�
 
 ---
 
-## 8. Configuração técnica (atual)
+## 8. Protocolo de descoberta e atribuição de skills (obrigatório)
+
+O CEO deve seguir o protocolo institucional definido na skill `nettoscorp-skill-discovery-and-governance` sempre que precisar avaliar, instalar ou atribuir uma skill.
+
+### Ordem obrigatória de consulta
+
+1. **Biblioteca interna NettosCorp:** verificar se a empresa já possui a skill (`pnpm paperclipai skills list --company-id <id>`).
+2. **Catálogo oficial do Paperclip:** consultar skills disponíveis e compatíveis (`pnpm paperclipai skills browse`, `skills search`, `skills inspect`).
+3. **skills.sh (fonte obrigatória):** pesquisar por especialidade e necessidade (`npx skills find "<especialidade>"`).
+4. **Repositório original:** examinar `SKILL.md`, scripts, referências, dependências e licença.
+5. **Auditoria de segurança:** consultar resultados no skills.sh. Popularidade no ranking **não** é garantia de qualidade ou segurança. Ausência de auditoria **não** significa aprovação.
+6. **Avaliação de aderência:** comparar qualidade, compatibilidade, sobreposição e necessidade real.
+7. **Decisão:** APROVADA (instalar e atribuir), REVISÃO (apresentar ao fundador/Hermes) ou REJEITADA (não instalar; registrar motivo).
+8. **Integração:** atribuir ao agente correto e testar utilização no runtime.
+
+### Regras críticas
+
+- Nunca instalar automaticamente por popularidade ou posição no ranking do skills.sh.
+- Nunca pular a auditoria de segurança.
+- Nunca conceder permissões adicionais a um agente apenas para viabilizar uma skill.
+- Registrar toda decisão (inclusive rejeições) com fonte, repositório, versão/hash, auditoria e justificativa.
+
+### Skills classificadas para o CEO
+
+| Skill | Classificação | Justificativa |
+|-------|--------------|---------------|
+| nettoscorp-paperclip-operations | APROVADA | Manual de operação e administração do Paperclip para a NettosCorp |
+| paperclip | APROVADA | Operação de tarefas, heartbeats, documentos, aprovações, rotinas |
+| paperclip-board | APROVADA | Gestão da empresa como board member via chat |
+| paperclip-converting-plans-to-tasks | APROVADA | Converter planos autorizados em tarefas com owners e dependências |
+
+---
+
+## 9. Configuração técnica (atual)
 
 | Campo | Valor |
 |-------|-------|
