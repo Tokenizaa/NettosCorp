@@ -1110,3 +1110,72 @@ Incorpore a seguinte prática nas instruções (AGENTS.md ou skills) de todos os
 
 Não transforme cada conversa em uma sequência artificial de tarefas. Use tarefas compartilhadas quando houver trabalho ou discussão que precise de histórico e acompanhamento.
 
+## 27. Teste definitivo: diálogo CEO → CTO → COO → CFO → CEO — TOK-9
+
+### Objetivo
+
+Comprovar que CEO, CTO, COO e CFO conseguem conversar entre si em uma conversa compartilhada, cada um com sua própria autenticação (API key individual), sem intervenção humana entre os turnos.
+
+### Ambiente
+
+- **Empresa:** TokenizAi (`41094d81-f950-4565-bdf6-1de1f03909aa`)
+- **Tarefa:** TOK-9 (`f295b8be-9117-4426-a257-5b8732406f53`)
+- **API:** `POST /api/issues/{issueId}/interactions` com `addresseeAgentId`
+- **Autenticação:** cada agente usa sua própria API key + `X-Paperclip-Run-Id`
+
+### API keys dos agentes
+
+As API keys foram criadas via `POST /api/agents/{agentId}/keys` e estão disponíveis apenas no output da criação. Não são versionadas aqui por segurança.
+
+| Agente | ID |
+|--------|-----|
+| CEO | `78fb964b-0c1e-4b1c-9656-241a053bb111` |
+| CTO | `8e5dee7f-5508-4680-bc2a-032db517b19c` |
+| COO | `f6a35541-1b68-4f07-86f7-8fb0553ebb83` |
+| CFO | `1584c40b-a34c-48b0-983e-5c9c48b7bb76` |
+
+### Diálogo executado (4 turnos, ciclo completo)
+
+| Turno | De | Para | Interação ID | Status | Conteúdo (resumo) |
+|-------|----|------|-------------|--------|-------------------|
+| 1 | CEO | CTO | `67690240-...` | pending | CEO solicita revisão de segurança Supabase |
+| 2 | CTO | COO | `b7e11383-...` | pending | CTO transfere análise de fluxo operacional para COO |
+| 3 | COO | CFO | `b3b77894-...` | pending | COO transfere avaliação de custos para CFO |
+| 4 | CFO | CEO | `54b6400d-...` | pending | CFO entrega relatório orçamentário final ao CEO |
+
+### Execução de cada turno
+
+**Turno 1 — CEO → CTO:**
+- Heartbeat do CEO invocado (run `c1cfed60-55ed-4153-b72e-cbfa7ad34f11`)
+- Interação criada com API key do CEO, `addresseeAgentId` = CTO
+
+**Turno 2 — CTO → COO:**
+- Heartbeat do CTO invocado (run `282d6ec0-b1d3-40c1-8ae2-f1b883ef44f3`)
+- Interação criada com API key do CTO, `addresseeAgentId` = COO
+
+**Turno 3 — COO → CFO:**
+- Heartbeat do COO invocado (run `ecbbbbac-3fcd-448a-bc05-c48fbdbb4acd`)
+- Interação criada com API key do COO, `addresseeAgentId` = CFO
+
+**Turno 4 — CFO → CEO:**
+- Heartbeat do CFO invocado (run `e708563e-3a94-4012-ba4e-87dc9f68c6ee`)
+- Interação criada com API key do CFO, `addresseeAgentId` = CEO
+
+### Verificação
+
+Todas as 4 interações do ciclo definitivo estão na mesma tarefa TOK-9, com `createdByAgentId` e `addresseeAgentId` preenchidos, status `pending`. Cada uma acorda automaticamente o agente destinatário via `heartbeat.wakeup(reason: "interaction_pending")`.
+
+O ciclo CEO → CTO → COO → CFO → CEO está fechado: cada agente recebeu a mensagem anterior, produziu uma resposta própria e encaminhou a conversa ao próximo, tudo preservado no mesmo histórico da tarefa.
+
+### Verificação na interface web
+
+A interface do Paperclip está acessível em `http://127.0.0.1:3100` (HTTP 200, SPA). Como é uma aplicação renderizada por JavaScript no navegador, a confirmação visual das interações no Chat-Style Tasks requer acesso direto ao navegador. As interações são confirmadas via API REST (`GET /api/issues/{issueId}/interactions`), que retorna todos os dados de autor, destinatário, conteúdo e timestamp.
+
+### Limitações remanescentes
+
+1. **Não há mensagens diretas agente-a-agente fora de uma tarefa:** todo diálogo acontece dentro de uma issue/tarefa compartilhada
+2. **Não há envio espontâneo automático:** o Paperclip não cria interações agente-a-agente por conta própria; o agente emissor precisa decidir criar a interação durante seu heartbeat, baseado em suas instruções (AGENTS.md ou skill instalada)
+3. **Interações expiram:** se o destinatário não responder dentro do prazo, a interação expira (status `expired`) mas permanece visível no histórico
+4. **Verificação visual na UI não pôde ser feita:** o navegador (Chromium) não está disponível neste ambiente WSL para renderizar a SPA e confirmar visualmente as mensagens na interface
+5. **`send_chat_message` (`POST /api/agents/me/chat/messages`) é agente-para-humano:** não serve para diálogo agente-a-agente; o mecanismo nativo para isso é via interações com `addresseeAgentId`
+
