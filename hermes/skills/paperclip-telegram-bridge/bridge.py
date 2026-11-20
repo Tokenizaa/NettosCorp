@@ -2,16 +2,23 @@
 """
 paperclip-telegram-bridge — Hermes como intermediário entre Telegram e Paperclip.
 
+IMPORTANTE: esta bridge NÃO faz getUpdates do Telegram com o mesmo token que o
+Hermes já usa (isso causaria conflito de updates). Ela expõe um webhook HTTP
+local que pode receber mensagens (via configuração de webhook do Telegram, ou
+via chamada manual --once), e as encaminha para o Paperclip.
+
 Fluxo:
   Telegram (mensagem com @Agente)
+    → webhook local (localhost:8765/webhook)  [ou comando --once]
     → Bridge detecta menção
     → POST /api/agents/{agent_id}/wakeup  (Paperclip)
     → heartbeat_run criado (run_id)
     → Bridge armazena run_id → (chat_id, agente)
     → Bridge polla GET /api/heartbeat-runs/{run_id}
     → Quando completa/falha, envia resultado ao Telegram assinado pelo agente
+      (via sendMessage com o mesmo TELEGRAM_BOT_TOKEN do Hermes)
 
-Usa apenas stdlib (urllib, json, re, time). Nenhuma dependência externa.
+Usa apenas stdlib. Nenhuma dependência externa.
 """
 
 import json
@@ -21,10 +28,12 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from threading import Thread
 from typing import Any, Dict, List, Optional
 
 # ---------------------------------------------------------------------------
-# Configuração
+# Configuração (usa o mesmo token do Hermes, lido do ambiente)
 # ---------------------------------------------------------------------------
 
 PAPERCLIP_API_URL = os.getenv("PAPERCLIP_API_URL", "http://localhost:3100").rstrip("/")
@@ -36,18 +45,16 @@ ALLOWED_USERS_RAW = os.getenv("TELEGRAM_ALLOWED_USERS", "")
 ALLOWED_USERS = set(int(u.strip()) for u in ALLOWED_USERS_RAW.split(",") if u.strip()) if ALLOWED_USERS_RAW else set()
 
 AGENTS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agents.yaml")
-POLL_INTERVAL = 3  # segundos entre polls
-TELEGRAM_TIMEOUT = 30  # segundos para getUpdates long polling
+POLL_INTERVAL = 3
+WEBHOOK_HOST = "127.0.0.1"
+WEBHOOK_PORT = 8765
 
 # ---------------------------------------------------------------------------
 # Estado em memória
 # ---------------------------------------------------------------------------
 
-# run_id -> {chat_id, agent_name, agent_id, telegram_message_id, created_at}
+# run_id -> {chat_id, agent_name, agent_id, created_at}
 RUN_STATE: Dict[str, Dict[str, Any]] = {}
-
-# último update_id processado do Telegram
-LAST_UPDATE_ID = 0
 
 # ---------------------------------------------------------------------------
 # Utilitários HTTP
@@ -82,13 +89,12 @@ def http_post(url: str, payload: Dict[str, Any], headers: Optional[Dict[str, str
         return json.loads(data) if data else {}
 
 
-def telegram_api(method: str, payload: Optional[Dict[str, Any]] = None) -> Any:
+def telegram_send_message(chat_id: int, text: str) -> Any:
+    """Envia mensagem ao Telegram usando o mesmo bot token do Hermes."""
     if not TELEGRAM_API_URL:
         raise RuntimeError("TELEGRAM_BOT_TOKEN não configurado")
-    url = f"{TELEGRAM_API_URL}/{method}"
-    if payload is None:
-        return http_get(url, timeout=15)
-    return http_post(url, payload, timeout=15)
+    payload: Dict[str, Any] = {"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
+    return http_post(f"{TELEGRAM_API_URL}/sendMessage", payload, timeout=15)
 
 
 # ---------------------------------------------------------------------------
@@ -96,7 +102,6 @@ def telegram_api(method: str, payload: Optional[Dict[str, Any]] = None) -> Any:
 # ---------------------------------------------------------------------------
 
 def load_agents() -> List[Dict[str, Any]]:
-    """Carrega agentes do arquivo agents.yaml (formato simples, sem dependência de PyYAML)."""
     agents: List[Dict[str, Any]] = []
     if not os.path.exists(AGENTS_FILE):
         return agents
@@ -111,16 +116,16 @@ def load_agents() -> List[Dict[str, Any]]:
                 "aliases": [x.lower() for x in a.get("aliases", [])],
             })
     except ImportError:
-        # Parse manual mínimo de YAML (suficiente para o formato agents.yaml)
         current: Optional[Dict[str, Any]] = None
         with open(AGENTS_FILE, "r", encoding="utf-8") as f:
             for line in f:
                 stripped = line.strip()
                 if not stripped or stripped.startswith("#"):
                     continue
-                if stripped == "agents:" or stripped == "- name:":
-                    if stripped == "- name:":
-                        current = {"name": "", "agent_id": "", "aliases": []}
+                if stripped == "agents:":
+                    continue
+                if stripped == "- name:":
+                    current = {"name": "", "agent_id": "", "aliases": []}
                     continue
                 if current is None:
                     continue
@@ -145,7 +150,6 @@ def load_agents() -> List[Dict[str, Any]]:
 
 
 def build_lookup(agents: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
-    """Constrói um índice nome/alias → agente."""
     lookup: Dict[str, Dict[str, Any]] = {}
     for a in agents:
         lookup[a["name"].lower()] = a
@@ -155,14 +159,12 @@ def build_lookup(agents: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
 
 
 def find_agent(text: str, lookup: Dict[str, Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-    """Procura @Nome ou @Alias no texto. Retorna o agente ou None."""
     if not text:
         return None
     for m in re.finditer(r"@([A-Za-zÀ-ÿ0-9_\s][A-Za-zÀ-ÿ0-9_\s]*)", text, re.IGNORECASE):
         mention = m.group(1).strip().lower()
         if mention in lookup:
             return lookup[mention]
-        # match parcial
         for key, agent in lookup.items():
             if mention in key or key in mention:
                 return agent
@@ -170,7 +172,6 @@ def find_agent(text: str, lookup: Dict[str, Dict[str, Any]]) -> Optional[Dict[st
 
 
 def strip_mention(text: str) -> str:
-    """Remove a primeira menção @Nome do texto."""
     return re.sub(r"@[A-Za-zÀ-ÿ0-9_\s]+", "", text, count=1).strip(" ,:;-\n\r\t")
 
 
@@ -179,7 +180,6 @@ def strip_mention(text: str) -> str:
 # ---------------------------------------------------------------------------
 
 def paperclip_wakeup(agent_id: str, message_text: str, chat_id: int, user_id: int) -> Optional[Dict[str, Any]]:
-    """Acorda um agente no Paperclip. Retorna o objeto run ou None."""
     url = f"{PAPERCLIP_API_URL}/api/agents/{agent_id}/wakeup"
     payload = {
         "source": "on_demand",
@@ -207,7 +207,6 @@ def paperclip_wakeup(agent_id: str, message_text: str, chat_id: int, user_id: in
 
 
 def paperclip_run_status(run_id: str) -> Optional[Dict[str, Any]]:
-    """Consulta o status de uma run do Paperclip."""
     url = f"{PAPERCLIP_API_URL}/api/heartbeat-runs/{run_id}"
     try:
         return http_get(url, _headers(), timeout=15)
@@ -217,7 +216,6 @@ def paperclip_run_status(run_id: str) -> Optional[Dict[str, Any]]:
 
 
 def paperclip_list_agents() -> List[Dict[str, Any]]:
-    """Sincroniza agentes da API do Paperclip."""
     if not PAPERCLIP_COMPANY_ID:
         return []
     url = f"{PAPERCLIP_API_URL}/api/companies/{PAPERCLIP_COMPANY_ID}/agents"
@@ -225,11 +223,7 @@ def paperclip_list_agents() -> List[Dict[str, Any]]:
         data = http_get(url, _headers(), timeout=15)
         if isinstance(data, list):
             return [
-                {
-                    "name": a.get("name", "sem nome"),
-                    "agent_id": a.get("id", ""),
-                    "aliases": [],
-                }
+                {"name": a.get("name", "sem nome"), "agent_id": a.get("id", ""), "aliases": []}
                 for a in data
             ]
     except Exception as e:
@@ -238,135 +232,65 @@ def paperclip_list_agents() -> List[Dict[str, Any]]:
 
 
 # ---------------------------------------------------------------------------
-# Telegram
+# Processamento de uma mensagem (webhook ou --once)
 # ---------------------------------------------------------------------------
 
-def telegram_send_message(chat_id: int, text: str, reply_to: Optional[int] = None) -> Any:
-    payload: Dict[str, Any] = {"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
-    if reply_to:
-        payload["reply_to_message_id"] = reply_to
-    return telegram_api("sendMessage", payload)
-
-
-def telegram_get_updates(offset: int, timeout: int) -> List[Dict[str, Any]]:
-    payload = {"offset": offset, "timeout": timeout, "allowed_updates": ["message"]}
-    try:
-        result = telegram_api("getUpdates", payload)
-        return result.get("result", []) if isinstance(result, dict) else []
-    except Exception as e:
-        print(f"[bridge] getUpdates falhou: {e}", file=sys.stderr)
-        return []
-
-
-# ---------------------------------------------------------------------------
-# Comandos do bridge
-# ---------------------------------------------------------------------------
-
-def handle_command(text: str, chat_id: int) -> Optional[str]:
-    """Processa comandos /pc ... Retorna resposta ou None."""
-    if not text.startswith("/pc"):
+def process_message(text: str, chat_id: int, user_id: int, lookup: Dict[str, Dict[str, Any]]) -> Optional[str]:
+    """Processa uma mensagem de entrada. Retorna resposta de texto ou None."""
+    if text.strip().startswith("/pc"):
+        parts = text.strip().split()
+        cmd = parts[1] if len(parts) > 1 else ""
+        if cmd == "help":
+            return (
+                "*Paperclip Telegram Bridge*\n"
+                "Uso: `@NomeDoAgente sua mensagem` para acordar um agente.\n"
+                "Comandos: `/pc status`, `/pc sync`, `/pc help`.\n"
+                "As respostas dos agentes voltam para este chat assinadas com o nome do agente."
+            )
+        if cmd == "status":
+            agents = load_agents()
+            lines = [f"*Bridge status* — {len(agents)} agente(s) configurado(s), {len(RUN_STATE)} run(ens) ativa(s)."]
+            for a in agents:
+                lines.append(f"• {a['name']} (`{a['agent_id'][:8]}…`)")
+            return "\n".join(lines)
+        if cmd == "sync":
+            remotos = paperclip_list_agents()
+            if not remotos:
+                return "Não foi possível sincronizar agentes do Paperclip."
+            import yaml  # type: ignore
+            with open(AGENTS_FILE, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"agents": remotos}, f, allow_unicode=True, sort_keys=False)
+            return f"Sincronizados {len(remotos)} agente(s) do Paperclip para `agents.yaml`."
         return None
-    parts = text.strip().split()
-    cmd = parts[1] if len(parts) > 1 else ""
-    args = parts[2:]
 
-    if cmd == "help" or cmd == "start":
-        return (
-            "*Paperclip Telegram Bridge*\n"
-            "Uso: `@NomeDoAgente sua mensagem` para acordar um agente.\n"
-            "Comandos: `/pc status`, `/pc sync`, `/pc help`.\n"
-            "As respostas dos agentes voltam para este chat assinadas com o nome do agente."
-        )
-    if cmd == "status":
-        agents = load_agents()
-        lines = [f"*Bridge status* — {len(agents)} agente(s) configurado(s), {len(RUN_STATE)} run(ens) ativa(s)."]
-        for a in agents:
-            lines.append(f"• {a['name']} (`{a['agent_id'][:8]}…`)")
-        return "\n".join(lines)
-    if cmd == "sync":
-        remotos = paperclip_list_agents()
-        if not remotos:
-            return "Não foi possível sincronizar agentes do Paperclip."
-        # Grava agents.yaml atualizado
-        import yaml  # type: ignore
-        with open(AGENTS_FILE, "w", encoding="utf-8") as f:
-            yaml.safe_dump({"agents": remotos}, f, allow_unicode=True, sort_keys=False)
-        return f"Sincronizados {len(remotos)} agente(s) do Paperclip para `agents.yaml`."
-    return None
-
-
-# ---------------------------------------------------------------------------
-# Loop principal
-# ---------------------------------------------------------------------------
-
-def process_telegram_update(update: Dict[str, Any], lookup: Dict[str, Dict[str, Any]]) -> None:
-    global LAST_UPDATE_ID
-    LAST_UPDATE_ID = max(LAST_UPDATE_ID, update["update_id"]) + 1
-
-    message = update.get("message")
-    if not message or not message.get("text"):
-        return
-
-    chat = message.get("chat", {})
-    chat_id = chat.get("id")
-    user = message.get("from", {})
-    user_id = user.get("id")
-    text = message["text"]
-    message_id = message.get("message_id")
-
-    if not chat_id or not user_id:
-        return
-
-    # Allowlist (se configurada)
-    if ALLOWED_USERS and user_id not in ALLOWED_USERS:
-        telegram_send_message(chat_id, "Usuário não autorizado para usar este bot.")
-        return
-
-    # Comandos /pc
-    cmd_resp = handle_command(text, chat_id)
-    if cmd_resp:
-        telegram_send_message(chat_id, cmd_resp, reply_to=message_id)
-        return
-
-    # Detectar menção de agente
     agent = find_agent(text, lookup)
     if not agent:
-        return  # Não é para um agente; ignora silenciosamente
+        return None  # Não é para um agente
 
     agent_name = agent["name"]
     agent_id = agent["agent_id"]
     clean_text = strip_mention(text) or text
 
-    # Ack imediato
-    telegram_send_message(
-        chat_id,
-        f"⏳ Acionando *{agent_name}*…",
-        reply_to=message_id,
-    )
-
-    # Wakeup no Paperclip
     run = paperclip_wakeup(agent_id, clean_text, chat_id, user_id)
     if not run or not run.get("id"):
-        telegram_send_message(
-            chat_id,
-            f"❌ Falha ao acionar *{agent_name}*. Verifique se a API do Paperclip está acessível.",
-            reply_to=message_id,
-        )
-        return
+        return f"❌ Falha ao acionar *{agent_name}*. Verifique se a API do Paperclip está acessível."
 
     run_id = run["id"]
     RUN_STATE[run_id] = {
         "chat_id": chat_id,
         "agent_name": agent_name,
         "agent_id": agent_id,
-        "telegram_message_id": message_id,
         "created_at": time.time(),
     }
     print(f"[bridge] run {run_id} criada para agente {agent_name} (chat {chat_id})")
+    return f"⏳ Acionando *{agent_name}*… aguardando resposta."
 
+
+# ---------------------------------------------------------------------------
+# Polling de runs do Paperclip (entrega de saída ao Telegram)
+# ---------------------------------------------------------------------------
 
 def poll_paperclip_runs() -> None:
-    """Verifica runs em andamento e entrega respostas concluídas ao Telegram."""
     to_remove: List[str] = []
     for run_id, state in list(RUN_STATE.items()):
         run = paperclip_run_status(run_id)
@@ -376,15 +300,11 @@ def poll_paperclip_runs() -> None:
         if status in ("completed", "failed", "cancelled"):
             agent_name = state["agent_name"]
             chat_id = state["chat_id"]
-            reply_to = state.get("telegram_message_id")
-
             result_json = run.get("resultJson") or {}
             error = run.get("error")
 
             if status == "completed" and result_json:
-                # Extrair texto útil do resultado
                 summary = result_json.get("summary") or result_json.get("text") or str(result_json)
-                # Limitar tamanho para não estourar o Telegram
                 if len(summary) > 3500:
                     summary = summary[:3500] + "…"
                 texto_resposta = f"*[{agent_name}]*\n{summary}"
@@ -393,7 +313,7 @@ def poll_paperclip_runs() -> None:
                 texto_resposta = f"*[{agent_name}]* ⚠️ {motivo}"
 
             try:
-                telegram_send_message(chat_id, texto_resposta, reply_to=reply_to)
+                telegram_send_message(chat_id, texto_resposta)
                 print(f"[bridge] resposta entregue para run {run_id} (agente {agent_name}, status {status})")
             except Exception as e:
                 print(f"[bridge] falha ao entregar resposta run {run_id}: {e}", file=sys.stderr)
@@ -404,14 +324,136 @@ def poll_paperclip_runs() -> None:
         RUN_STATE.pop(run_id, None)
 
 
+# ---------------------------------------------------------------------------
+# Webhook HTTP local (recebe mensagens do Telegram sem getUpdates)
+# ---------------------------------------------------------------------------
+
+class WebhookHandler(BaseHTTPRequestHandler):
+    lookup: Dict[str, Dict[str, Any]] = {}
+
+    def do_POST(self):
+        if self.path != "/webhook":
+            self.send_response(404)
+            self.end_headers()
+            return
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length)
+            payload = json.loads(body) if body else {}
+        except Exception:
+            self.send_response(400)
+            self.end_headers()
+            return
+
+        text = payload.get("text", "")
+        chat_id = payload.get("chat_id")
+        user_id = payload.get("user_id", 0)
+
+        if not chat_id:
+            self.send_response(400)
+            self.end_headers()
+            return
+
+        if ALLOWED_USERS and user_id not in ALLOWED_USERS:
+            try:
+                telegram_send_message(chat_id, "Usuário não autorizado para usar este bot.")
+            except Exception:
+                pass
+            self.send_response(200)
+            self.end_headers()
+            return
+
+        resposta = process_message(text, chat_id, user_id, self.lookup)
+        if resposta:
+            try:
+                telegram_send_message(chat_id, resposta)
+            except Exception as e:
+                print(f"[bridge] falha ao enviar resposta: {e}", file=sys.stderr)
+
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"ok")
+
+    def log_message(self, format, *args):
+        return  # silenciar logs do http.server
+
+
+def _run_poll_loop() -> None:
+    while True:
+        try:
+            poll_paperclip_runs()
+        except Exception as e:
+            print(f"[bridge] erro no poll de runs: {e}", file=sys.stderr)
+        time.sleep(POLL_INTERVAL)
+
+
+def run_webhook(lookup: Dict[str, Dict[str, Any]]) -> None:
+    WebhookHandler.lookup = lookup
+    server = HTTPServer((WEBHOOK_HOST, WEBHOOK_PORT), WebhookHandler)
+    print(f"[bridge] Webhook local escutando em http://{WEBHOOK_HOST}:{WEBHOOK_PORT}/webhook")
+    print("[bridge] Configure o webhook do Telegram para apontar para esta URL.")
+    print("[bridge] Ou use: python3 bridge.py --once \"@Agente texto\" [chat_id] [user_id]")
+    t = Thread(target=_run_poll_loop, daemon=True)
+    t.start()
+    server.serve_forever()
+
+
+# ---------------------------------------------------------------------------
+# Modo linha de comando (única mensagem, para teste)
+# ---------------------------------------------------------------------------
+
+def run_once(text: str, chat_id: int, user_id: int, lookup: Dict[str, Dict[str, Any]]) -> None:
+    resposta = process_message(text, chat_id, user_id, lookup)
+    if resposta:
+        print(resposta)
+        try:
+            telegram_send_message(chat_id, resposta)
+        except Exception as e:
+            print(f"[bridge] não foi possível enviar ao Telegram: {e}", file=sys.stderr)
+    else:
+        print("(nenhuma menção de agente detectada)")
+
+    # Aguarda a run completar (até 60s)
+    for run_id, state in list(RUN_STATE.items()):
+        for _ in range(20):
+            time.sleep(3)
+            run = paperclip_run_status(run_id)
+            if not run:
+                break
+            if run.get("status") in ("completed", "failed", "cancelled"):
+                result_json = run.get("resultJson") or {}
+                error = run.get("error")
+                if run.get("status") == "completed" and result_json:
+                    summary = result_json.get("summary") or result_json.get("text") or str(result_json)
+                    if len(summary) > 3500:
+                        summary = summary[:3500] + "…"
+                    print(f"\n*[{state['agent_name']}]*\n{summary}")
+                else:
+                    motivo = error or result_json.get("summary") or "sem resultado visível"
+                    print(f"\n*[{state['agent_name']}]* ⚠️ {motivo}")
+                try:
+                    if run.get("status") == "completed" and result_json:
+                        telegram_send_message(chat_id, f"*[{state['agent_name']}]*\n{summary}")
+                    else:
+                        telegram_send_message(chat_id, f"*[{state['agent_name']}]* ⚠️ {motivo}")
+                except Exception:
+                    pass
+                break
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
 def main() -> None:
-    print("[bridge] Iniciando Paperclip Telegram Bridge…")
+    print("[bridge] Paperclip Telegram Bridge (modo webhook local)")
     print(f"[bridge] Paperclip API: {PAPERCLIP_API_URL}")
     print(f"[bridge] Company: {PAPERCLIP_COMPANY_ID}")
     print(f"[bridge] Telegram bot configurado: {'sim' if TELEGRAM_BOT_TOKEN else 'NÃO'}")
 
     if not TELEGRAM_BOT_TOKEN:
         print("[bridge] ERRO: TELEGRAM_BOT_TOKEN não definido.", file=sys.stderr)
+        print("[bridge] Exporte a variável ou faça `source ~/.hermes/.env` antes de iniciar.", file=sys.stderr)
         sys.exit(1)
 
     if not PAPERCLIP_API_URL:
@@ -422,34 +464,19 @@ def main() -> None:
     lookup = build_lookup(agents)
     print(f"[bridge] {len(agents)} agente(s) carregado(s) de agents.yaml")
 
-    global LAST_UPDATE_ID
-    # Inicializa offset com o último update disponível (não processa histórico antigo)
-    try:
-        updates = telegram_get_updates(offset=0, timeout=1)
-        if updates:
-            LAST_UPDATE_ID = max(u["update_id"] for u in updates)
-    except Exception:
-        pass
+    if "--once" in sys.argv:
+        idx = sys.argv.index("--once")
+        resto = sys.argv[idx + 1:]
+        if not resto:
+            print("Uso: python3 bridge.py --once \"@Agente sua mensagem\" [chat_id] [user_id]", file=sys.stderr)
+            sys.exit(1)
+        texto = resto[0]
+        chat_id = int(resto[1]) if len(resto) > 1 else 0
+        user_id = int(resto[2]) if len(resto) > 2 else 0
+        run_once(texto, chat_id, user_id, lookup)
+        return
 
-    print("[bridge] Loop principal iniciado. Pressione Ctrl+C para parar.")
-    try:
-        while True:
-            # 1) Receber mensagens do Telegram
-            updates = telegram_get_updates(offset=LAST_UPDATE_ID, timeout=TELEGRAM_TIMEOUT)
-            for upd in updates:
-                process_telegram_update(upd, lookup)
-
-            # 2) Pollar runs do Paperclip para entregas de saída
-            poll_paperclip_runs()
-
-            # Recarrega agentes periodicamente (a cada ~60s)
-            if int(time.time()) % 60 < POLL_INTERVAL:
-                agents = load_agents()
-                lookup = build_lookup(agents)
-
-            time.sleep(POLL_INTERVAL)
-    except KeyboardInterrupt:
-        print("\n[bridge] Encerrado pelo usuário.")
+    run_webhook(lookup)
 
 
 if __name__ == "__main__":
