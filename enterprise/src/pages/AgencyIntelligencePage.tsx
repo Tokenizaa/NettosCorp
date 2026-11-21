@@ -232,7 +232,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
                     <span className="rounded-md bg-nc-surface px-2 py-1 text-xs tabular-nums text-nc-text-secondary">{Math.round(score * 100)}% correspondência</span>
                   </div>
                   <p className="mt-3 line-clamp-3 text-sm text-nc-text-secondary">{profile.specialty_description || profile.identity}</p>
-                  <p className="mt-2 text-xs text-nc-text-muted">{reason}</p>{group && <p className="mt-1 text-xs text-nc-brand">{group} · {activation}</p>}
+                  <p className="mt-2 text-xs text-nc-text-muted">{reason}</p><p className="mt-2 text-[11px] text-nc-text-muted">Objetivo: {Math.round(dimensions.objectiveFit * 100)}% · Runbook: {Math.round(dimensions.runbookFit * 100)}% · Capacidades: {dimensions.capabilityDomains.join(', ') || 'não classificadas'}</p>{group && <p className="mt-1 text-xs text-nc-brand">{group} · {activation}</p>}
                   <button onClick={() => added ? removeFromTeam(profile.id) : addToTeam(profile)} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-nc-border px-3 py-2 text-xs font-medium text-nc-text hover:border-nc-brand">
                     {added ? <><Check size={14}/> Adicionado à equipe</> : <><Plus size={14}/> Adicionar à equipe</>}
                   </button>
