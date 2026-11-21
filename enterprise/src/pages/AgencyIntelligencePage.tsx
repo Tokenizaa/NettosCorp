@@ -6,10 +6,11 @@ import { agencyCatalogService } from '../services/agencyCatalogService';
 import { localStore } from '../services/supabaseClient';
 import { AgencyAgentProfile } from '../types';
 import { PageHeader } from '../components/layout/PageHeader';
+import { recommendTeamComposition, PlannerRunbook } from '../services/agencyTeamPlanner';
 
 type ModuleTab = 'library' | 'team-builder' | 'runbooks' | 'divisions';
 type RunbookGroup = { group: string; activation: string; agents: string[] };
-type Runbook = { slug: string; title: string; mode: string; duration: string; summary: string; doc: string; roster: RunbookGroup[] };
+type Runbook = PlannerRunbook;
 type RunbookFile = { runbooks: Runbook[] };
 type Division = { label: string; icon: string; color: string };
 type DivisionFile = { divisions: Record<string, Division> };
@@ -22,11 +23,7 @@ const tabs: { id: ModuleTab; label: string; icon: React.ElementType }[] = [
 ];
 
 const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
-const words = (value: string) => normalize(value).split(/[^a-z0-9]+/).filter(word => word.length > 2);
-const profileText = (profile: AgencyAgentProfile) => [
-  profile.name, profile.code, profile.identity, profile.specialty, profile.specialty_description,
-  ...(profile.competencies || []), ...(profile.responsibilities || []), profile.methodology,
-].join(' ');
+const sourceIdentifier = (profile: AgencyAgentProfile) => String(profile.source_file || '').replace(/[`'"]/g, '').split('/').pop()?.replace(/\.md$/i, '') || '';
 
 export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
   const [tab, setTab] = useState<ModuleTab>('library');
@@ -73,18 +70,12 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
     return () => { active = false; };
   }, []);
 
-  const recommendations = useMemo(() => {
-    const query = new Set(words(objective));
-    if (!query.size) return [];
-    return profiles.map(profile => {
-      const tokens = new Set(words(profileText(profile)));
-      const matches = [...query].filter(token => tokens.has(token));
-      const score = matches.length / Math.max(1, query.size);
-      return { profile, score, matches };
-    }).filter(item => item.matches.length > 0)
-      .sort((a, b) => b.score - a.score || a.profile.name.localeCompare(b.profile.name))
-      .slice(0, 18);
-  }, [objective, profiles]);
+  const composition = useMemo(
+    () => recommendTeamComposition(objective, profiles, runbooks),
+    [objective, profiles, runbooks],
+  );
+  const recommendations = composition.recommendations;
+  const inferredRunbook = composition.runbook;
 
   const categoryCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -100,8 +91,13 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
   const removeFromTeam = (id: string) => setTeam(current => current.filter(item => item.id !== id));
 
   const addRunbookGroup = (group: RunbookGroup) => {
-    const byCode = new Map(profiles.map(profile => [normalize(profile.code), profile]));
-    const found = group.agents.map(slug => byCode.get(normalize(slug))).filter((item): item is AgencyAgentProfile => Boolean(item));
+    const byIdentifier = new Map<string, AgencyAgentProfile>();
+    profiles.forEach(profile => {
+      byIdentifier.set(normalize(profile.code), profile);
+      const sourceId = sourceIdentifier(profile);
+      if (sourceId) byIdentifier.set(normalize(sourceId), profile);
+    });
+    const found = group.agents.map(slug => byIdentifier.get(normalize(slug))).filter((item): item is AgencyAgentProfile => Boolean(item));
     setTeam(current => [...current, ...found.filter(item => !current.some(existing => existing.id === item.id))]);
     setTab('team-builder');
     setSaveMessage('');
@@ -172,19 +168,23 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
               <div><h2 className="font-semibold text-nc-text">Profissionais recomendados</h2><p className="text-xs text-nc-text-muted">{recommendations.length} correspondências encontradas</p></div>
               <span className="text-xs text-nc-text-muted">{loading ? 'Carregando biblioteca…' : `${profiles.length} perfis analisados`}</span>
             </div>
+            {inferredRunbook && <div className="flex flex-col gap-3 rounded-xl border border-nc-brand/40 bg-nc-surface-elevated p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0"><p className="text-[11px] font-semibold uppercase tracking-wide text-nc-brand">Cenário operacional identificado</p><h3 className="mt-1 font-semibold text-nc-text">{inferredRunbook.title}</h3><p className="mt-1 text-xs text-nc-text-secondary">{inferredRunbook.summary}</p><p className="mt-1 text-xs text-nc-text-muted">Sinais encontrados: {composition.scenarioMatches.join(', ')} · {inferredRunbook.mode} · {inferredRunbook.duration}</p></div>
+              <button onClick={() => inferredRunbook.roster.forEach(addRunbookGroup)} className="shrink-0 rounded-lg bg-nc-brand px-3 py-2.5 text-xs font-semibold text-nc-brand-text">Adicionar composição completa</button>
+            </div>}
             {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>}
             {!loading && objective.trim().length > 0 && recommendations.length === 0 && <div className="rounded-lg border border-nc-border p-5 text-sm text-nc-text-muted">Nenhuma correspondência textual encontrada. Amplie a descrição do objetivo ou explore a Biblioteca.</div>}
             {!objective.trim() && <div className="rounded-lg border border-dashed border-nc-border p-6 text-sm text-nc-text-muted">Descreva o projeto para receber uma primeira seleção de profissionais com competências relacionadas.</div>}
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {recommendations.map(({ profile, score, matches }) => {
+              {recommendations.map(({ profile, score, reason, group, activation }) => {
                 const added = team.some(item => item.id === profile.id);
                 return <article key={profile.id} className="rounded-xl border border-nc-border bg-nc-surface-elevated p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div><h3 className="font-semibold text-nc-text">{profile.name}</h3><p className="mt-0.5 text-xs text-nc-text-muted">{profile.category} · {profile.code}</p></div>
-                    <span className="rounded-md bg-nc-surface px-2 py-1 text-xs tabular-nums text-nc-text-secondary">{Math.round(score * 100)}% aderência</span>
+                    <span className="rounded-md bg-nc-surface px-2 py-1 text-xs tabular-nums text-nc-text-secondary">{Math.round(score * 100)}% correspondência</span>
                   </div>
                   <p className="mt-3 line-clamp-3 text-sm text-nc-text-secondary">{profile.specialty_description || profile.identity}</p>
-                  <p className="mt-2 text-xs text-nc-text-muted">Termos coincidentes: {matches.slice(0, 5).join(', ')}</p>
+                  <p className="mt-2 text-xs text-nc-text-muted">{reason}</p>{group && <p className="mt-1 text-xs text-nc-brand">{group} · {activation}</p>}
                   <button onClick={() => added ? removeFromTeam(profile.id) : addToTeam(profile)} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-nc-border px-3 py-2 text-xs font-medium text-nc-text hover:border-nc-brand">
                     {added ? <><Check size={14}/> Adicionado à equipe</> : <><Plus size={14}/> Adicionar à equipe</>}
                   </button>
