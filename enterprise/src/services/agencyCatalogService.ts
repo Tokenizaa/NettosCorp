@@ -9,7 +9,7 @@ import {
   AgencyAgentStatus,
 } from '../types';
 
-const DEFAULT_ORG_ID = 'org-nettos-001';
+const DEFAULT_ORG_ID = 'd3c6760f-f734-4154-837e-34898849f040';
 
 function now(): string {
   return new Date().toISOString();
