@@ -101,6 +101,23 @@ const manifest = {
 };
 writeFileSync(resolve(publicRoot, 'agency-source-index.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');
 
+const searchIndex = {
+  source_repository: 'https://github.com/msitarzewski/agency-agents',
+  source_commit: upstreamCommit,
+  profile_count: documents.length,
+  profiles: documents.map(({ code, name, source_path, markdown }) => ({
+    code,
+    name,
+    source_path,
+    search_text: markdown
+      .replace(/^---\\r?\\n[\\s\\S]*?\\r?\\n---\\s*(?:\\r?\\n|$)/, ' ')
+      .replace(/[`*_#>|~-]/g, ' ')
+      .replace(/\\s+/g, ' ')
+      .trim(),
+  })),
+};
+writeFileSync(resolve(publicRoot, 'agency-profile-search-index.json'), JSON.stringify(searchIndex) + '\\n', 'utf8');
+
 console.log(JSON.stringify({
   status: 'success',
   profiles: documents.length,
@@ -108,4 +125,5 @@ console.log(JSON.stringify({
   totalBytes: documents.reduce((sum, document) => sum + document.bytes, 0),
   output: 'public/agency-source/',
   manifest: 'public/agency-source-index.json',
+  searchIndex: 'public/agency-profile-search-index.json',
 }, null, 2));
