@@ -60,16 +60,15 @@ body {
 }
 
 /*
- * Temporary compatibility bridge: existing pages still use Tailwind's
- * zinc utilities with dark palette values. Translate those legacy classes
- * to the new light surfaces while each page is migrated to nc-* tokens.
+ * Temporary compatibility bridge: legacy pages still use zinc utilities
+ * with dark palette values. Keep them legible during incremental migration.
  */
 .bg-zinc-950 { background-color: #f7f8fa !important; }
 .bg-zinc-900 { background-color: #ffffff !important; }
 .bg-zinc-800 { background-color: #f2f4f7 !important; }
-.bg-zinc-950\/40, .bg-zinc-950\/50, .bg-zinc-950\/60 { background-color: #f8fafc !important; }
-.bg-zinc-900\/60 { background-color: #ffffff !important; }
-.bg-zinc-800\/40, .bg-zinc-800\/50 { background-color: #f4f6f8 !important; }
+[class~="bg-zinc-950/40"], [class~="bg-zinc-950/50"], [class~="bg-zinc-950/60"] { background-color: #f8fafc !important; }
+[class~="bg-zinc-900/60"] { background-color: #ffffff !important; }
+[class~="bg-zinc-800/40"], [class~="bg-zinc-800/50"] { background-color: #f4f6f8 !important; }
 
 .text-zinc-100 { color: #171a21 !important; }
 .text-zinc-200 { color: #252b37 !important; }
@@ -78,18 +77,18 @@ body {
 .text-zinc-500 { color: #667085 !important; }
 .text-zinc-600 { color: #98a2b3 !important; }
 
-.border-zinc-800, .border-zinc-800\/60, .border-zinc-800\/70, .border-zinc-800\/80,
-.border-zinc-700, .border-zinc-700\/60, .border-zinc-850 {
+.border-zinc-800, .border-zinc-800/60, .border-zinc-800/70, .border-zinc-800/80,
+.border-zinc-700, .border-zinc-700/60, .border-zinc-850 {
   border-color: #e4e7ec !important;
 }
-.divide-zinc-800\/60 > :not([hidden]) ~ :not([hidden]) {
+.divide-zinc-800/60 > :not([hidden]) ~ :not([hidden]) {
   border-color: #eaecf0 !important;
 }
-.hover\\:bg-zinc-800:hover, .hover\\:bg-zinc-800\/40:hover,
-.hover\\:bg-zinc-800\/50:hover, .hover\\:bg-zinc-900:hover {
+[class~="hover:bg-zinc-800"]:hover, [class~="hover:bg-zinc-800/40"]:hover,
+[class~="hover:bg-zinc-800/50"]:hover, [class~="hover:bg-zinc-900"]:hover {
   background-color: #f2f4f7 !important;
 }
-.hover\\:text-zinc-100:hover, .hover\\:text-zinc-200:hover {
+[class~="hover:text-zinc-100"]:hover, [class~="hover:text-zinc-200"]:hover {
   color: #101828 !important;
 }
 
