@@ -17,6 +17,7 @@ import { TextInput } from '../components/forms/TextInput';
 import { SelectInput } from '../components/forms/SelectInput';
 import { TextArea } from '../components/forms/TextArea';
 import { FormActions } from '../components/forms/FormActions';
+import { PaperclipAgentStudio } from '../components/agency/PaperclipAgentStudio';
 import {
   Bot,
   Search,
@@ -72,6 +73,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   const [modalType, setModalType] = useState<'view' | 'homologate' | 'compare'>('view');
   const [selectedProfiles, setSelectedProfiles] = useState<string[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<AgencyAgentProfile | null>(null);
+  const [isPaperclipStudioOpen, setIsPaperclipStudioOpen] = useState(false);
   const [homologationStatus, setHomologationStatus] = useState<AgencyAgentStatus>('disponivel');
   const [homologationNotes, setHomologationNotes] = useState('');
 
@@ -483,6 +485,12 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
                 Homologar
               </button>
               <button
+                onClick={() => setIsPaperclipStudioOpen(true)}
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-medium transition-colors"
+              >
+                Preparar para Paperclip
+              </button>
+              <button
                 onClick={() => {
                   setIsSelectionModalOpen(true);
                 }}
@@ -596,6 +604,12 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
           </form>
         )}
       </Modal>
+      {isPaperclipStudioOpen && selectedProfile && (
+        <PaperclipAgentStudio
+          profile={selectedProfile}
+          onClose={() => setIsPaperclipStudioOpen(false)}
+        />
+      )}
     </div>
   );
 };
