@@ -7,7 +7,7 @@ import { localStore } from '../services/supabaseClient';
 import { AgencyAgentProfile } from '../types';
 import { PageHeader } from '../components/layout/PageHeader';
 import { recommendTeamComposition, PlannerRunbook } from '../services/agencyTeamPlanner';
-import { translateAgentName, translateAgentCategory, translateDivision, translateCapability, translateRunbookTitle, translateRunbookGroup, translateActivation, translateRunbookMode, translateDuration } from '../utils/agencyPresentation';
+import { translateAgentName, translateAgentCategory, translateDivision, translateCapability, translateRunbookTitle, translateRunbookGroup, translateActivation, translateRunbookMode, translateDuration, translateRunbookSummary, translatePlannerText } from '../utils/agencyPresentation';
 
 type ModuleTab = 'library' | 'team-builder' | 'runbooks' | 'divisions';
 type RunbookGroup = { group: string; activation: string; agents: string[] };
@@ -180,7 +180,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
               <span className="text-xs text-nc-text-muted">{loading ? 'Carregando biblioteca…' : `${profiles.length} perfis analisados`}</span>
             </div>
             {inferredRunbook && <div className="flex flex-col gap-3 rounded-xl border border-nc-brand/40 bg-nc-surface-elevated p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0"><p className="text-[11px] font-semibold uppercase tracking-wide text-nc-brand">Cenário operacional identificado</p><h3 className="mt-1 font-semibold text-nc-text">{inferredRunbook.title}</h3><p className="mt-1 text-xs text-nc-text-secondary">{inferredRunbook.summary}</p><p className="mt-1 text-xs text-nc-text-muted">Sinais encontrados: {composition.scenarioMatches.join(', ')} · {inferredRunbook.mode} · {inferredRunbook.duration}</p></div>
+              <div className="min-w-0"><p className="text-[11px] font-semibold uppercase tracking-wide text-nc-brand">Cenário operacional identificado</p><h3 className="mt-1 font-semibold text-nc-text">{translateRunbookTitle(inferredRunbook.title)}</h3><p className="mt-1 text-xs text-nc-text-secondary">{translateRunbookSummary(inferredRunbook.title)}</p><p className="mt-1 text-xs text-nc-text-muted">Critérios identificados: {translatePlannerText(composition.scenarioMatches.join(', '))} · {translateRunbookMode(inferredRunbook.mode)} · {translateDuration(inferredRunbook.duration)}</p></div>
               <button onClick={() => inferredRunbook.roster.forEach(addRunbookGroup)} className="shrink-0 rounded-lg bg-nc-brand px-3 py-2.5 text-xs font-semibold text-nc-brand-text">Adicionar composição completa</button>
             </div>}
             {objective.trim() && (
@@ -200,7 +200,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
                   <div>
                     <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Pontos fortes encontrados</p>
                     {composition.analysis.strengths.length
-                      ? <ul className="space-y-1">{composition.analysis.strengths.map(item => <li key={item} className="text-xs text-nc-text-secondary">• {item}</li>)}</ul>
+                      ? <ul className="space-y-1">{composition.analysis.strengths.map(item => <li key={item} className="text-xs text-nc-text-secondary">• {translatePlannerText(item)}</li>)}</ul>
                       : <p className="text-xs text-nc-text-muted">A análise ainda não identificou pontos fortes suficientes.</p>}
                   </div>
                 </div>
@@ -210,15 +210,15 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
                     {composition.analysis.phases.map((phase, index) => <div key={phase.name} className="rounded-lg bg-nc-surface p-3">
                       <p className="text-xs font-semibold text-nc-text">{index + 1}. {translateRunbookGroup(phase.name)}</p>
                       <p className="mt-1 text-xs text-nc-text-muted">Ativação: {translateActivation(phase.activation)} · {phase.count} posição(ões)</p>
-                      <p className="mt-1 text-xs text-nc-text-secondary">{phase.professionals.slice(0, 5).join(', ')}{phase.professionals.length > 5 ? '…' : ''}</p>
+                      <p className="mt-1 text-xs text-nc-text-secondary">{phase.professionals.slice(0, 5).map(name => translateAgentName(name)).join(', ')}{phase.professionals.length > 5 ? '…' : ''}</p>
                     </div>)}
                   </div>
                 </div>}
                 {composition.analysis.risks.length > 0 && <div className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-3">
                   <p className="mb-1 text-xs font-semibold text-amber-200">Riscos e limitações a validar</p>
-                  <ul className="space-y-1">{composition.analysis.risks.map(item => <li key={item} className="text-xs text-nc-text-secondary">• {item}</li>)}</ul>
+                  <ul className="space-y-1">{composition.analysis.risks.map(item => <li key={item} className="text-xs text-nc-text-secondary">• {translatePlannerText(item)}</li>)}</ul>
                 </div>}
-                <p className="mt-3 text-[11px] text-nc-text-muted">{composition.analysis.selectionGuidance.join(' ')}</p>
+                <p className="mt-3 text-[11px] text-nc-text-muted">{composition.analysis.selectionGuidance.map(translatePlannerText).join(' ')}</p>
               </section>
             )}
             {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>}
@@ -233,7 +233,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
                     <span className="rounded-md bg-nc-surface px-2 py-1 text-xs tabular-nums text-nc-text-secondary">{Math.round(score * 100)}% correspondência</span>
                   </div>
                   <p className="mt-3 line-clamp-3 text-sm text-nc-text-secondary">{translateAgentName(profile.name, profile.code)} · {translateAgentCategory(profile.category)}</p>
-                  <p className="mt-2 text-xs text-nc-text-muted">{reason}</p><p className="mt-2 text-[11px] text-nc-text-muted">Objetivo: {Math.round(dimensions.objectiveFit * 100)}% · Runbook: {Math.round(dimensions.runbookFit * 100)}% · Capacidades: {dimensions.capabilityDomains.join(', ') || 'não classificadas'}</p>{group && <p className="mt-1 text-xs text-nc-brand">{translateRunbookGroup(group)} · {translateActivation(activation)}</p>}
+                  <p className="mt-2 text-xs text-nc-text-muted">{translatePlannerText(reason)}</p><p className="mt-2 text-[11px] text-nc-text-muted">Objetivo: {Math.round(dimensions.objectiveFit * 100)}% · Runbook: {Math.round(dimensions.runbookFit * 100)}% · Capacidades: {dimensions.capabilityDomains.map(translateCapability).join(', ') || 'não classificadas'}</p>{group && <p className="mt-1 text-xs text-nc-brand">{translateRunbookGroup(group)} · {translateActivation(activation)}</p>}
                   <button onClick={() => added ? removeFromTeam(profile.id) : addToTeam(profile)} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-nc-border px-3 py-2 text-xs font-medium text-nc-text hover:border-nc-brand">
                     {added ? <><Check size={14}/> Adicionado à equipe</> : <><Plus size={14}/> Adicionar à equipe</>}
                   </button>
@@ -262,11 +262,11 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
             <div className="flex items-center gap-2"><Compass size={19}/><h2 className="font-semibold text-nc-text">Playbooks de composição e execução</h2></div>
             <p className="mt-2 max-w-3xl text-sm text-nc-text-secondary">Os runbooks preservam cenários, modos NEXUS, grupos de ativação e rosters do projeto de origem. Selecione um cenário para inspecionar sua estrutura ou adicionar um grupo à equipe em formação.</p>
           </div>
-          {runbooksError && <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"><CircleAlert size={15} className="mr-2 inline"/> {runbooksError}</div>}
+          {runbooksError && <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"><CircleAlert size={15} className="mr-2 inline"/> {translatePlannerText(runbooksError)}</div>}
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {runbooks.map(runbook => <button key={runbook.slug} onClick={() => setActiveRunbook(runbook.slug)} className={`rounded-xl border p-4 text-left transition-colors ${activeRunbook === runbook.slug ? 'border-nc-brand bg-nc-surface-elevated' : 'border-nc-border bg-nc-surface-elevated hover:border-nc-border-hover'}`}>
-              <div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-nc-text">{translateRunbookTitle(runbook.title)}</h3><p className="mt-1 text-sm text-nc-text-secondary">{runbook.title}</p></div><ChevronRight size={17} className="shrink-0 text-nc-text-muted"/></div>
-              <div className="mt-3 flex flex-wrap gap-2"><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{translateRunbookMode(runbook.mode)}</span><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{translateDuration(runbook.duration)}</span><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{runbook.roster.reduce((n, group) => n + group.agents.length, 0)} posições no roster</span></div>
+              <div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-nc-text">{translateRunbookTitle(runbook.title)}</h3><p className="mt-1 text-sm text-nc-text-secondary">{translateRunbookSummary(runbook.title)}</p></div><ChevronRight size={17} className="shrink-0 text-nc-text-muted"/></div>
+              <div className="mt-3 flex flex-wrap gap-2"><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{translateRunbookMode(runbook.mode)}</span><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{translateDuration(runbook.duration)}</span><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{runbook.roster.reduce((n, group) => n + group.agents.length, 0)} profissionais na composição</span></div>
             </button>)}
           </div>
           {selectedRunbook && <section className="rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
@@ -291,7 +291,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {Object.entries(divisions).map(([slug, division]) => <article key={slug} className="flex items-center gap-3 rounded-xl border border-nc-border bg-nc-surface-elevated p-4">
               <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: division.color }} />
-              <div className="min-w-0"><h3 className="font-medium text-nc-text">{translateDivision(slug)}</h3><p className="text-xs text-nc-text-muted">{translateDivision(slug)}</p></div>
+              <div className="min-w-0"><h3 className="font-medium text-nc-text">{translateDivision(slug)}</h3><p className="text-xs text-nc-text-muted">Divisão profissional</p></div>
             </article>)}
           </div>
           <p className="text-xs text-nc-text-muted">Fonte: divisions.json do repositório msitarzewski/agency-agents. Taxonomia sincronizada como snapshot versionado, sem dependência operacional do repositório remoto em tempo de execução.</p>
