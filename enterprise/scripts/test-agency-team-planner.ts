@@ -44,6 +44,10 @@ const incident = recommendTeamComposition('Responder a incidente de indisponibil
 assert.equal(incident.runbook?.slug, 'incident-response');
 assert.equal(incident.recommendations[0]?.profile.code, 'backend-architect');
 assert.equal(incident.recommendations[0]?.group, 'Resposta crítica');
+assert.equal(incident.analysis.phases[0]?.name, 'Resposta crítica');
+assert.ok(incident.recommendations[0]?.dimensions.runbookFit === 1);
+assert.ok(incident.analysis.objectiveDomains.length > 0);
+assert.ok(incident.analysis.coveredDomains.length > 0);
 
 const marketing = recommendTeamComposition('Planejar campanha de marketing e aquisição de leads', profiles, runbooks);
 assert.equal(marketing.runbook?.slug, 'marketing-campaign');
@@ -66,10 +70,13 @@ const sourceOnly = recommendTeamComposition(
 );
 assert.equal(sourceOnly.recommendations[0]?.profile.code, 'spatial-specialist');
 assert.ok(sourceOnly.recommendations[0]?.matches.includes('lidar'));
+assert.ok(sourceOnly.recommendations[0]?.dimensions.evidence.includes('documento original indexado'));
 
 const empty = recommendTeamComposition('', profiles, runbooks);
 assert.equal(empty.runbook, null);
 assert.equal(empty.recommendations.length, 0);
+assert.equal(empty.analysis.phases.length, 0);
+assert.ok(empty.analysis.selectionGuidance.length > 0);
 
 
 
