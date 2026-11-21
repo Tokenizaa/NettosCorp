@@ -96,7 +96,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
       const data = await agencyCatalogService.listProfilesAsync();
       setProfiles(data);
     } catch (error) {
-      console.error('Falha ao carregar o catálogo Agency Agents:', error);
+      console.error('Falha ao carregar a biblioteca profissional:', error);
       setProfiles([]);
       setLoadError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -148,7 +148,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
           profile_id: profile.id, profile_code: profile.code, status: bulkStatus,
           reviewed_by: localStore.getSessionUser()?.id || 'system',
           reviewed_by_name: localStore.getSessionUser()?.full_name,
-          notes: 'Homologação em lote pelo catálogo Agency Agents.',
+          notes: 'Homologação em lote pela biblioteca profissional.',
         });
       }
       setSelectedForAction([]);
@@ -371,7 +371,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
             <EmptyState
               icon={Search}
               title="Nenhum modelo encontrado"
-              description="Ajuste os filtros de busca ou importe novos perfis do catálogo Agency Agents."
+              description="Ajuste os filtros de busca ou consulte a biblioteca de perfis profissionais."
             />
           ) : (
             pageProfiles.map(profile => (
