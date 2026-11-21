@@ -94,6 +94,10 @@ const phraseMap: Record<string, string> = {
   'wordpress shopping cart engineer': 'Engenheiro de Carrinho de Compras WordPress',
   'bookkeeper controller': 'Contador e Controller',
   'financial analyst': 'Analista Financeiro',
+  'studio operations': 'Operações de Estúdio',
+  'studio producer': 'Produtor de Estúdio',
+  'code reviewer': 'Revisor de Código',
+  'technical writer': 'Redator Técnico',
   'fp a analyst': 'Analista de Planejamento e Análise Financeira',
   'investment researcher': 'Pesquisador de Investimentos',
   'tax strategist': 'Estrategista Tributário',
@@ -690,7 +694,7 @@ export function translateAgentName(name: string, code?: string): string {
   const source = key || codeKey;
   const tokens = source.split(' ');
   const last = tokens[tokens.length - 1];
-  const prefix = tokens.slice(0, -1).map(token => wordMap[token] || token.toLocaleUpperCase()).join(' ');
+  const prefix = tokens.slice(0, -1).reverse().map(token => wordMap[token] || token.toLocaleUpperCase()).join(' ');
   const suffixes: Record<string, string> = {
     engineer: `Engenheiro de ${prefix}`, developer: `Desenvolvedor de ${prefix}`,
     architect: `Arquiteto de ${prefix}`, specialist: `Especialista em ${prefix}`,
