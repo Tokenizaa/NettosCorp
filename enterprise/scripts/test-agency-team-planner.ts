@@ -93,7 +93,8 @@ assert.deepEqual(unresolvedRunbookAgents, []);
 assert.equal(sourceRunbooks.runbooks.length, 4);
 for (const runbook of sourceRunbooks.runbooks as { slug: string; asset?: string; doc: string }[]) {
   assert.ok(runbook.asset, `Runbook sem asset local: ${runbook.slug}`);
-  const localRunbook = readFileSync(resolve('public', runbook.asset!.replace(/^\\/+/, '')), 'utf8');
+  const assetPath = runbook.asset!.startsWith('/') ? runbook.asset!.slice(1) : runbook.asset!;
+  const localRunbook = readFileSync(resolve('public', assetPath), 'utf8');
   assert.ok(localRunbook.length > 1000, `Documento de runbook vazio ou incompleto: ${runbook.slug}`);
   assert.ok(localRunbook.includes('## '), `Documento sem seções estruturadas: ${runbook.slug}`);
 }
