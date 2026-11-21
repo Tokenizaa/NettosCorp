@@ -1,0 +1,14 @@
+{
+  "run_id": "12860e35-0179-4852-8194-4cf1dd6f5c6c-66-4cc693686e37491f887ebe06440ec140",
+  "verdicts": [
+    {
+      "action": "create",
+      "name": "paperclip-agent-discovery",
+      "ok": false,
+      "findings": [
+        "altitude"
+      ],
+      "notes": []
+    }
+  ]
+}

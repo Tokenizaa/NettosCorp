@@ -257,6 +257,7 @@ export const queryKeys = {
       adapterType: string,
       environmentId?: string | null,
       provider?: string,
+      adapterConfig?: string,
     ) =>
       [
         "agents",
@@ -265,6 +266,7 @@ export const queryKeys = {
         adapterType,
         environmentId ?? null,
         provider ?? null,
+        adapterConfig ?? null,
       ] as const,
     detectModel: (companyId: string, adapterType: string) =>
       ["agents", companyId, "detect-model", adapterType] as const,

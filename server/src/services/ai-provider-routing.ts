@@ -31,9 +31,17 @@ export function managedProviderRouting(
   } else if (harness === "claude_local") {
     env.ANTHROPIC_BASE_URL = baseUrl;
     if (openrouter) env.ANTHROPIC_CUSTOM_HEADERS = openRouterClaudeHeaders();
-    env[
-      route.auth === "api_key" ? "ANTHROPIC_API_KEY" : "ANTHROPIC_AUTH_TOKEN"
-    ] = credential;
+    if (route.auth !== "none") {
+      env[
+        route.auth === "api_key" ? "ANTHROPIC_API_KEY" : "ANTHROPIC_AUTH_TOKEN"
+      ] = credential;
+    } else {
+      // Proxy-based (auth: none) endpoints such as FCC still require a non-empty
+      // ANTHROPIC_AUTH_TOKEN so Claude Code skips its own Anthropic login. The
+      // proxy ignores the token value when its own auth is disabled; this is not
+      // a real Anthropic credential and is never stored as one.
+      env.ANTHROPIC_AUTH_TOKEN = "paperclip-fcc-proxy";
+    }
     env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
     if (model) {
       env.ANTHROPIC_MODEL = model;

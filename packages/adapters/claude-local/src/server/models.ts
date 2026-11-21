@@ -66,12 +66,30 @@ function mergedWithFallback(models: AdapterModel[]): AdapterModel[] {
   ]));
 }
 
-function resolveAnthropicApiKey(): string | null {
+function resolveAnthropicApiKey(configEnv?: Record<string, unknown>): string | null {
+  // Check config env first (for FCC/custom endpoints)
+  if (configEnv) {
+    const binding = configEnv.ANTHROPIC_API_KEY;
+    if (binding && typeof binding === "object" && "type" in binding && binding.type === "plain" && "value" in binding) {
+      const value = binding.value as string;
+      if (value && value.trim().length > 0) return value.trim();
+    }
+  }
+  // Fallback to process.env
   const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
   return apiKey && apiKey.length > 0 ? apiKey : null;
 }
 
-function resolveAnthropicBaseUrl(): string {
+function resolveAnthropicBaseUrl(configEnv?: Record<string, unknown>): string {
+  // Check config env first (for FCC/custom endpoints)
+  if (configEnv) {
+    const binding = configEnv.ANTHROPIC_BASE_URL;
+    if (binding && typeof binding === "object" && "type" in binding && binding.type === "plain" && "value" in binding) {
+      const value = binding.value as string;
+      if (value && value.trim().length > 0) return value.trim().replace(/\/+$/, "");
+    }
+  }
+  // Fallback to process.env
   const baseUrl = process.env.ANTHROPIC_BASE_URL?.trim();
   return baseUrl && baseUrl.length > 0 ? baseUrl.replace(/\/+$/, "") : "https://api.anthropic.com";
 }
@@ -116,15 +134,15 @@ async function fetchAnthropicModels(apiKey: string, baseUrl: string): Promise<Ad
   }
 }
 
-async function loadClaudeModels(options?: { forceRefresh?: boolean }): Promise<AdapterModel[]> {
+async function loadClaudeModels(options?: { forceRefresh?: boolean; configEnv?: Record<string, unknown> }): Promise<AdapterModel[]> {
   if (isBedrockEnv()) return sortClaudeModels(dedupeModels(BEDROCK_MODELS));
 
   const fallback = sortClaudeModels(dedupeModels(DIRECT_MODELS));
-  const apiKey = resolveAnthropicApiKey();
+  const apiKey = resolveAnthropicApiKey(options?.configEnv);
   if (!apiKey) return fallback;
 
   const now = Date.now();
-  const baseUrl = resolveAnthropicBaseUrl();
+  const baseUrl = resolveAnthropicBaseUrl(options?.configEnv);
   const keyFingerprint = fingerprint(apiKey);
   if (
     options?.forceRefresh !== true &&
@@ -160,12 +178,12 @@ async function loadClaudeModels(options?: { forceRefresh?: boolean }): Promise<A
  * When Bedrock env vars are detected, returns Bedrock-native model IDs;
  * otherwise returns standard Anthropic API model IDs.
  */
-export async function listClaudeModels(): Promise<AdapterModel[]> {
-  return loadClaudeModels();
+export async function listClaudeModels(configEnv?: Record<string, unknown>): Promise<AdapterModel[]> {
+  return loadClaudeModels({ configEnv });
 }
 
-export async function refreshClaudeModels(): Promise<AdapterModel[]> {
-  return loadClaudeModels({ forceRefresh: true });
+export async function refreshClaudeModels(configEnv?: Record<string, unknown>): Promise<AdapterModel[]> {
+  return loadClaudeModels({ forceRefresh: true, configEnv });
 }
 
 export function resetClaudeModelsCacheForTests() {

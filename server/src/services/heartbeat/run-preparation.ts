@@ -822,8 +822,8 @@ export interface WakeupOptions {
     bindingGeneration: number;
     requestDigest: string;
   };
-  source?: "timer" | "assignment" | "on_demand" | "automation";
-  triggerDetail?: "manual" | "ping" | "callback" | "system";
+  source?: "timer" | "assignment" | "on_demand" | "automation" | "mention";
+  triggerDetail?: "manual" | "ping" | "callback" | "system" | "mention";
   reason?: string | null;
   payload?: Record<string, unknown> | null;
   idempotencyKey?: string | null;
@@ -2313,6 +2313,12 @@ export async function buildPaperclipWakePayload(input: {
   // Simplified Technical English (rendered as a prompt directive downstream).
   simplifiedEnglishInteractions?: boolean;
 }) {
+  // Check if this is a mention-triggered wakeup
+  const trigger = readNonEmptyString(input.contextSnapshot.trigger);
+  const mentionContext = trigger === "mention"
+    ? parseObject(input.contextSnapshot.mention)
+    : null;
+
   const executionStage = parseObject(input.contextSnapshot.executionStage);
   const commentIds = extractWakeCommentIds(input.contextSnapshot);
   const annotationCommentId = readNonEmptyString(
@@ -2671,6 +2677,18 @@ export async function buildPaperclipWakePayload(input: {
     issueId: issueSummary?.id === issueId ? issueId : null,
     contextSnapshot: input.contextSnapshot,
   });
+
+  // Build mention context for agent-to-agent communication
+  const mentionPayload = mentionContext
+    ? {
+        trigger: "mention" as const,
+        mentionSource: mentionContext.mentionSource,
+        messageId: mentionContext.messageId,
+        threadId: mentionContext.threadId,
+        mentionedBy: mentionContext.mentionedBy,
+        content: mentionContext.content,
+      }
+    : null;
   const attachmentOmissions = externalChatProvider
     ? readExternalAttachmentOmissions(
         input.contextSnapshot[EXTERNAL_ATTACHMENT_OMISSIONS_KEY],
@@ -2688,6 +2706,8 @@ export async function buildPaperclipWakePayload(input: {
     chatCompletionUpdates: input.contextSnapshot.chatCompletionUpdates ?? null,
     attachmentOmissions,
     externalChatProvider,
+    // Agent-to-agent mention context
+    mention: mentionPayload,
     githubReviewConfigurations: (externalChatProvider === "github" || issueSummary?.originKind === "chat_channel") && issueId && input.agentId
       ? await resolveGitHubReviewInstructions({ db: input.db, companyId: input.companyId, agentId: input.agentId, issueId,
           commentIds: externalChatProvider === "github" ? commentIds : [] })

@@ -243,7 +243,7 @@ export const agentsApi = {
   adapterModels: (
     companyId: string,
     type: string,
-    options?: { refresh?: boolean; environmentId?: string | null; provider?: string; acpxAgent?: string; aiConnection?: import("@paperclipai/shared").AiConnectionBinding; agentId?: string; poolId?: string },
+    options?: { refresh?: boolean; environmentId?: string | null; provider?: string; acpxAgent?: string; aiConnection?: import("@paperclipai/shared").AiConnectionBinding; agentId?: string; poolId?: string; adapterConfig?: Record<string, unknown> },
   ) => {
     const params = new URLSearchParams();
     if (options?.refresh) params.set("refresh", "1");
@@ -253,6 +253,7 @@ export const agentsApi = {
     if (options?.agentId) params.set("agentId", options.agentId);
     if (options?.poolId) params.set("poolId", options.poolId);
     if (options?.environmentId) params.set("environmentId", options.environmentId);
+    if (options?.adapterConfig) params.set("adapterConfig", JSON.stringify(options.adapterConfig));
     const query = params.size > 0 ? `?${params.toString()}` : "";
     return api.get<AdapterModel[]>(
       `/companies/${encodeURIComponent(companyId)}/adapters/${encodeURIComponent(type)}/models${query}`,

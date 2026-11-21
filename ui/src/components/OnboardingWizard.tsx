@@ -19,7 +19,7 @@ import { SavedProviderKeySelect, useSavedProviderKeys } from "./onboarding/Saved
 import { OnboardingGatewaySetup } from "./onboarding/OnboardingGatewaySetup";
 import { randomAgentAppearance, resolveAgentAppearance, agentAppearanceSchema } from "@paperclipai/shared";
 import { OnboardingCharacter } from "./onboarding/OnboardingCharacter";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import type { ComponentType, CSSProperties } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
@@ -49,6 +49,52 @@ import {
   SOURCE_COLLAPSE_MS,
   SOURCE_LINK_EXIT,
 } from "./onboarding/onboarding-motion";
+
+/**
+ * FCC (Free Claude Code) server detection for onboarding.
+ * Probes http://localhost:8082/v1/models to discover available models.
+ */
+const FCC_SERVER_BASE_URL = "http://localhost:8082";
+const FCC_MODELS_ENDPOINT = "/v1/models";
+const FCC_PROBE_TIMEOUT_MS = 5000;
+
+interface FccServerModelsResponse {
+  data?: Array<{ id: string; object?: string }>;
+}
+
+interface FccDetectionResult {
+  detected: boolean;
+  baseUrl: string;
+  models: { id: string; label: string }[];
+  error?: string;
+}
+
+async function probeFccServer(): Promise<FccDetectionResult> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FCC_PROBE_TIMEOUT_MS);
+  try {
+    // Use Paperclip server proxy to avoid CORS issues with FCC server
+    const response = await fetch("/api/fcc/models", {
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      return { detected: false, baseUrl: FCC_SERVER_BASE_URL, models: [], error: `HTTP ${response.status}` };
+    }
+    const payload = (await response.json()) as FccServerModelsResponse;
+    const data = Array.isArray(payload.data) ? payload.data : [];
+    const models = data
+      .filter((item): item is { id: string } => typeof item === "object" && item !== null && typeof item.id === "string" && item.id.trim().length > 0)
+      .map((item) => ({ id: item.id.trim(), label: item.id.trim() }));
+    return { detected: true, baseUrl: FCC_SERVER_BASE_URL, models };
+  } catch (error) {
+    return { detected: false, baseUrl: FCC_SERVER_BASE_URL, models: [], error: error instanceof Error ? error.message : String(error) };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/** Environment variable key for Anthropic base URL (used by FCC proxy). */
+const ANTHROPIC_BASE_URL_ENV_KEY = "ANTHROPIC_BASE_URL";
 
 /**
  * Where the connect step's sign-in sequence is. Space and visibility land on
@@ -614,6 +660,9 @@ function OnboardingWizardInner({
     useState(false);
   const [unsetAnthropicLoading, setUnsetAnthropicLoading] = useState(false);
   const [showMoreAdapters, setShowMoreAdapters] = useState(false);
+  // FCC (Free Claude Code) server auto-detection state
+  const [fccDetection, setFccDetection] = useState<FccDetectionResult | null>(null);
+  const [fccProbing, setFccProbing] = useState(false);
   /**
    * Whether the connect step is asking for a subscription sign-in or an API key.
    *
@@ -681,8 +730,12 @@ function OnboardingWizardInner({
     : savedKeys.options[0]?.id;
   const selectedApiKey = savedKeys.options.find((option) => option.id === selectedApiKeyId);
   const credentialMode = credentialModeChoice ?? (
-    (savedKeys.subscriptions.length > 0 || (adapterType === "claude_local" && savedKeys.storedLogin.data))
-      ? "subscription" : savedKeys.options.length || adapterType === "opencode_local" ? "api" : "subscription"
+    // When FCC is detected, force API mode (FCC proxy handles auth internally, no key needed)
+    fccDetection?.detected && adapterType === "claude_local"
+      ? "api"
+      : (savedKeys.subscriptions.length > 0 || (adapterType === "claude_local" && savedKeys.storedLogin.data))
+        ? "subscription"
+        : savedKeys.options.length || adapterType === "opencode_local" ? "api" : "subscription"
   );
   const [createdCompanyPrefix, setCreatedCompanyPrefix] = useState<
     string | null
@@ -777,9 +830,10 @@ function OnboardingWizardInner({
   }
   const gatewayLookupFailed = hasGatewaySelection && !connectionModelState.refreshing
     && Boolean(connectionModelState.error || (!connectionModels && !connectionModelState.loading));
-  const connectionModelReady = (!hasGatewaySelection && !connectionModels) || Boolean(connectionModels
+  const connectionModelReady = (!hasGatewaySelection && !connectionModels && !(fccDetection?.detected && adapterType === "claude_local")) || Boolean(connectionModels
     && (!hasGatewaySelection || (!connectionModelState.error && !connectionModelState.refreshing))
-    && model.trim() && (connectionModels.models.length === 0 || connectionModels.models.some(entry => entry.id === model.trim())));
+    && model.trim() && (connectionModels.models.length === 0 || connectionModels.models.some(entry => entry.id === model.trim())))
+    || (fccDetection?.detected && adapterType === "claude_local" && model.trim() && fccDetection.models.some(m => m.id === model.trim()));
   createdCompanyIdRef.current = createdCompanyId;
 
   // The step the request wants, mirrored for the same reason. `initialStep` is
@@ -1004,8 +1058,10 @@ function OnboardingWizardInner({
     isLoading: adapterModelsLoading,
     isFetching: adapterModelsFetching,
   } = useQuery({
-    queryKey: createdCompanyId ? queryKeys.agents.adapterModels(createdCompanyId, adapterType, null) : ["agents", "none", "adapter-models", adapterType, null],
-    queryFn: () => agentsApi.adapterModels(createdCompanyId!, adapterType, { environmentId: null }),
+    queryKey: createdCompanyId
+      ? queryKeys.agents.adapterModels(createdCompanyId, adapterType, JSON.stringify(buildAdapterConfig()))
+      : ["agents", "none", "adapter-models", adapterType, JSON.stringify(buildAdapterConfig())],
+    queryFn: () => agentsApi.adapterModels(createdCompanyId!, adapterType, { environmentId: null, adapterConfig: buildAdapterConfig() }),
     enabled: Boolean(createdCompanyId) && effectiveOnboardingOpen && step === 4 && ONBOARDING_ADAPTER_TYPES.has(adapterType),
     });
   // Automatic selection uses native Claude/Codex on qualified execution targets and
@@ -1562,7 +1618,14 @@ function OnboardingWizardInner({
                 label: "Connect",
                 icon: "arrow",
                 disabled:
-                  !connectStepReady || (credentialMode === "api" && !apiKey.trim() && !selectedApiKey && !restoredApiCredential && !managedBindingForStep()),
+                  !connectStepReady ||
+                  (credentialMode === "api" &&
+                    // FCC mode: no API key needed, proxy handles auth
+                    !(fccDetection?.detected && adapterType === "claude_local") &&
+                    !apiKey.trim() &&
+                    !selectedApiKey &&
+                    !restoredApiCredential &&
+                    !managedBindingForStep()),
               }
           : // Nothing is chosen on arrival, and the row is what chooses. Until
             // it has been answered the button has nothing to do.
@@ -1774,7 +1837,19 @@ function OnboardingWizardInner({
     hasAnthropicApiKeyOverrideCheck;
   const filteredModels = useMemo(() => {
     const query = modelSearch.trim().toLowerCase();
-    return (adapterModels ?? []).filter((entry) => {
+    // Merge server-discovered models with FCC models when FCC is detected
+    const serverModels = adapterModels ?? [];
+    const fccModels = fccDetection?.detected && adapterType === "claude_local"
+      ? fccDetection.models.map(m => ({ id: m.id, label: `${m.label} (FCC)` }))
+      : [];
+    // Deduplicate by id (FCC models take precedence)
+    const allModels = [...serverModels];
+    for (const fccModel of fccModels) {
+      if (!allModels.some(m => m.id === fccModel.id)) {
+        allModels.push(fccModel);
+      }
+    }
+    return allModels.filter((entry) => {
       if (!query) return true;
       const provider = extractProviderIdWithFallback(entry.id, "");
       return (
@@ -1783,7 +1858,7 @@ function OnboardingWizardInner({
         provider.toLowerCase().includes(query)
       );
     });
-  }, [adapterModels, modelSearch]);
+  }, [adapterModels, modelSearch, fccDetection, adapterType]);
   const groupedModels = useMemo(() => {
     if (adapterType !== "opencode_local") {
       return [
@@ -2115,6 +2190,17 @@ function OnboardingWizardInner({
     }
     const config = { ...savedConfig, ...builtConfig,
       ...((savedConfig.env || builtConfig.env) ? { env: { ...savedEnv, ...((builtConfig.env as object) ?? {}) } } : {}) };
+    // Add FCC base URL to adapter config when FCC server is detected
+    if (adapterType === "claude_local" && fccDetection?.detected && fccDetection.baseUrl) {
+      const env =
+        typeof config.env === "object" &&
+        config.env !== null &&
+        !Array.isArray(config.env)
+          ? { ...(config.env as Record<string, unknown>) }
+          : {};
+      env[ANTHROPIC_BASE_URL_ENV_KEY] = { type: "plain", value: fccDetection.baseUrl };
+      config.env = env;
+    }
     if (adapterType === "claude_local" && forceUnsetAnthropicApiKey) {
       const env =
         typeof config.env === "object" &&
@@ -3113,6 +3199,61 @@ function OnboardingWizardInner({
                           if (id === "opencode_local") setModel(DEFAULT_OPENCODE_LOCAL_MODEL);
                           else if (id !== "codex_local") setModel("");
                         }
+                        // Auto-detect FCC server when claude_local is selected
+                        if (id === "claude_local") {
+                          // If FCC already detected, immediately use API mode (no auth needed)
+                          if (fccDetection?.detected) {
+                            setCredentialMode("api");
+                            setModel("");
+                          } else if (!fccDetection) {
+                            // First time - probe for FCC
+                            setFccProbing(true);
+                            probeFccServer().then(async (result) => {
+                              setFccDetection(result);
+                              setFccProbing(false);
+                              if (result.detected && result.models.length > 0) {
+                                // Clear model so user sees the discovered models in dropdown
+                                setModel("");
+                                // FCC server works without authentication - use API key mode
+                                // with no key needed (FCC proxy handles auth internally)
+                                setCredentialMode("api");
+                                // Automatically create an AI Connection for FCC gateway
+                                if (createdCompanyId) {
+                                  try {
+                                    const fccConnection = await aiConnectionsApi.create(createdCompanyId, {
+                                      provider: "anthropic",
+                                      method: "api_key",
+                                      name: "FCC (Free Claude Code)",
+                                      ownership: "personal",
+                                      routing: {
+                                        kind: "gateway",
+                                        protocol: "messages",
+                                        baseUrl: result.baseUrl,
+                                        auth: "none"
+                                      },
+                                      agentIds: [],
+                                      allAgents: true
+                                    });
+                                    // Use it as the gateway connection binding
+                                    setGatewayConnection({
+                                      companyId: createdCompanyId,
+                                      adapterType: "claude_local",
+                                      binding: {
+                                        provider: "anthropic",
+                                        method: "api_key",
+                                        mode: "shared",
+                                        connectionId: fccConnection.connectionId,
+                                        grantId: fccConnection.grantId
+                                      }
+                                    });
+                                  } catch (err) {
+                                    console.warn("[paperclip] Failed to create FCC AI Connection:", err);
+                                  }
+                                }
+                              }
+                            });
+                          }
+                        }
                         setConnectPhase("collapsing");
                       }}
                     />
@@ -3122,6 +3263,47 @@ function OnboardingWizardInner({
                         Claude and Codex are unavailable on this instance. Ask an administrator to enable one,
                         or exit setup and choose New Agent on the Agents page to use another provider.
                       </p>
+                    )}
+
+                    {/* FCC Detection Status */}
+                    {adapterType === "claude_local" && (fccProbing || fccDetection) && (
+                      <div className="mt-3 flex items-center gap-2 text-sm">
+                        {fccProbing && (
+                          <>
+                            <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                            <span className="text-muted-foreground">Detecting FCC server...</span>
+                          </>
+                        )}
+                        {fccDetection && !fccProbing && (
+                          <>
+                            {fccDetection.detected ? (
+                              <>
+                                <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                  <svg className="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                  <span>FCC server detected at {fccDetection.baseUrl}</span>
+                                </span>
+                                {fccDetection.models.length > 0 && (
+                                  <span className="text-muted-foreground">({fccDetection.models.length} models available)</span>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                                  <svg className="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                  </svg>
+                                  <span>FCC server not detected</span>
+                                </span>
+                                {fccDetection.error && (
+                                  <span className="text-muted-foreground">({fccDetection.error})</span>
+                                )}
+                              </>
+                            )}
+                          </>
+                        )}
+                      </div>
                     )}
 
                     {/* Fades on the first beat but keeps its space until the
@@ -3197,32 +3379,50 @@ function OnboardingWizardInner({
                       </p>
                     ) : credentialMode === "api" ? (
                       <OnboardingLoginCard
-                        instruction={hasGatewaySelection || connectionModels ? "Choose a model for your saved connection" : savedKeys.options.length ? "Choose a saved API key or enter a new one" : `Provide your ${
-                          CONNECT_SOURCE_NAMES[adapterType] ?? adapterType
-                        } API key to connect`}
+                        instruction={
+                          fccDetection?.detected && adapterType === "claude_local"
+                            ? "FCC proxy handles authentication automatically. No API key needed."
+                            : hasGatewaySelection || connectionModels
+                              ? "Choose a model for your saved connection"
+                              : savedKeys.options.length
+                                ? "Choose a saved API key or enter a new one"
+                                : `Provide your ${CONNECT_SOURCE_NAMES[adapterType] ?? adapterType} API key to connect`
+                        }
                       >
-                        {!hasGatewaySelection && <SavedProviderKeySelect {...savedKeys} disabled={loading || adapterEnvLoading} value={selectedApiKey?.id ?? ""} onChange={(id) => {
-                          setGatewayConnection(undefined);
-                          if (connectionModels) setModel("");
-                          setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: apiKeyEnvKeyFor(adapterType), id } : null);
-                          setApiKey("");
-                        }} />}
-                        {!selectedApiKey && !hasGatewaySelection && !connectionModels && <OnboardingCardField
-                          label="API key"
-                          placeholder="Enter API key here"
-                          masked
-                          // The card is the answer to the tile just pressed, so
-                          // the field is unambiguously the next thing. Carried
-                          // over from the key field this card replaced.
-                          autoFocus
-                          value={apiKey}
-                          onChange={(value) => {
-                            setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: apiKeyEnvKeyFor(adapterType), id: "" } : null);
-                            setApiKey(value);
-                          }}
-                          onSubmit={() => handleConnectStepPrimary()}
-                        />}
-                        {managedProvider && !selectedApiKey && !hasGatewaySelection && !connectionModels && <p className="text-xs text-muted-foreground">This will be your default {CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} account.</p>}
+                        {/* FCC mode: no API key input needed - proxy handles auth */}
+                        {fccDetection?.detected && adapterType === "claude_local" ? (
+                          <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                            <svg className="size-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            <span>FCC server at {fccDetection.baseUrl} — authentication handled by proxy</span>
+                          </div>
+                        ) : (
+                          <>
+                            {!hasGatewaySelection && <SavedProviderKeySelect {...savedKeys} disabled={loading || adapterEnvLoading} value={selectedApiKey?.id ?? ""} onChange={(id) => {
+                              setGatewayConnection(undefined);
+                              if (connectionModels) setModel("");
+                              setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: apiKeyEnvKeyFor(adapterType), id } : null);
+                              setApiKey("");
+                            }} />}
+                            {!selectedApiKey && !hasGatewaySelection && !connectionModels && <OnboardingCardField
+                              label="API key"
+                              placeholder="Enter API key here"
+                              masked
+                              // The card is the answer to the tile just pressed, so
+                              // the field is unambiguously the next thing. Carried
+                              // over from the key field this card replaced.
+                              autoFocus
+                              value={apiKey}
+                              onChange={(value) => {
+                                setSelectedSavedKey(createdCompanyId ? { companyId: createdCompanyId, envKey: apiKeyEnvKeyFor(adapterType), id: "" } : null);
+                                setApiKey(value);
+                              }}
+                              onSubmit={() => handleConnectStepPrimary()}
+                            />}
+                            {managedProvider && !selectedApiKey && !hasGatewaySelection && !connectionModels && <p className="text-xs text-muted-foreground">This will be your default {CONNECT_SOURCE_NAMES[adapterType] ?? managedProvider} account.</p>}
+                          </>
+                        )}
                         {hasGatewaySelection && (gatewayLookupFailed ? <>
                           <p role="alert" className="text-sm text-destructive">Your saved gateway connection could not be loaded. Retry to choose a model and connect your agent.</p>
                           <Button type="button" variant="outline" disabled={loading || adapterEnvLoading} onClick={() => { void connectionModelState.refresh(); }}>
@@ -3235,6 +3435,20 @@ function OnboardingWizardInner({
                           onChange={setModel} open={modelOpen} onOpenChange={setModelOpen}
                           allowDefault={false} required groupByProvider={false}
                           creatable={connectionModels.models.length === 0} presentation="native" />}
+                        {fccDetection?.detected && adapterType === "claude_local" && !hasGatewaySelection && !connectionModels && fccDetection.models.length > 0 && (
+                          <ModelDropdown
+                            models={fccDetection.models.map(m => ({ id: m.id, label: `${m.label} (FCC)` }))}
+                            value={model}
+                            onChange={setModel}
+                            open={modelOpen}
+                            onOpenChange={setModelOpen}
+                            allowDefault={false}
+                            required
+                            groupByProvider={false}
+                            creatable={false}
+                            presentation="native"
+                          />
+                        )}
                         {(hasGatewaySelection || connectionModels) && <Button type="button" variant="ghost" disabled={loading || adapterEnvLoading} onClick={() => {
                           setGatewayConnection(undefined);
                           setSelectedSavedKey({ companyId: createdCompanyId!, envKey: apiKeyEnvKeyFor(adapterType), id: "" });

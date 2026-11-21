@@ -1203,7 +1203,7 @@ function declaredModelsForAdapter(type: string): { id: string; label: string }[]
     : null;
 }
 
-export async function listAdapterModels(type: string): Promise<{ id: string; label: string }[]> {
+export async function listAdapterModels(type: string, configEnv?: Record<string, unknown>): Promise<{ id: string; label: string }[]> {
   const declaredModels = declaredModelsForAdapter(type);
   if (declaredModels) return declaredModels;
   const adapter = findActiveServerAdapter(type);
@@ -1213,24 +1213,24 @@ export async function listAdapterModels(type: string): Promise<{ id: string; lab
   // models above and custom adapter discovery remain authoritative.
   if (adapter === codexLocalAdapter) return adapter.models ?? [];
   if (adapter.listModels) {
-    const discovered = await adapter.listModels();
+    const discovered = await adapter.listModels(configEnv);
     if (discovered.length > 0) return discovered;
   }
   return adapter.models ?? [];
 }
 
-export async function refreshAdapterModels(type: string): Promise<{ id: string; label: string }[]> {
+export async function refreshAdapterModels(type: string, configEnv?: Record<string, unknown>): Promise<{ id: string; label: string }[]> {
   const declaredModels = declaredModelsForAdapter(type);
   if (declaredModels) return declaredModels;
-  if (findActiveServerAdapter(type) === codexLocalAdapter) return listAdapterModels(type);
+  if (findActiveServerAdapter(type) === codexLocalAdapter) return listAdapterModels(type, configEnv);
   const adapter = findActiveServerAdapter(type);
   if (!adapter) return [];
   if (adapter.refreshModels) {
-    const refreshed = await adapter.refreshModels();
+    const refreshed = await adapter.refreshModels(configEnv);
     if (refreshed.length > 0) return refreshed;
   }
   if (adapter.listModels) {
-    const discovered = await adapter.listModels();
+    const discovered = await adapter.listModels(configEnv);
     if (discovered.length > 0) return discovered;
   }
   return adapter.models ?? [];

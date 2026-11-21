@@ -148,9 +148,18 @@ export async function sendAgentChatMessage(
     await authorize(source.id, "issue:read");
     if (!conversation) return null;
     await authorize(conversation.id, "issue:comment");
-    const recipientDecision = await authorizationService(tx).decide({ actor: { type: "board", userId, source: "session", ignoreInstanceAdmin: true },
-      action: "issue:read", resource: { type: "issue", companyId: actor.companyId, issueId: conversation.id } });
-    if (!recipientDecision.allowed) throw forbidden("The responsible human cannot access this chat");
+
+    // For mention-triggered runs, the recipient may be another agent (not a human)
+    const mentionContext = parseObject(context.run.contextSnapshot?.mention);
+    const isMentionTriggered = mentionContext && mentionContext.trigger === "mention";
+    const recipientUserId = conversation.conversationUserId;
+
+    if (!isMentionTriggered && recipientUserId) {
+      const recipientDecision = await authorizationService(tx).decide({ actor: { type: "board", userId: recipientUserId, source: "session", ignoreInstanceAdmin: true },
+        action: "issue:read", resource: { type: "issue", companyId: actor.companyId, issueId: conversation.id } });
+      if (!recipientDecision.allowed) throw forbidden("The responsible human cannot access this chat");
+    }
+
     const requestId = `chat:${source.id}:${createHash("sha256").update(input.idempotencyKey).digest("hex")}`;
     const [prior] = await tx.select().from(issueComments).where(and(eq(issueComments.companyId, actor.companyId),
       eq(issueComments.issueId, conversation.id), eq(issueComments.authorAgentId, actor.agentId), eq(issueComments.clientRequestId, requestId)));

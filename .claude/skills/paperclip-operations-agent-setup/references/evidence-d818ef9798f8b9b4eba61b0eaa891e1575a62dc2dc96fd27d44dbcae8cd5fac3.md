@@ -1,0 +1,1 @@
+The hire-payload.json shows template values like `{{PAPERCLIP_COMPANY_ID}}` and `{{PAPERCLIP_AGENT_ID}}`. The hire-agent.sh script requires company ID as a command-line argument and returns the agent ID from the API response: `AGENT_ID=$(echo "$RESPONSE" | jq -r '.agent?.id // empty')`

@@ -6,9 +6,21 @@ export function resolveClaudeModel(
   env: Record<string, unknown> = {},
 ): string {
   const configured = typeof model === "string" ? model.trim() : "";
-  if (configured) return configured;
+  if (configured) {
+    // Normalize FCC provider/model format (e.g., "anthropic/claude-opus-5-5" -> "claude-opus-5-5")
+    if (configured.includes("/")) {
+      return configured.split("/")[1];
+    }
+    return configured;
+  }
   const environmentModel = typeof env.ANTHROPIC_MODEL === "string" ? env.ANTHROPIC_MODEL.trim() : "";
-  if (environmentModel) return environmentModel;
+  if (environmentModel) {
+    // Also normalize environment model if it comes in provider/model format
+    if (environmentModel.includes("/")) {
+      return environmentModel.split("/")[1];
+    }
+    return environmentModel;
+  }
   // These providers use their own model IDs and region-specific defaults.
   const providerFlag = (value: unknown) => value === "1" || value === "true";
   if (

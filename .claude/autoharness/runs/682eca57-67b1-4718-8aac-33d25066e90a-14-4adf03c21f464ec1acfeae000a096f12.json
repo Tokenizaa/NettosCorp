@@ -1,0 +1,19 @@
+{
+  "run_id": "682eca57-67b1-4718-8aac-33d25066e90a-14-4adf03c21f464ec1acfeae000a096f12",
+  "verdicts": [
+    {
+      "action": "patch",
+      "name": "paperclip-operations-agent-setup",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    },
+    {
+      "action": "patch",
+      "name": "paperclip-telegram-official-plugin",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    }
+  ]
+}

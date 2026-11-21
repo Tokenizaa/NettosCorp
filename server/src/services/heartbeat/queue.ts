@@ -2854,9 +2854,11 @@ export function createHeartbeatQueue(db: Db, dependencies: HeartbeatQueueDepende
         inArray(caseHandoffs.state, ["awaiting_release", "pending_dispatch"]))).limit(1);
       if (pending && opts.durableCaseHandoffRequest?.handoffId !== pending.id) return null;
     }
+    // Allow mention-triggered wakes to proceed (agent-to-agent communication)
+    const isMentionWake = source === "mention" || triggerDetail === "mention" || enrichedContextSnapshot.trigger === "mention";
     // Mentions only annotate comments. Ignore legacy callers before creating
     // a run or deferred request; assignment and review have their own wakes.
-    if (reason === "issue_comment_mentioned" || enrichedContextSnapshot.wakeReason === "issue_comment_mentioned") return null;
+    if (!isMentionWake && (reason === "issue_comment_mentioned" || enrichedContextSnapshot.wakeReason === "issue_comment_mentioned")) return null;
     if (issueId) {
       const conversation = await getIssueExecutionContext(agent.companyId, issueId);
       if (taskRetryActorId && conversation) await assertTaskRetryConversationAllowed(db, conversation, taskRetryActorId);
@@ -2865,8 +2867,9 @@ export function createHeartbeatQueue(db: Db, dependencies: HeartbeatQueueDepende
         if (opts.manualUserWake && conversation!.conversationUserId !== opts.requestedByActorId) {
           throw new HttpError(403, "Only the conversation owner can start a chat run");
         }
+        // Allow mention-triggered runs to be the conversation agent
+        if (!isMentionWake && agent.id !== conversation!.conversationAgentId) return null;
         if (isConversationExecutionWake(conversation, reason ?? readNonEmptyString(enrichedContextSnapshot.wakeReason))) return null;
-        if (agent.id !== conversation!.conversationAgentId) return null;
         if (!(await instanceSettings.getExperimental()).enableAgentChat) return null;
         if (isWaitingConversation(conversation) && !hasIndependentConversationWakeCause()) return null;
       }

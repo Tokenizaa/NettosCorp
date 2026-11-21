@@ -3079,6 +3079,23 @@ export function agentRoutes(
     }
   });
 
+  router.get("/fcc/models", async (_req, res) => {
+    try {
+      const response = await fetch("http://localhost:8082/v1/models", {
+        headers: { "accept": "application/json" },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!response.ok) {
+        res.status(502).json({ error: `FCC server returned HTTP ${response.status}` });
+        return;
+      }
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(502).json({ error: error instanceof Error ? error.message : "Failed to reach FCC server" });
+    }
+  });
+
   router.get("/companies/:companyId/adapters/:type/models", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);
@@ -3097,7 +3114,7 @@ export function agentRoutes(
       const catalog = new Map<string, { id: string; label: string }>();
       for (const member of pool.members) {
         const memberAdapter = member.binding.provider === "openai" ? "codex_local" : member.binding.provider === "anthropic" ? "claude_local" : member.binding.provider === "xai" ? "grok_local" : "opencode_local";
-        const models = [{ id: member.profile.model, label: member.profile.model }, ...await listAdapterModels(memberAdapter)];
+        const models = [{ id: member.profile.model, label: member.profile.model }, ...await listAdapterModels(memberAdapter, adapterConfig)];
         for (const model of models) {
           try { poolMemberRuntimeConfig({ ...member, profile: { ...member.profile, model: model.id } }, type); catalog.set(model.id, model); } catch { /* Only qualified profiles belong in the pool catalog. */ }
         }
@@ -3113,6 +3130,15 @@ export function agentRoutes(
     if (environmentId && !environment) {
       res.status(404).json({ error: "Environment not found" });
       return;
+    }
+    // Parse adapterConfig from query param (JSON string) for model discovery with custom endpoints (e.g., FCC)
+    let adapterConfig: Record<string, unknown> | undefined;
+    if (typeof req.query.adapterConfig === "string") {
+      try {
+        adapterConfig = JSON.parse(req.query.adapterConfig);
+      } catch {
+        // Ignore invalid JSON, will use defaults
+      }
     }
     const provider = asNonEmptyString(req.query.provider);
     if (type === "paperclip_runner" && provider === "acpx" && req.query.acpxAgent === "kimi") {
@@ -3188,8 +3214,8 @@ export function agentRoutes(
       return;
     }
     const models = refresh
-      ? await refreshAdapterModels(modelAdapterType)
-      : await listAdapterModels(modelAdapterType);
+      ? await refreshAdapterModels(modelAdapterType, adapterConfig)
+      : await listAdapterModels(modelAdapterType, adapterConfig);
     // The Legacy default marker is not an explicit native ACP model ID.
     res.json(type === "paperclip_runner" && modelAdapterType === "grok_local"
       ? models.filter(model => model.id !== "grok-build")
@@ -6560,8 +6586,9 @@ export function agentRoutes(
     }
     const wakeOpts: Parameters<typeof heartbeat.wakeup>[1] = {
       ...(req.actor.type === "board" ? { manualUserWake: true } : {}),
-      source: "on_demand",
-      triggerDetail: typeof body.triggerDetail === "string" ? body.triggerDetail as "manual" | "system" | "ping" | "callback" : "manual",
+      // Allow source to be "mention" for agent-to-agent communication, default to "on_demand"
+      source: (body.source === "mention" ? "mention" : "on_demand") as "mention" | "on_demand",
+      triggerDetail: typeof body.triggerDetail === "string" ? body.triggerDetail as "manual" | "system" | "ping" | "callback" | "mention" : "manual",
       requestedByActorType: req.actor.type === "agent" ? "agent" : "user",
       requestedByActorId: req.actor.type === "agent" ? req.actor.agentId ?? null : req.actor.userId ?? null,
       contextSnapshot,

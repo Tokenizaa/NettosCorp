@@ -1,0 +1,1 @@
+{"action": "create", "reason": "Episode fixed missing adapterConfig in query key (line 1058-1068). Before fix, FCC detection changed but query didn't re-fetch, leaving hardcoded Anthropic models in dropdown.", "evidence": "references/evidence-4d7ec6f38b53f755d2cb03581cec21d7b83f2769de17b90f27cfd5d64d998de6.md"}

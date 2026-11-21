@@ -1,0 +1,12 @@
+{
+  "run_id": "947c49e0-43fa-43ba-baa1-9272b0e07cee-468-9aae78e8661c4a2792608ec06ebeef18",
+  "verdicts": [
+    {
+      "action": "patch",
+      "name": "custom-anthropic-endpoint-config",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    }
+  ]
+}

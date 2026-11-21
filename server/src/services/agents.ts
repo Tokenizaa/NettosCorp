@@ -2,7 +2,7 @@ import { assertAgentInteraction } from "./agent-interaction-policy.js";
 import { notifyAttentionRetentionWork } from "./retention-work-notifications.js";
 import { type BudgetServiceHooks } from "./budgets.js";
 
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import type { Db } from "@paperclipai/db";
 import { agents, agentConfigRevisions, agentApiKeys, heartbeatRuns } from "@paperclipai/db";
 import { isUuidLike, normalizeAgentApiKeyScope, normalizeAgentUrlKey, type AgentApiKeyScope } from "@paperclipai/shared";
@@ -250,6 +250,43 @@ export function agentService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
         currentId = mgr.reportsTo ?? null;
       }
       return chain;
+    },
+
+    /**
+     * Resolve a mention string (e.g., "@cto", "@agent-name", or "@agent://uuid")
+     * to an active agent ID within the company.
+     * Supports:
+     * - Direct UUID: @agent://uuid
+     * - Agent name: @agent-name
+     * - Agent title/role: @cto, @coo
+     */
+    resolveMentionToAgentId: async (companyId: string, mention: string): Promise<string | null> => {
+      // 1. Direct UUID format: @agent://uuid
+      if (mention.startsWith("agent://")) {
+        const uuid = mention.slice(8);
+        const [agent] = await db.select({ id: agents.id })
+          .from(agents)
+          .where(and(eq(agents.id, uuid), eq(agents.companyId, companyId), eq(agents.status, "active")))
+          .limit(1);
+        return agent?.id ?? null;
+      }
+
+      // 2. Name or title match (case-insensitive)
+      const [byName] = await db.select({ id: agents.id })
+        .from(agents)
+        .where(and(
+          eq(agents.companyId, companyId),
+          eq(agents.status, "active"),
+          or(
+            eq(agents.name, mention),
+            eq(agents.title, mention),
+            sql`${agents.name} ILIKE ${mention}`,
+            sql`${agents.title} ILIKE ${mention}`
+          )
+        ))
+        .limit(1);
+
+      return byName?.id ?? null;
     },
 
     runningForAgent: (agentId: string) =>

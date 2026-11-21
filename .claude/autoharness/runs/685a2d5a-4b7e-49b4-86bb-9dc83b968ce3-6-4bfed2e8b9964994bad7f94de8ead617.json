@@ -1,0 +1,12 @@
+{
+  "run_id": "685a2d5a-4b7e-49b4-86bb-9dc83b968ce3-6-4bfed2e8b9964994bad7f94de8ead617",
+  "verdicts": [
+    {
+      "action": "patch",
+      "name": "paperclip-operations-agent-setup",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    }
+  ]
+}

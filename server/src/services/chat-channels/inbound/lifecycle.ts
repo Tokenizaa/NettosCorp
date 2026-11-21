@@ -61,11 +61,13 @@ import {
 } from "../../chat-sdk-runtime.js";
 
 import { issueService } from "../../issues.js";
+import { agentService } from "../../agents.js";
 
 import type {
   MessageDeletedEvent,
 } from "chat";
 import { normalizedDeliveryThreadId, lifecycleRuntimeFence } from "./delivery-ledger.js";
+import type { EndpointRow } from "../runtime-types.js";
 type DeliveryRow = typeof chatDeliveries.$inferSelect;
 type MessageLifecycleOptions = {
   DELIVERY_PROCESSING_STALE_MS: number;
@@ -284,6 +286,99 @@ export function createChatMessageLifecycle(db: Db, options: MessageLifecycleOpti
       return;
     }
     await drainConversationDeliveries(input.endpointId, input.threadId);
+
+    // After recording the delivery, detect agent mentions and queue heartbeats
+    // Only for agent-sent messages (not lifecycle events like edits/deletes)
+    // The agent endpoint's assignedAgentId is the sender
+    if (!input.isBotMessage && !input.admissionDependencyEventId && runtimeContext) {
+      await detectAndQueueAgentMentions(db, {
+        messageText: input.text,
+        endpoint: admission.endpoint,
+        delivery: admission.delivery,
+        conversation: await conversationForThread(admission.endpoint.id, input.threadId),
+        companyId: admission.endpoint.companyId,
+        runtimeContext,
+      });
+    }
+  }
+
+  /**
+   * Detect @mentions of other agents in a chat message and queue heartbeats for them.
+   * Only triggers for messages from agent endpoints (not external users).
+   */
+  async function detectAndQueueAgentMentions(
+    db: Db,
+    input: {
+      messageText: string;
+      endpoint: EndpointRow;
+      delivery: DeliveryRow;
+      conversation: typeof chatConversations.$inferSelect | null;
+      companyId: string;
+      runtimeContext: RuntimeContext;
+    }
+  ): Promise<void> {
+    // Only process if sender is an agent endpoint
+    if (!input.endpoint.assignedAgentId) return;
+
+    const senderAgentId = input.endpoint.assignedAgentId;
+    if (!senderAgentId) return;
+
+    // Mention regex: @agent-name, @cto, @agent://uuid
+    const mentionRegex = /@(agent:\/\/[a-f0-9-]{36}|[a-zA-Z][a-zA-Z0-9-_]*)/g;
+    const matches = [...input.messageText.matchAll(mentionRegex)];
+
+    if (matches.length === 0) return;
+
+    // Get the agent service for mention resolution
+    const agentSvc = agentService(db);
+
+    // Track which agents we've already queued to avoid duplicates
+    const queuedAgentIds = new Set<string>();
+
+    for (const match of matches) {
+      const mention = match[1]; // e.g., "cto", "joao-silva", "agent://uuid"
+
+      // Resolve mention to agent ID
+      const mentionedAgentId = await agentSvc.resolveMentionToAgentId(input.companyId, mention);
+
+      if (!mentionedAgentId) continue;
+      if (mentionedAgentId === senderAgentId) continue; // Don't trigger self
+      if (queuedAgentIds.has(mentionedAgentId)) continue; // Avoid duplicate heartbeats
+
+      queuedAgentIds.add(mentionedAgentId);
+
+      // Queue a heartbeat for the mentioned agent with mention context
+      try {
+        const { heartbeat } = await import("../../heartbeat.js");
+        await heartbeat.wakeup(mentionedAgentId, {
+          source: "mention",
+          reason: "agent_mentioned",
+          triggerDetail: "mention",
+          requestedByActorType: "agent",
+          requestedByActorId: senderAgentId,
+          contextSnapshot: {
+            trigger: "mention",
+            mentionSource: "chat",
+            messageId: input.delivery.id,
+            threadId: input.conversation?.externalThreadId ?? input.delivery.normalizedEvent?.conversation?.externalThreadId ?? "",
+            mentionedBy: senderAgentId,
+            content: input.messageText,
+          },
+          payload: {
+            mention: {
+              source: "chat",
+              messageId: input.delivery.id,
+              threadId: input.conversation?.externalThreadId ?? input.delivery.normalizedEvent?.conversation?.externalThreadId ?? "",
+              mentionedBy: senderAgentId,
+              content: input.messageText,
+            }
+          }
+        });
+      } catch (error) {
+        // Log but don't fail the delivery processing
+        console.error(`Failed to queue mention heartbeat for agent ${mentionedAgentId}:`, error);
+      }
+    }
   }
 
   function lifecycleMessageFromDelivery(delivery: DeliveryRow): {

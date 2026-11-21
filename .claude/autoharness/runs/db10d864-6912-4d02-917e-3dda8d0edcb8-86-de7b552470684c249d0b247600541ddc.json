@@ -1,0 +1,14 @@
+{
+  "run_id": "db10d864-6912-4d02-917e-3dda8d0edcb8-86-de7b552470684c249d0b247600541ddc",
+  "verdicts": [
+    {
+      "action": "create",
+      "name": "fcc-onboarding-integration",
+      "ok": false,
+      "findings": [
+        "secret"
+      ],
+      "notes": []
+    }
+  ]
+}

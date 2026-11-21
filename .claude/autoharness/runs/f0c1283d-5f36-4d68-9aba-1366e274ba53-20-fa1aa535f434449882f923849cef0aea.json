@@ -1,0 +1,15 @@
+{
+  "run_id": "f0c1283d-5f36-4d68-9aba-1366e274ba53-20-fa1aa535f434449882f923849cef0aea",
+  "verdicts": [
+    {
+      "action": "create",
+      "name": "paperclip-external-monitoring-integration",
+      "ok": false,
+      "findings": [
+        "altitude",
+        "safety"
+      ],
+      "notes": []
+    }
+  ]
+}

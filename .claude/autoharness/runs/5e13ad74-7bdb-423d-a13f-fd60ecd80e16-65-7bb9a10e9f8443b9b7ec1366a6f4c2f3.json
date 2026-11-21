@@ -1,0 +1,23 @@
+{
+  "run_id": "5e13ad74-7bdb-423d-a13f-fd60ecd80e16-65-7bb9a10e9f8443b9b7ec1366a6f4c2f3",
+  "verdicts": [
+    {
+      "action": "patch",
+      "name": "company-creator",
+      "ok": false,
+      "findings": [
+        "self_produced"
+      ],
+      "notes": []
+    },
+    {
+      "action": "create",
+      "name": "paperclip-telegram-bot",
+      "ok": false,
+      "findings": [
+        "altitude"
+      ],
+      "notes": []
+    }
+  ]
+}
