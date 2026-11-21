@@ -25,6 +25,8 @@ const ROUTE_LABELS: Record<string, string> = {
   '/organization/departments': 'Departamentos',
   '/organization/positions': 'Cargos e Posições',
   '/agents': 'Agentes de IA',
+  '/agency-catalog': 'Biblioteca e Inteligência de Agentes',
+  '/agency-intelligence': 'Biblioteca e Inteligência de Agentes',
   '/projects': 'Portfólio de Projetos',
   '/tasks': 'Tarefas e Atividades',
   '/governance': 'Governança Corporativa',
@@ -89,6 +91,11 @@ export const AppShell: React.FC<AppShellProps> = ({
       } else if (currentRoute === '/organization/positions') {
         items.push({ label: 'Cargos e Posições' });
       }
+      return items;
+    }
+
+    if (currentRoute.startsWith('/agency-')) {
+      items.push({ label: 'Biblioteca e Inteligência de Agentes' });
       return items;
     }
 

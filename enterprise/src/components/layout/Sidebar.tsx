@@ -16,6 +16,7 @@ import {
   Scale,
   Gavel,
   FileText,
+  BrainCircuit,
   ShieldAlert,
   Settings,
   Users,
@@ -172,10 +173,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 collapsed={collapsed}
               />
               <NavigationItem
-                label="Catálogo Agency Agents"
-                icon={FileText}
-                active={currentRoute === '/agency-catalog'}
-                onClick={() => onNavigate('/agency-catalog')}
+                label="Biblioteca e Inteligência"
+                icon={BrainCircuit}
+                active={currentRoute === '/agency-catalog' || currentRoute.startsWith('/agency-intelligence')}
+                onClick={() => onNavigate('/agency-intelligence')}
                 collapsed={collapsed}
               />
             </div>

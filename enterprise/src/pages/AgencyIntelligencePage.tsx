@@ -1,0 +1,237 @@
+/** @license SPDX-License-Identifier: Apache-2.0 */
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { BookOpen, BrainCircuit, Check, ChevronRight, CircleAlert, ClipboardList, Compass, Layers3, Plus, Search, ShieldCheck, Users, X } from 'lucide-react';
+import { AgencyCatalogPage } from './AgencyCatalogPage';
+import { agencyCatalogService } from '../services/agencyCatalogService';
+import { localStore } from '../services/supabaseClient';
+import { AgencyAgentProfile } from '../types';
+import { PageHeader } from '../components/layout/PageHeader';
+
+type ModuleTab = 'library' | 'team-builder' | 'runbooks';
+type RunbookGroup = { group: string; activation: string; agents: string[] };
+type Runbook = { slug: string; title: string; mode: string; duration: string; summary: string; doc: string; roster: RunbookGroup[] };
+type RunbookFile = { runbooks: Runbook[] };
+
+const tabs: { id: ModuleTab; label: string; icon: React.ElementType }[] = [
+  { id: 'library', label: 'Biblioteca', icon: BookOpen },
+  { id: 'team-builder', label: 'Compor equipe', icon: Users },
+  { id: 'runbooks', label: 'Equipes e runbooks', icon: ClipboardList },
+];
+
+const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+const words = (value: string) => normalize(value).split(/[^a-z0-9]+/).filter(word => word.length > 2);
+const profileText = (profile: AgencyAgentProfile) => [
+  profile.name, profile.code, profile.identity, profile.specialty, profile.specialty_description,
+  ...(profile.competencies || []), ...(profile.responsibilities || []), profile.methodology,
+].join(' ');
+
+export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  const [tab, setTab] = useState<ModuleTab>('library');
+  const [profiles, setProfiles] = useState<AgencyAgentProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [objective, setObjective] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [team, setTeam] = useState<AgencyAgentProfile[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [runbooks, setRunbooks] = useState<Runbook[]>([]);
+  const [runbooksError, setRunbooksError] = useState('');
+  const [activeRunbook, setActiveRunbook] = useState<string>('');
+
+  const loadProfiles = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      setProfiles(await agencyCatalogService.listProfilesAsync());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível carregar a biblioteca.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadProfiles(); }, [loadProfiles]);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/agency-runbooks.json')
+      .then(response => {
+        if (!response.ok) throw new Error('Arquivo de runbooks indisponível.');
+        return response.json() as Promise<RunbookFile>;
+      })
+      .then(data => { if (active) setRunbooks(Array.isArray(data.runbooks) ? data.runbooks : []); })
+      .catch(e => { if (active) setRunbooksError(e instanceof Error ? e.message : String(e)); });
+    return () => { active = false; };
+  }, []);
+
+  const recommendations = useMemo(() => {
+    const query = new Set(words(objective));
+    if (!query.size) return [];
+    return profiles.map(profile => {
+      const tokens = new Set(words(profileText(profile)));
+      const matches = [...query].filter(token => tokens.has(token));
+      const score = matches.length / Math.max(1, query.size);
+      return { profile, score, matches };
+    }).filter(item => item.matches.length > 0)
+      .sort((a, b) => b.score - a.score || a.profile.name.localeCompare(b.profile.name))
+      .slice(0, 18);
+  }, [objective, profiles]);
+
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    team.forEach(profile => counts.set(profile.category, (counts.get(profile.category) || 0) + 1));
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }, [team]);
+
+  const selectedRunbook = runbooks.find(item => item.slug === activeRunbook);
+  const runbookProfiles = useMemo(() => {
+    if (!selectedRunbook) return [];
+    const byCode = new Map(profiles.map(profile => [normalize(profile.code), profile]));
+    return selectedRunbook.roster.flatMap(group => group.agents.map(slug => ({
+      slug, group: group.group, activation: group.activation, profile: byCode.get(normalize(slug)),
+    })));
+  }, [profiles, selectedRunbook]);
+
+  const addToTeam = (profile: AgencyAgentProfile) => {
+    setTeam(current => current.some(item => item.id === profile.id) ? current : [...current, profile]);
+    setSaveMessage('');
+  };
+  const removeFromTeam = (id: string) => setTeam(current => current.filter(item => item.id !== id));
+
+  const addRunbookGroup = (group: RunbookGroup) => {
+    const byCode = new Map(profiles.map(profile => [normalize(profile.code), profile]));
+    const found = group.agents.map(slug => byCode.get(normalize(slug))).filter((item): item is AgencyAgentProfile => Boolean(item));
+    setTeam(current => [...current, ...found.filter(item => !current.some(existing => existing.id === item.id))]);
+    setTab('team-builder');
+    setSaveMessage('');
+  };
+
+  const saveTeam = async () => {
+    if (!team.length || !projectName.trim()) return;
+    setSaving(true);
+    setSaveMessage('');
+    try {
+      const user = localStore.getSessionUser();
+      for (const profile of team) {
+        await agencyCatalogService.createSelectionAsync({
+          profile_id: profile.id,
+          profile_code: profile.code,
+          project_name: projectName.trim(),
+          purpose: objective.trim() || 'Equipe montada a partir da biblioteca de agentes.',
+          selected_by: user?.id || 'system',
+          selected_by_name: user?.full_name || 'NettosCorp',
+          selected_at: new Date().toISOString(),
+          status: 'planejado',
+          notes: 'Selecionado pelo módulo de Inteligência e Formação de Equipes.',
+        });
+      }
+      setSaveMessage(`Equipe registrada no planejamento: ${team.length} profissional(is) para “${projectName.trim()}”.`);
+    } catch (e) {
+      setSaveMessage(e instanceof Error ? `Falha ao registrar a equipe: ${e.message}` : 'Falha ao registrar a equipe.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <PageHeader
+          title="Inteligência e Formação de Equipes"
+          description="Biblioteca profissional, composição de equipes e metodologias operacionais da NettosCorp."
+        />
+        <div className="mt-5 flex flex-wrap gap-2 border-b border-nc-border">
+          {tabs.map(item => {
+            const Icon = item.icon;
+            return (
+              <button key={item.id} onClick={() => setTab(item.id)}
+                className={`inline-flex items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors ${tab === item.id ? 'border-nc-brand text-nc-text' : 'border-transparent text-nc-text-muted hover:text-nc-text'}`}>
+                <Icon size={16} />{item.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {tab === 'library' && <AgencyCatalogPage onNavigate={onNavigate} />}
+
+      {tab === 'team-builder' && (
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
+          <section className="space-y-4">
+            <div className="rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
+              <div className="mb-3 flex items-center gap-2 text-nc-text"><BrainCircuit size={19} /><h2 className="font-semibold">Defina o objetivo da equipe</h2></div>
+              <label className="mb-1 block text-sm text-nc-text-secondary" htmlFor="team-project-name">Projeto ou iniciativa</label>
+              <input id="team-project-name" value={projectName} onChange={e => setProjectName(e.target.value)} placeholder="Ex.: Lançamento de uma plataforma SaaS" className="mb-3 w-full rounded-lg border border-nc-border bg-nc-surface px-3 py-2.5 text-sm text-nc-text outline-none focus:border-nc-brand" />
+              <label className="mb-1 block text-sm text-nc-text-secondary" htmlFor="team-objective">O que precisa ser realizado?</label>
+              <textarea id="team-objective" value={objective} onChange={e => setObjective(e.target.value)} rows={4} placeholder="Descreva o resultado esperado, as etapas, as áreas envolvidas e os desafios do projeto..." className="w-full resize-y rounded-lg border border-nc-border bg-nc-surface px-3 py-3 text-sm text-nc-text outline-none focus:border-nc-brand" />
+              <p className="mt-2 text-xs text-nc-text-muted">A recomendação inicial cruza os termos do objetivo com especialidades, competências, responsabilidades e metodologias dos perfis disponíveis. É uma triagem explicável, não uma decisão automática de contratação ou implantação.</p>
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <div><h2 className="font-semibold text-nc-text">Profissionais recomendados</h2><p className="text-xs text-nc-text-muted">{recommendations.length} correspondências encontradas</p></div>
+              <span className="text-xs text-nc-text-muted">{loading ? 'Carregando biblioteca…' : `${profiles.length} perfis analisados`}</span>
+            </div>
+            {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>}
+            {!loading && objective.trim().length > 0 && recommendations.length === 0 && <div className="rounded-lg border border-nc-border p-5 text-sm text-nc-text-muted">Nenhuma correspondência textual encontrada. Amplie a descrição do objetivo ou explore a Biblioteca.</div>}
+            {!objective.trim() && <div className="rounded-lg border border-dashed border-nc-border p-6 text-sm text-nc-text-muted">Descreva o projeto para receber uma primeira seleção de profissionais com competências relacionadas.</div>}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              {recommendations.map(({ profile, score, matches }) => {
+                const added = team.some(item => item.id === profile.id);
+                return <article key={profile.id} className="rounded-xl border border-nc-border bg-nc-surface-elevated p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div><h3 className="font-semibold text-nc-text">{profile.name}</h3><p className="mt-0.5 text-xs text-nc-text-muted">{profile.category} · {profile.code}</p></div>
+                    <span className="rounded-md bg-nc-surface px-2 py-1 text-xs tabular-nums text-nc-text-secondary">{Math.round(score * 100)}% aderência</span>
+                  </div>
+                  <p className="mt-3 line-clamp-3 text-sm text-nc-text-secondary">{profile.specialty_description || profile.identity}</p>
+                  <p className="mt-2 text-xs text-nc-text-muted">Termos coincidentes: {matches.slice(0, 5).join(', ')}</p>
+                  <button onClick={() => added ? removeFromTeam(profile.id) : addToTeam(profile)} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-nc-border px-3 py-2 text-xs font-medium text-nc-text hover:border-nc-brand">
+                    {added ? <><Check size={14}/> Adicionado à equipe</> : <><Plus size={14}/> Adicionar à equipe</>}
+                  </button>
+                </article>;
+              })}
+            </div>
+          </section>
+
+          <aside className="h-fit space-y-4 rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
+            <div className="flex items-center justify-between"><div><h2 className="font-semibold text-nc-text">Equipe em formação</h2><p className="text-xs text-nc-text-muted">{team.length} profissional(is) selecionado(s)</p></div><Users size={20} className="text-nc-text-muted"/></div>
+            {team.length === 0 ? <p className="rounded-lg border border-dashed border-nc-border p-4 text-sm text-nc-text-muted">Adicione profissionais recomendados ou carregue um grupo de um runbook.</p> : <>
+              <div className="space-y-2">{team.map(profile => <div key={profile.id} className="flex items-center justify-between gap-2 rounded-lg bg-nc-surface p-3"><div className="min-w-0"><p className="truncate text-sm font-medium text-nc-text">{profile.name}</p><p className="text-xs text-nc-text-muted">{profile.category}</p></div><button aria-label={`Remover ${profile.name}`} onClick={() => removeFromTeam(profile.id)} className="rounded p-1 text-nc-text-muted hover:text-red-400"><X size={15}/></button></div>)}</div>
+              <div className="border-t border-nc-border pt-3"><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Distribuição por especialidade</p>{categoryCounts.map(([category, count]) => <div key={category} className="mb-1 flex justify-between text-xs text-nc-text-secondary"><span>{category}</span><span>{count}</span></div>)}</div>
+            </>}
+            <div><label htmlFor="team-save-project" className="mb-1 block text-xs text-nc-text-secondary">Projeto para registrar a seleção</label><input id="team-save-project" value={projectName} onChange={e => setProjectName(e.target.value)} placeholder="Nome do projeto" className="w-full rounded-lg border border-nc-border bg-nc-surface px-3 py-2 text-sm text-nc-text outline-none focus:border-nc-brand"/></div>
+            <button disabled={!team.length || !projectName.trim() || saving} onClick={() => void saveTeam()} className="w-full rounded-lg bg-nc-brand px-4 py-2.5 text-sm font-semibold text-nc-brand-text disabled:cursor-not-allowed disabled:opacity-40">{saving ? 'Registrando seleção…' : 'Registrar equipe no planejamento'}</button>
+            {saveMessage && <p role="status" className="text-xs text-nc-text-secondary">{saveMessage}</p>}
+            <p className="text-xs text-nc-text-muted">O registro cria seleções individuais para o projeto. Não cria nem ativa agentes no Paperclip.</p>
+          </aside>
+        </div>
+      )}
+
+      {tab === 'runbooks' && (
+        <div className="space-y-5">
+          <div className="rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
+            <div className="flex items-center gap-2"><Compass size={19}/><h2 className="font-semibold text-nc-text">Playbooks de composição e execução</h2></div>
+            <p className="mt-2 max-w-3xl text-sm text-nc-text-secondary">Os runbooks preservam cenários, modos NEXUS, grupos de ativação e rosters do projeto de origem. Selecione um cenário para inspecionar sua estrutura ou adicionar um grupo à equipe em formação.</p>
+          </div>
+          {runbooksError && <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"><CircleAlert size={15} className="mr-2 inline"/> {runbooksError}</div>}
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {runbooks.map(runbook => <button key={runbook.slug} onClick={() => setActiveRunbook(runbook.slug)} className={`rounded-xl border p-4 text-left transition-colors ${activeRunbook === runbook.slug ? 'border-nc-brand bg-nc-surface-elevated' : 'border-nc-border bg-nc-surface-elevated hover:border-nc-border-hover'}`}>
+              <div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-nc-text">{runbook.title}</h3><p className="mt-1 text-sm text-nc-text-secondary">{runbook.summary}</p></div><ChevronRight size={17} className="shrink-0 text-nc-text-muted"/></div>
+              <div className="mt-3 flex flex-wrap gap-2"><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{runbook.mode}</span><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{runbook.duration}</span><span className="rounded bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{runbook.roster.reduce((n, group) => n + group.agents.length, 0)} posições no roster</span></div>
+            </button>)}
+          </div>
+          {selectedRunbook && <section className="rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-nc-text">{selectedRunbook.title}</h2><p className="text-sm text-nc-text-muted">{selectedRunbook.mode} · {selectedRunbook.duration}</p></div><a href={`https://github.com/msitarzewski/agency-agents/blob/main/${selectedRunbook.doc}`} target="_blank" rel="noreferrer" className="text-sm text-nc-brand hover:underline">Documento original</a></div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {selectedRunbook.roster.map(group => <div key={group.group} className="rounded-lg border border-nc-border p-4">
+                <div className="mb-3 flex items-center justify-between gap-2"><div><h3 className="font-medium text-nc-text">{group.group}</h3><p className="text-xs text-nc-text-muted">Ativação: {group.activation}</p></div><button onClick={() => addRunbookGroup(group)} className="inline-flex items-center gap-1 rounded-md border border-nc-border px-2 py-1.5 text-xs text-nc-text hover:border-nc-brand"><Plus size={13}/> Adicionar grupo</button></div>
+                <ul className="space-y-1.5">{group.agents.map(slug => <li key={slug} className="flex items-center gap-2 text-sm text-nc-text-secondary"><span className="h-1.5 w-1.5 rounded-full bg-nc-brand"/>{slug.replace(/-/g, ' ')}</li>)}</ul>
+              </div>)}
+            </div>
+          </section>}
+          <p className="text-xs text-nc-text-muted">Fonte: repositório Agency Agents, arquivo strategy/runbooks.json e documentos de cenário. Os rosters são referências de composição; a implantação operacional continua sob controle da Enterprise e do Paperclip.</p>
+        </div>
+      )}
+    </div>
+  );
+};
