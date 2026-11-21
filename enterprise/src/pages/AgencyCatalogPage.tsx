@@ -73,6 +73,8 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'view' | 'homologate' | 'compare'>('view');
   const [selectedProfiles, setSelectedProfiles] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
   const [selectedProfile, setSelectedProfile] = useState<AgencyAgentProfile | null>(null);
   const [isPaperclipStudioOpen, setIsPaperclipStudioOpen] = useState(false);
   const [homologationStatus, setHomologationStatus] = useState<AgencyAgentStatus>('disponivel');
@@ -125,6 +127,9 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   }, [profiles, search, categoryFilter, statusFilter]);
 
   const filteredProfiles = applyFilters();
+  const pageCount = Math.max(1, Math.ceil(filteredProfiles.length / pageSize));
+  const pageProfiles = filteredProfiles.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  useEffect(() => { setCurrentPage(1); }, [search, categoryFilter, statusFilter, pageSize]);
   const stats = {
     total: profiles.length,
     homologated: profiles.filter(profile => profile.status === 'homologado').length,
@@ -312,7 +317,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
               description="Ajuste os filtros de busca ou importe novos perfis do catálogo Agency Agents."
             />
           ) : (
-            filteredProfiles.map(profile => (
+            pageProfiles.map(profile => (
               <div
                 key={profile.id}
                 className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 hover:border-zinc-600 transition-colors cursor-pointer group"
@@ -378,6 +383,23 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         </div>
       )}
 
+      {!loading && !loadError && filteredProfiles.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400">
+            <span>Exibindo {Math.min(filteredProfiles.length, (currentPage - 1) * pageSize + 1)}–{Math.min(filteredProfiles.length, currentPage * pageSize)} de {filteredProfiles.length}</span>
+            <label className="flex items-center gap-2">Por página
+              <select value={pageSize} onChange={event => setPageSize(Number(event.target.value))} className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1 text-zinc-200">
+                <option value={12}>12</option><option value={24}>24</option><option value={48}>48</option>
+              </select>
+            </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <button disabled={currentPage <= 1} onClick={() => setCurrentPage(page => Math.max(1, page - 1))} className="rounded border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 disabled:opacity-40">Anterior</button>
+            <span className="text-xs tabular-nums text-zinc-400">Página {currentPage} / {pageCount}</span>
+            <button disabled={currentPage >= pageCount} onClick={() => setCurrentPage(page => Math.min(pageCount, page + 1))} className="rounded border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 disabled:opacity-40">Próxima</button>
+          </div>
+        </div>
+      )}
       {selectedProfiles.length > 0 && (
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
@@ -421,6 +443,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
 
       <Modal
         isOpen={isModalOpen}
+        maxWidth="2xl"
         onClose={() => {
           setIsModalOpen(false);
           setSelectedProfile(null);
