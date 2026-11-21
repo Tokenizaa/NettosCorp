@@ -37,9 +37,7 @@ export const agencyCatalogService = {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       return [];
     }
-    const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
-    return localStore.getAgencyAgentProfiles().filter(p => p.organization_id === orgId);
+    return localStore.getAgencyAgentProfiles().filter(p => p.organization_id === DEFAULT_ORG_ID);
   },
 
   async listProfilesAsync(): Promise<AgencyAgentProfile[]> {
@@ -47,7 +45,7 @@ export const agencyCatalogService = {
       return this.listProfiles();
     }
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const { data, error } = await supabase!
       .from('agency_agent_profiles')
       .select('*')
@@ -150,7 +148,7 @@ export const agencyCatalogService = {
     source_hash: string;
   }): AgencyAgentProfile {
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const nowStr = now();
 
     const existing = localStore.getAgencyAgentProfileByCode(data.code);
@@ -215,7 +213,7 @@ export const agencyCatalogService = {
       return this.upsertProfile(data);
     }
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const nowStr = now();
 
     const { data: existing } = await supabase!
@@ -309,7 +307,7 @@ export const agencyCatalogService = {
     source_hash: string;
   }[]): AgencyAgentProfile[] {
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const nowStr = now();
 
     const imported: AgencyAgentProfile[] = profiles.map(data => {
@@ -369,7 +367,7 @@ export const agencyCatalogService = {
       return this.importProfiles(profiles);
     }
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const nowStr = now();
 
     const imported: AgencyAgentProfile[] = [];
@@ -436,7 +434,7 @@ export const agencyCatalogService = {
 
   listSelections(): AgencyAgentSelection[] {
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     return localStore.getAgencyAgentSelections().filter(s => s.organization_id === orgId);
   },
 
@@ -445,7 +443,7 @@ export const agencyCatalogService = {
       return this.listSelections();
     }
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const { data, error } = await supabase!
       .from('agency_agent_selections')
       .select('*')
@@ -472,7 +470,7 @@ export const agencyCatalogService = {
     notes?: string;
   }): AgencyAgentSelection {
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const nowStr = now();
 
     const selection: AgencyAgentSelection = {
@@ -516,7 +514,7 @@ export const agencyCatalogService = {
       return this.createSelection(data);
     }
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const nowStr = now();
 
     const selection: AgencyAgentSelection = {
@@ -600,7 +598,7 @@ export const agencyCatalogService = {
 
   listHomologations(): AgencyAgentHomologation[] {
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     return localStore.getAgencyAgentHomologations().filter(h => h.organization_id === orgId);
   },
 
@@ -609,7 +607,7 @@ export const agencyCatalogService = {
       return this.listHomologations();
     }
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const { data, error } = await supabase!
       .from('agency_agent_homologations')
       .select('*')
@@ -633,7 +631,7 @@ export const agencyCatalogService = {
     notes?: string;
   }): AgencyAgentHomologation {
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const nowStr = now();
 
     const homologation: AgencyAgentHomologation = {
@@ -691,7 +689,7 @@ export const agencyCatalogService = {
       return this.homologateProfile(data);
     }
     const user = localStore.getSessionUser();
-    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const orgId = DEFAULT_ORG_ID;
     const nowStr = now();
 
     const homologation: AgencyAgentHomologation = {
