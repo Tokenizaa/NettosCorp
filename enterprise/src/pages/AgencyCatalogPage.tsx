@@ -188,7 +188,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   const openViewModal = (profile: AgencyAgentProfile) => {
     setSelectedProfile(profile);
     setModalType('view');
-    setIsModalOpen(true);
+    setIsModalOpen(false);
   };
 
   const openHomologateModal = (profile: AgencyAgentProfile) => {
@@ -268,7 +268,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   ];
 
   return (
-    <div className="space-y-6">
+    <div className={selectedProfile && modalType === "view" ? "space-y-6 lg:pr-[min(720px,58vw)]" : "space-y-6"}>
       <PageHeader
         title="Catálogo Agency Agents"
         description="Modelos profissionais para planejamento estratégico, avaliação e seleção de equipes"
@@ -514,6 +514,28 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         </div>
       )}
 
+      {selectedProfile && modalType === "view" && !isPaperclipStudioOpen && (
+        <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden border-l border-zinc-800 bg-zinc-950 shadow-2xl sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[min(720px,58vw)]" aria-label="Ficha individual do perfil">
+          <header className="flex items-start justify-between gap-3 border-b border-zinc-800 px-5 py-4">
+            <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400">Ficha individual · Agency Agents</p><h2 className="mt-1 text-lg font-semibold text-zinc-100">{selectedProfile.name}</h2><p className="text-xs text-zinc-500">{selectedProfile.code} · {CATEGORIES.find(category => category.value === selectedProfile.category)?.label}</p></div>
+            <button onClick={() => setSelectedProfile(null)} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white" aria-label="Fechar ficha"><XCircle className="h-5 w-5" /></button>
+          </header>
+          <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5">
+            <div className="flex flex-wrap items-center gap-2"><span className={"rounded px-2 py-1 text-[10px] font-bold uppercase " + statusColor(selectedProfile.status) + " text-zinc-950"}>{STATUS_OPTIONS.find(option => option.value === selectedProfile.status)?.label}</span><span className="rounded border border-zinc-800 px-2 py-1 text-[10px] text-zinc-400">Perfil mestre · não implantado</span></div>
+            <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Identidade profissional</h3><p className="text-sm leading-6 text-zinc-300">{selectedProfile.identity}</p><p className="mt-3 text-sm leading-6 text-zinc-400">{selectedProfile.specialty_description}</p></section>
+            <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Competências</h3><div className="flex flex-wrap gap-2">{selectedProfile.competencies.map(item => <span key={item} className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-300">{item}</span>)}</div></section>
+            <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Personalidade</h3><p className="text-sm leading-6 text-zinc-300">{selectedProfile.personality}</p></section>
+            <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Responsabilidades</h3><ul className="space-y-2 text-sm leading-6 text-zinc-300">{selectedProfile.responsibilities.map(item => <li key={item} className="border-l-2 border-zinc-700 pl-3">{item}</li>)}</ul></section>
+            <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Metodologia</h3><p className="text-sm leading-6 text-zinc-300">{selectedProfile.methodology}</p></section>
+            <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3"><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Origem e rastreabilidade</h3><p className="break-all text-xs text-zinc-400">{selectedProfile.source_file}</p><p className="mt-1 break-all font-mono text-[10px] text-zinc-600">{selectedProfile.source_hash}</p></section>
+          </div>
+          <footer className="flex flex-col gap-2 border-t border-zinc-800 p-4 sm:flex-row">
+            <button onClick={() => setIsPaperclipStudioOpen(true)} className="flex-1 rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500">Preparar para Paperclip</button>
+            <button onClick={() => openHomologateModal(selectedProfile)} className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-medium text-zinc-200 hover:bg-zinc-800">Homologar</button>
+            <button onClick={() => setIsSelectionModalOpen(true)} className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-medium text-zinc-200 hover:bg-zinc-800">Selecionar para projeto</button>
+          </footer>
+        </aside>
+      )}
       <Modal
         isOpen={isModalOpen}
         maxWidth="2xl"
