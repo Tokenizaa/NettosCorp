@@ -1,0 +1,91 @@
+- generic [ref=e8]:
+  - link "Skip to Main Content" [ref=e9] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - complementary [ref=e14]:
+          - generic [ref=e15]:
+            - button "Open TokenizAi organization switcher" [ref=e16]:
+              - generic [ref=e17]:
+                - generic [ref=e18]: T
+                - generic [ref=e21]: TokenizAi
+            - button "Global search" [ref=e23]
+          - navigation "Workspace navigation" [ref=e24]:
+            - generic [ref=e25]:
+              - button "New task" [ref=e26]
+              - generic [ref=e28]:
+                - link "Chat" [ref=e29] [cursor=pointer]:
+                  - /url: /TOK/chats
+                - generic [ref=e35]:
+                  - link "Tasks" [ref=e36] [cursor=pointer]:
+                    - /url: /TOK/issues
+                  - button "New task" [ref=e43]
+                - link "Inbox" [ref=e45] [cursor=pointer]:
+                  - /url: /TOK/decisions
+              - button "More workspace pages" [ref=e52]:
+                - generic [ref=e57]: More
+        - generic [ref=e59]:
+          - button "Open account menu" [ref=e60]:
+            - generic [ref=e61]: BO
+            - generic [ref=e63]: Board
+          - link "Share feedback" [ref=e64] [cursor=pointer]:
+            - /url: https://paperclip.ing/feedback
+      - separator "Resize sidebar" [ref=e67]
+    - generic [ref=e69]:
+      - heading "Agents" [level=1] [ref=e584]
+      - generic [ref=e74]:
+        - main [ref=e76]:
+          - generic [ref=e585]:
+            - toolbar "Agents controls" [ref=e587]:
+              - generic [ref=e588]:
+                - textbox "Search agents" [ref=e593]:
+                  - /placeholder: Search agents…
+                - group "Agent view" [ref=e594]:
+                  - button "List view" [pressed] [ref=e595]
+                  - button "Org chart view" [ref=e596]
+                - toolbar "Agent filters" [ref=e597]:
+                  - button "Filter agents" [ref=e598]
+                - button "New Agent" [ref=e600]
+            - table "Agent roster" [ref=e604]:
+              - rowgroup [ref=e605]:
+                - row [ref=e606]:
+                  - columnheader "Select all visible editable agents" [ref=e607]:
+                    - checkbox "Select all visible editable agents" [ref=e608]
+                  - columnheader "1 agent" [ref=e609]
+                  - columnheader "Chat" [ref=e610]
+                  - columnheader "Status" [ref=e612]
+                  - columnheader "Harness" [ref=e613]
+                  - columnheader "Default model" [ref=e614]
+                  - columnheader "Connection" [ref=e615]
+              - rowgroup [ref=e616]:
+                - row [ref=e617]:
+                  - cell [ref=e618]:
+                    - checkbox "Select CEO" [ref=e619]
+                  - cell [ref=e620]:
+                    - generic [ref=e621]:
+                      - link "CEO My primary agent General" [active] [ref=e622] [cursor=pointer]:
+                        - /url: /TOK/agents/ceo
+                        - generic [ref=e626]:
+                          - generic [ref=e627]:
+                            - generic "CEO" [ref=e628]
+                            - img "My primary agent" [ref=e629]
+                          - paragraph [ref=e632]: General
+                      - button "Pin CEO" [ref=e633]
+                  - cell [ref=e636]:
+                    - button "Chat with CEO" [ref=e637]: Chat
+                  - cell "Live (2) paused" [ref=e641]:
+                    - generic [ref=e642]:
+                      - link "Live (2)" [ref=e643] [cursor=pointer]:
+                        - /url: /TOK/agents/ceo/runs/a5ebb6f5-00a1-443b-a9d1-f46cb374d752
+                      - generic [ref=e648]: paused
+                  - cell "Codex" [ref=e649]
+                  - cell "gpt-6.1-sol" [ref=e650]
+                  - cell "My OpenAI" [ref=e651]
+        - region [ref=e451]:
+          - generic [ref=e455]:
+            - button [ref=e456]
+            - button [pressed] [ref=e457]
+  - generic [ref=e464]:
+    - heading "Command Palette" [level=2] [ref=e465]
+    - paragraph [ref=e466]: Search for a command to run...

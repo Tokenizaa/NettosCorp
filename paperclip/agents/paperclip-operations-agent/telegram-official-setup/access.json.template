@@ -1,0 +1,18 @@
+{
+  "dmPolicy": "allowlist",
+  "allowFrom": [
+    "8816487898"
+  ],
+  "groups": {},
+  "mentionPatterns": [
+    "^hey claude\\b",
+    "^paperclip\\b",
+    "^\\/inbox",
+    "^\\/issue",
+    "^\\/status"
+  ],
+  "ackReaction": "👀",
+  "replyToMode": "first",
+  "textChunkLimit": 4096,
+  "chunkMode": "newline"
+}

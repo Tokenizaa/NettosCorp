@@ -1,0 +1,47 @@
+schema: paperclip/v1
+agents:
+  paperclip-operations:
+    adapter:
+      type: claude_local
+      config:
+        engine: acp
+        model: claude-opus-5-5
+        effort: high
+        cwd: /workspace
+        instructionsFilePath: /workspace/AGENTS.md
+        dangerouslySkipPermissions: true
+        maxTurnsPerRun: 50
+        timeoutSec: 1800
+        graceSec: 30
+    runtimeConfig:
+      heartbeat:
+        enabled: true
+        intervalSec: 300
+        wakeOnDemand: true
+      maxConcurrentRuns: 5
+    inputs:
+      env:
+        PAPERCLIP_API_URL:
+          kind: secret
+          requirement: required
+        PAPERCLIP_API_KEY:
+          kind: secret
+          requirement: required
+        PAPERCLIP_COMPANY_ID:
+          kind: secret
+          requirement: required
+        PAPERCLIP_AGENT_ID:
+          kind: secret
+          requirement: required
+        PAPERCLIP_RUN_ID:
+          kind: secret
+          requirement: required
+    skills:
+      - paperclip
+      - paperclip-create-agent
+    permissions:
+      canCreateAgents: true
+      canCreateSkills: false
+      canAssignTasks: true
+      trustPreset: standard
+      authorizationPolicy: standard

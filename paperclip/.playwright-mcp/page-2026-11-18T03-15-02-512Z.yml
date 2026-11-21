@@ -1,0 +1,156 @@
+- generic [ref=e8]:
+  - link "Skip to Main Content" [ref=e9] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - complementary [ref=e14]:
+          - generic [ref=e15]:
+            - button "Open TokenizAi organization switcher" [ref=e16]:
+              - generic [ref=e17]:
+                - generic [ref=e18]: T
+                - generic [ref=e21]: TokenizAi
+            - button "Global search" [ref=e23]
+          - navigation "Workspace navigation" [ref=e24]:
+            - generic [ref=e25]:
+              - button "New task" [ref=e26]
+              - generic [ref=e28]:
+                - link "Chat" [ref=e29] [cursor=pointer]:
+                  - /url: /TOK/chats
+                - generic [ref=e35]:
+                  - link "Tasks" [ref=e36] [cursor=pointer]:
+                    - /url: /TOK/issues
+                  - button "New task" [ref=e43]
+                - link "Inbox" [ref=e45] [cursor=pointer]:
+                  - /url: /TOK/decisions
+              - button "More workspace pages" [ref=e52]:
+                - generic [ref=e57]: More
+        - generic [ref=e59]:
+          - button "Open account menu" [ref=e60]:
+            - generic [ref=e61]: BO
+            - generic [ref=e63]: Board
+          - link "Share feedback" [ref=e64] [cursor=pointer]:
+            - /url: https://paperclip.ing/feedback
+      - separator "Resize sidebar" [ref=e67]
+    - generic [ref=e69]:
+      - navigation "breadcrumb" [ref=e652]:
+        - list [ref=e653]:
+          - listitem [ref=e654]:
+            - link "Agents" [ref=e655] [cursor=pointer]:
+              - /url: /TOK/agents
+          - listitem [aria-hidden] [ref=e656]
+          - listitem [ref=e659]:
+            - link "CEO" [ref=e857] [cursor=pointer]:
+              - /url: /TOK/agents/ceo/overview
+          - listitem [aria-hidden] [ref=e858]
+          - listitem [ref=e861]:
+            - link "Harness / Runtime" [disabled] [ref=e862]
+      - generic [ref=e74]:
+        - complementary [ref=e662]:
+          - navigation "CEO navigation" [ref=e663]:
+            - generic [ref=e665]:
+              - paragraph [ref=e666]: Agent
+              - generic [ref=e667]:
+                - link "Overview" [ref=e668] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/overview
+                - link "Identity" [active] [ref=e674] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/identity
+                - link "Harness / Runtime" [ref=e686] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/runtime
+                - link "Secrets & variables" [ref=e692] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/secrets
+                - link "Permissions / Trust" [ref=e698] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/permissions
+                - link "Advanced" [ref=e704] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/advanced
+            - generic [ref=e713]:
+              - paragraph [ref=e714]: Audit
+              - generic [ref=e715]:
+                - link "Activity" [ref=e716] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/activity
+                - link "Runs" [ref=e721] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/runs
+                - link "Costs" [ref=e727] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/costs
+                - link "Budgets" [ref=e732] [cursor=pointer]:
+                  - /url: /TOK/agents/ceo/budgets
+        - main [ref=e76]:
+          - generic [ref=e738]:
+            - generic [ref=e739]:
+              - img "CEO avatar" [ref=e740]
+              - generic [ref=e744]:
+                - generic [ref=e745]:
+                  - heading "CEO" [level=1] [ref=e746] [cursor=pointer]
+                  - img "My primary agent" [ref=e747]
+                - generic [ref=e750]:
+                  - link "Open Codex harness settings" [ref=e751] [cursor=pointer]:
+                    - /url: /TOK/agents/ceo/runtime
+                    - generic [ref=e752]: Codex
+                  - generic [aria-hidden] [ref=e753]: •
+                  - generic [ref=e754] [cursor=pointer]: General
+                - status [ref=e755]:
+                  - generic [ref=e756]: Agent verification failed
+                  - generic [ref=e758]:
+                    - generic [ref=e759]: Execution configuration check failed. The execution test did not pass. Open Configuration and run the agent test to inspect the failed checks. Automatic verification is paused. Update Configuration or choose Retry now.
+                    - button "Retry now" [ref=e760]
+                  - paragraph [ref=e761]: Retry now checks the saved configuration again immediately.
+              - generic [ref=e762]:
+                - generic "Exact provider traffic will be captured for future runs and retained for up to 24 hours." [ref=e763]: Raw tracing on
+                - button "Open actions for CEO" [ref=e773]
+                - button "Chat with CEO" [ref=e774]: Chat
+                - button "New task" [ref=e775]
+            - generic [ref=e863]:
+              - heading "Harness / Runtime" [level=2] [ref=e864]
+              - paragraph [ref=e865]: "How CEO runs: harness, model and environment."
+            - generic [ref=e869]:
+              - generic [ref=e871]:
+                - generic [ref=e872]:
+                  - generic [ref=e873]:
+                    - generic [ref=e874]: Harness
+                    - button [ref=e875]
+                  - button "Harness" [ref=e879]:
+                    - generic [ref=e880]: Codex
+                - generic [ref=e885]:
+                  - text: Connection
+                  - combobox "Connection" [ref=e886]:
+                    - generic: My OpenAI · ChatGPT subscription · Personal · olfnetto@gmail.com
+                - generic [ref=e887]:
+                  - generic [ref=e888]:
+                    - generic [ref=e889]: Model
+                    - button [ref=e890]
+                  - button "Model" [ref=e894]:
+                    - generic [ref=e895]: gpt-6.1-sol
+                - generic [ref=e896]:
+                  - generic [ref=e897]:
+                    - generic [ref=e898]: Thinking effort
+                    - button [ref=e899]
+                  - button "Thinking effort" [ref=e903]:
+                    - generic [ref=e904]: Auto
+              - generic [ref=e907]:
+                - heading "Environment variables" [level=3] [ref=e908]
+                - generic [ref=e910]:
+                  - paragraph [ref=e911]: No environment variables
+                  - button "Add variable" [ref=e913]
+                  - paragraph [ref=e915]: Set the KEY to the env var name the process expects, for example GH_TOKEN. Choose a secret to resolve a stored value at run start. PAPERCLIP_* variables are injected automatically.
+              - generic [ref=e916]:
+                - heading "Debugging" [level=3] [ref=e917]
+                - generic [ref=e927]:
+                  - generic [ref=e928]:
+                    - generic [ref=e929]:
+                      - generic [ref=e930]: Capture raw provider traces
+                      - button [ref=e931]
+                    - switch "Capture raw provider traces" [checked] [ref=e935]
+                  - generic [ref=e936]: Raw tracing is on for future runs. Paperclip keeps at most 64 MiB per run and automatically deletes it after 24 hours.
+              - region "Runtime test" [ref=e947]:
+                - generic [ref=e952]:
+                  - status [ref=e953]:
+                    - heading "Test your agent" [level=3] [ref=e954]
+                    - paragraph [ref=e955]: Check that your runtime and model can respond.
+                  - button "Run test" [ref=e956]
+        - region [ref=e451]:
+          - generic [ref=e455]:
+            - button [ref=e456]
+            - button [pressed] [ref=e457]
+  - generic [ref=e464]:
+    - heading "Command Palette" [level=2] [ref=e465]
+    - paragraph [ref=e466]: Search for a command to run...

@@ -1,0 +1,19 @@
+{
+  "run_id": "947c49e0-43fa-43ba-baa1-9272b0e07cee-149-1747481722ee4dd489d071bcd799080e",
+  "verdicts": [
+    {
+      "action": "create",
+      "name": "fcc-onboarding-integration",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    },
+    {
+      "action": "create",
+      "name": "react-query-adapter-config-key",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "run_id": "0852fad2-07f0-476c-b52c-d942935e4c45-2-e7125221e3a1431db30d1f33c7c899b0",
+  "verdicts": [
+    {
+      "action": "create",
+      "name": "paperclip-agent-telegram-verification",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    }
+  ]
+}

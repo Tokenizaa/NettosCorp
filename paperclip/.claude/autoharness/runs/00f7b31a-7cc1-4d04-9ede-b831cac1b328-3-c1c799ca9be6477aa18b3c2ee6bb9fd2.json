@@ -1,0 +1,12 @@
+{
+  "run_id": "00f7b31a-7cc1-4d04-9ede-b831cac1b328-3-c1c799ca9be6477aa18b3c2ee6bb9fd2",
+  "verdicts": [
+    {
+      "action": "patch",
+      "name": "paperclip-telegram-official-plugin",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    }
+  ]
+}

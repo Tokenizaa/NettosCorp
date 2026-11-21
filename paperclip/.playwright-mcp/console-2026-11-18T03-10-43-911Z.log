@@ -1,0 +1,13 @@
+[   41721ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:3100/node_modules/.vite/deps/react-dom_client.js?v=13fca128:14336
+[  146030ms] [WARNING] [.WebGL-0x1dc40d860800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ http://127.0.0.1:3100/TOK/agents/ceo/overview:1
+[  146317ms] [WARNING] [.WebGL-0x1dc40d860800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ http://127.0.0.1:3100/TOK/agents/ceo/overview:1
+[  146479ms] [WARNING] [.WebGL-0x1dc40d860800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ http://127.0.0.1:3100/TOK/agents/ceo/overview:1
+[  146661ms] [WARNING] [.WebGL-0x1dc40d860800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat) @ http://127.0.0.1:3100/TOK/agents/ceo/overview:1
+[  490578ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:3100/@vite/client:1003
+[  490858ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3100/api/health:1
+[  491639ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:3100/api/companies/41094d81-f950-4565-bdf6-1de1f03909aa/events/ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3100/src/lib/websocket.ts:5
+[  491866ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3100/api/health:1
+[  493644ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:3100/api/companies/41094d81-f950-4565-bdf6-1de1f03909aa/events/ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3100/src/lib/websocket.ts:5
+[  493872ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3100/api/health:1
+[  497681ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:3100/api/companies/41094d81-f950-4565-bdf6-1de1f03909aa/events/ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3100/src/lib/websocket.ts:5
+[  498876ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3100/api/health:1

@@ -1,0 +1,303 @@
+- generic [ref=e1]:
+  - generic [ref=e8]:
+    - link "Skip to Main Content" [ref=e9] [cursor=pointer]:
+      - /url: "#main-content"
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - complementary [ref=e14]:
+            - generic [ref=e15]:
+              - button "Open TokenizAi organization switcher" [ref=e16]:
+                - generic [ref=e17]:
+                  - generic [ref=e18]: T
+                  - generic [ref=e21]: TokenizAi
+              - button "Global search" [ref=e23]
+            - navigation "Workspace navigation" [ref=e24]:
+              - generic [ref=e25]:
+                - button "New task" [ref=e26]
+                - generic [ref=e28]:
+                  - link "Chat" [ref=e29] [cursor=pointer]:
+                    - /url: /TOK/chats
+                  - generic [ref=e35]:
+                    - link "Tasks" [ref=e36] [cursor=pointer]:
+                      - /url: /TOK/issues
+                    - button "New task" [ref=e43]
+                  - link "Inbox" [ref=e45] [cursor=pointer]:
+                    - /url: /TOK/decisions
+                - button "More workspace pages" [expanded] [ref=e52]:
+                  - generic [ref=e57]: More
+          - generic [ref=e59]:
+            - button "Open account menu" [ref=e60]:
+              - generic [ref=e61]: BO
+              - generic [ref=e63]: Board
+            - link "Share feedback" [ref=e64] [cursor=pointer]:
+              - /url: https://paperclip.ing/feedback
+        - separator "Resize sidebar" [ref=e67]
+      - generic [ref=e69]:
+        - heading "Dashboard" [level=1] [ref=e73]
+        - generic [ref=e74]:
+          - main [ref=e76]:
+            - generic [ref=e77]:
+              - note [ref=e78]:
+                - generic [ref=e82]:
+                  - paragraph [ref=e83]: All agents in this organization are paused — nothing will run.
+                  - generic [ref=e84]: Resume at least one agent to let assigned tasks start.
+                - link "Review agents" [ref=e86] [cursor=pointer]:
+                  - /url: /TOK/agents
+              - generic [ref=e87]:
+                - heading "Agents" [level=3] [ref=e88]
+                - generic [ref=e89]:
+                  - generic [ref=e91]:
+                    - link "CEO — Queued. View run" [ref=e92] [cursor=pointer]:
+                      - /url: /TOK/agents/047f92a0-86ea-4d7b-8749-625b503c01d9/runs/a5ebb6f5-00a1-443b-a9d1-f46cb374d752
+                      - generic "CEO" [ref=e93]
+                    - link "No linked task" [ref=e96] [cursor=pointer]:
+                      - /url: /TOK/agents/047f92a0-86ea-4d7b-8749-625b503c01d9/runs/a5ebb6f5-00a1-443b-a9d1-f46cb374d752
+                    - time [ref=e101]: Queued 5h ago
+                  - generic [ref=e103]:
+                    - link "CEO — Queued. View run" [ref=e104] [cursor=pointer]:
+                      - /url: /TOK/agents/047f92a0-86ea-4d7b-8749-625b503c01d9/runs/5b36281a-d31d-4022-bf81-15540aba4f8a
+                      - generic "CEO" [ref=e105]
+                    - link "Task todo Paperclip onboarding TOK-1" [ref=e108] [cursor=pointer]:
+                      - /url: /TOK/issues/TOK-1
+                      - generic [ref=e109]:
+                        - generic [ref=e110]:
+                          - img "Task todo" [ref=e111]
+                          - generic [ref=e113]: Paperclip onboarding
+                        - generic [ref=e114]: TOK-1
+                    - time [ref=e115]: Queued 8h ago
+                - link "View all runs" [ref=e117] [cursor=pointer]:
+                  - /url: /TOK/dashboard/live
+              - generic [ref=e118]:
+                - link "1 Agents Enabled 0 running, 1 paused, 0 errors" [ref=e119] [cursor=pointer]:
+                  - /url: /TOK/agents
+                  - generic [ref=e122]:
+                    - paragraph [ref=e123]: "1"
+                    - paragraph [ref=e124]: Agents Enabled
+                    - generic [ref=e125]: 0 running, 1 paused, 0 errors
+                - link "0 Tasks In Progress 1 open, 0 blocked" [ref=e130] [cursor=pointer]:
+                  - /url: /TOK/issues
+                  - generic [ref=e133]:
+                    - paragraph [ref=e134]: "0"
+                    - paragraph [ref=e135]: Tasks In Progress
+                    - generic [ref=e136]: 1 open, 0 blocked
+                - link "$0.00 Month Spend Unlimited budget" [ref=e141] [cursor=pointer]:
+                  - /url: /TOK/costs
+                  - generic [ref=e144]:
+                    - paragraph [ref=e145]: $0.00
+                    - paragraph [ref=e146]: Month Spend
+                    - generic [ref=e147]: Unlimited budget
+                - link "0 Pending Approvals Awaiting board review" [ref=e150] [cursor=pointer]:
+                  - /url: /TOK/approvals
+                  - generic [ref=e153]:
+                    - paragraph [ref=e154]: "0"
+                    - paragraph [ref=e155]: Pending Approvals
+                    - generic [ref=e156]: Awaiting board review
+              - generic [ref=e160]:
+                - generic [ref=e161]:
+                  - generic [ref=e162]:
+                    - heading "Run Activity" [level=3] [ref=e163]
+                    - text: Last 14 days
+                  - generic [ref=e164]:
+                    - generic [ref=e165]:
+                      - 'generic "2026-11-05: 0 runs" [ref=e166]'
+                      - 'generic "2026-11-06: 0 runs" [ref=e168]'
+                      - 'generic "2026-11-07: 0 runs" [ref=e170]'
+                      - 'generic "2026-11-08: 0 runs" [ref=e172]'
+                      - 'generic "2026-11-09: 0 runs" [ref=e174]'
+                      - 'generic "2026-11-10: 0 runs" [ref=e176]'
+                      - 'generic "2026-11-11: 0 runs" [ref=e178]'
+                      - 'generic "2026-11-12: 0 runs" [ref=e180]'
+                      - 'generic "2026-11-13: 0 runs" [ref=e182]'
+                      - 'generic "2026-11-14: 0 runs" [ref=e184]'
+                      - 'generic "2026-11-15: 0 runs" [ref=e186]'
+                      - 'generic "2026-11-16: 0 runs" [ref=e188]'
+                      - 'generic "2026-11-17: 2 runs other: 2" [ref=e190]'
+                      - 'generic "2026-11-18: 0 runs" [ref=e193]'
+                    - generic [ref=e195]:
+                      - generic [ref=e196]: 11/5
+                      - generic [ref=e202]: 11/11
+                      - generic [ref=e209]: 11/18
+                    - generic [ref=e210]:
+                      - generic [ref=e211]: Succeeded
+                      - generic [ref=e213]: Failed
+                      - generic [ref=e215]: Other
+                - generic [ref=e217]:
+                  - generic [ref=e218]:
+                    - heading "Tasks by Status" [level=3] [ref=e219]
+                    - text: Last 14 days
+                  - generic [ref=e220]:
+                    - generic [ref=e221]:
+                      - 'generic "2026-11-05: 0 issues" [ref=e222]'
+                      - 'generic "2026-11-06: 0 issues" [ref=e224]'
+                      - 'generic "2026-11-07: 0 issues" [ref=e226]'
+                      - 'generic "2026-11-08: 0 issues" [ref=e228]'
+                      - 'generic "2026-11-09: 0 issues" [ref=e230]'
+                      - 'generic "2026-11-10: 0 issues" [ref=e232]'
+                      - 'generic "2026-11-11: 0 issues" [ref=e234]'
+                      - 'generic "2026-11-12: 0 issues" [ref=e236]'
+                      - 'generic "2026-11-13: 0 issues" [ref=e238]'
+                      - 'generic "2026-11-14: 0 issues" [ref=e240]'
+                      - 'generic "2026-11-15: 0 issues" [ref=e242]'
+                      - 'generic "2026-11-16: 0 issues" [ref=e244]'
+                      - 'generic "2026-11-17: 1 issues" [ref=e246]'
+                      - 'generic "2026-11-18: 0 issues" [ref=e249]'
+                    - generic [ref=e251]:
+                      - generic [ref=e252]: 11/5
+                      - generic [ref=e258]: 11/11
+                      - generic [ref=e265]: 11/18
+                    - generic [ref=e266]: To Do
+                - generic [ref=e269]:
+                  - generic [ref=e270]:
+                    - heading "Success Rate" [level=3] [ref=e271]
+                    - text: Last 14 days
+                  - generic [ref=e272]:
+                    - generic [ref=e273]:
+                      - 'generic "2026-11-05: 0% (0/0)" [ref=e274]'
+                      - 'generic "2026-11-06: 0% (0/0)" [ref=e276]'
+                      - 'generic "2026-11-07: 0% (0/0)" [ref=e278]'
+                      - 'generic "2026-11-08: 0% (0/0)" [ref=e280]'
+                      - 'generic "2026-11-09: 0% (0/0)" [ref=e282]'
+                      - 'generic "2026-11-10: 0% (0/0)" [ref=e284]'
+                      - 'generic "2026-11-11: 0% (0/0)" [ref=e286]'
+                      - 'generic "2026-11-12: 0% (0/0)" [ref=e288]'
+                      - 'generic "2026-11-13: 0% (0/0)" [ref=e290]'
+                      - 'generic "2026-11-14: 0% (0/0)" [ref=e292]'
+                      - 'generic "2026-11-15: 0% (0/0)" [ref=e294]'
+                      - 'generic "2026-11-16: 0% (0/0)" [ref=e296]'
+                      - 'generic "2026-11-17: 0% (0/2)" [ref=e298]'
+                      - 'generic "2026-11-18: 0% (0/0)" [ref=e300]'
+                    - generic [ref=e302]:
+                      - generic [ref=e303]: 11/5
+                      - generic [ref=e309]: 11/11
+                      - generic [ref=e316]: 11/18
+              - generic [ref=e317]:
+                - generic [ref=e318]:
+                  - heading "Recent Activity" [level=3] [ref=e319]
+                  - generic [ref=e320]:
+                    - generic [ref=e323]:
+                      - generic [ref=e325]: SY
+                      - generic [ref=e326]:
+                        - paragraph [ref=e328]:
+                          - generic "System company skill source checked" [ref=e329]
+                        - generic [ref=e330]: just now
+                    - generic [ref=e334]:
+                      - generic [ref=e336]: SY
+                      - generic [ref=e337]:
+                        - paragraph [ref=e339]:
+                          - generic "System company skill source checked" [ref=e340]
+                        - generic [ref=e341]: 5m ago
+                    - link "Board agent lifecycle retried CEO 6m ago" [ref=e343] [cursor=pointer]:
+                      - /url: /TOK/agents/047f92a0-86ea-4d7b-8749-625b503c01d9
+                      - generic [ref=e345]:
+                        - generic [ref=e347]: BO
+                        - generic [ref=e348]:
+                          - paragraph [ref=e350]:
+                            - generic "Board agent lifecycle retried" [ref=e351]
+                            - generic [ref=e352]: CEO
+                          - generic [ref=e353]: 6m ago
+                    - generic [ref=e357]:
+                      - generic [ref=e359]: SY
+                      - generic [ref=e360]:
+                        - paragraph [ref=e362]:
+                          - generic "System company skill source checked" [ref=e363]
+                        - generic [ref=e364]: 10m ago
+                    - generic [ref=e368]:
+                      - generic [ref=e370]: SY
+                      - generic [ref=e371]:
+                        - paragraph [ref=e373]:
+                          - generic "System company skill source checked" [ref=e374]
+                        - generic [ref=e375]: 21m ago
+                    - generic [ref=e379]:
+                      - generic [ref=e381]: SY
+                      - generic [ref=e382]:
+                        - paragraph [ref=e384]:
+                          - generic "System company skill source checked" [ref=e385]
+                        - generic [ref=e386]: 27m ago
+                    - generic [ref=e390]:
+                      - generic [ref=e392]: SY
+                      - generic [ref=e393]:
+                        - paragraph [ref=e395]:
+                          - generic "System company skill source checked" [ref=e396]
+                        - generic [ref=e397]: 32m ago
+                    - generic [ref=e401]:
+                      - generic [ref=e403]: SY
+                      - generic [ref=e404]:
+                        - paragraph [ref=e406]:
+                          - generic "System company skill source checked" [ref=e407]
+                        - generic [ref=e408]: 37m ago
+                    - generic [ref=e412]:
+                      - generic [ref=e414]: SY
+                      - generic [ref=e415]:
+                        - paragraph [ref=e417]:
+                          - generic "System company skill source checked" [ref=e418]
+                        - generic [ref=e419]: 42m ago
+                    - generic [ref=e423]:
+                      - generic [ref=e425]: SY
+                      - generic [ref=e426]:
+                        - paragraph [ref=e428]:
+                          - generic "System company skill source checked" [ref=e429]
+                        - generic [ref=e430]: 47m ago
+                - generic [ref=e432]:
+                  - heading "Recent Tasks" [level=3] [ref=e433]
+                  - link "Todo Paperclip onboarding TOK-1 CEO 7h ago" [ref=e435] [cursor=pointer]:
+                    - /url: /TOK/issues/TOK-1
+                    - generic [ref=e436]:
+                      - img "Todo" [ref=e438]
+                      - generic [ref=e440]:
+                        - generic [ref=e441]:
+                          - generic "Paperclip onboarding" [ref=e442]
+                          - generic [ref=e443]: TOK-1
+                        - generic [ref=e444]:
+                          - generic "CEO" [ref=e446]
+                          - generic [ref=e449]: 7h ago
+          - region [ref=e451]:
+            - generic [ref=e455]:
+              - button [ref=e456]
+              - button [pressed] [ref=e457]
+    - generic [ref=e464]:
+      - heading "Command Palette" [level=2] [ref=e465]
+      - paragraph [ref=e466]: Search for a command to run...
+  - dialog "More workspace pages" [active] [ref=e468]:
+    - generic [ref=e470]:
+      - link "Search" [ref=e471] [cursor=pointer]:
+        - /url: /TOK/search
+      - button "Pin Search" [ref=e475]
+    - generic [ref=e479]:
+      - link "Dashboard" [ref=e480] [cursor=pointer]:
+        - /url: /TOK/dashboard
+      - button "Pin Dashboard" [ref=e486]
+    - generic [ref=e490]:
+      - link "Projects" [ref=e491] [cursor=pointer]:
+        - /url: /TOK/projects
+      - button "Pin Projects" [ref=e494]
+    - generic [ref=e498]:
+      - link "Routines" [ref=e499] [cursor=pointer]:
+        - /url: /TOK/routines
+      - button "Pin Routines" [ref=e505]
+    - generic [ref=e509]:
+      - link "Artifacts" [ref=e510] [cursor=pointer]:
+        - /url: /TOK/artifacts
+      - button "Pin Artifacts" [ref=e521]
+    - generic [ref=e525]:
+      - link "Agents" [ref=e526] [cursor=pointer]:
+        - /url: /TOK/agents/all
+      - button "Pin Agents" [ref=e532]
+    - generic [ref=e535]:
+      - separator [ref=e536]
+      - generic [ref=e537]:
+        - link "Skills" [ref=e538] [cursor=pointer]:
+          - /url: /TOK/skills
+        - button "Pin Skills" [ref=e549]
+    - generic [ref=e553]:
+      - link "Connectors" [ref=e554] [cursor=pointer]:
+        - /url: /TOK/apps
+      - button "Pin Connectors" [ref=e562]
+    - generic [ref=e566]:
+      - link "Audit" [ref=e567] [cursor=pointer]:
+        - /url: /TOK/activity
+      - button "Pin Audit" [ref=e572]
+    - generic [ref=e576]:
+      - link "Settings" [ref=e577] [cursor=pointer]:
+        - /url: /TOK/settings
+      - button "Pin Settings" [ref=e581]

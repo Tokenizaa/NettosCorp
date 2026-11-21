@@ -1,0 +1,12 @@
+{
+  "run_id": "947c49e0-43fa-43ba-baa1-9272b0e07cee-74-10b0ddbd53a94463ad72f933415d8a01",
+  "verdicts": [
+    {
+      "action": "create",
+      "name": "custom-anthropic-endpoint-config",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    }
+  ]
+}

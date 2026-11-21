@@ -1,0 +1,12 @@
+{
+  "run_id": "89947a2e-d134-43c1-bd66-c8b3ab6722b1-108-c0810cc5075249a1a16d66a08b3665ab",
+  "verdicts": [
+    {
+      "action": "patch",
+      "name": "fcc-onboarding-integration",
+      "ok": true,
+      "findings": [],
+      "notes": []
+    }
+  ]
+}
