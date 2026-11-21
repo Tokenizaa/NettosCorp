@@ -224,7 +224,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
             {!loading && objective.trim().length > 0 && recommendations.length === 0 && <div className="rounded-lg border border-nc-border p-5 text-sm text-nc-text-muted">Nenhuma correspondência textual encontrada. Amplie a descrição do objetivo ou explore a Biblioteca.</div>}
             {!objective.trim() && <div className="rounded-lg border border-dashed border-nc-border p-6 text-sm text-nc-text-muted">Descreva o projeto para receber uma primeira seleção de profissionais com competências relacionadas.</div>}
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {recommendations.map(({ profile, score, reason, group, activation }) => {
+              {recommendations.map(({ profile, score, reason, group, activation, dimensions }) => {
                 const added = team.some(item => item.id === profile.id);
                 return <article key={profile.id} className="rounded-xl border border-nc-border bg-nc-surface-elevated p-4">
                   <div className="flex items-start justify-between gap-3">
