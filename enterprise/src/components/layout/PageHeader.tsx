@@ -24,7 +24,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-zinc-800 ${className}`}>
       <div>
         {kicker && (
-          <span className="text-[11px] font-mono uppercase tracking-wider text-blue-600 block mb-1">
+          <span className="text-[11px] font-mono uppercase tracking-wider text-amber-700 block mb-1">
             {kicker}
           </span>
         )}
