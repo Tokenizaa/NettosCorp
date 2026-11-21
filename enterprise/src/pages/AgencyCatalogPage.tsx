@@ -291,8 +291,9 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
               {selectMode ? 'Sair da seleção' : 'Selecionar modelos'}
             </button>
             <button
-              onClick={() => setIsSelectionModalOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded text-sm font-medium transition-colors"
+              disabled={!selectedForAction.length}
+              onClick={() => { setOperationError(null); setIsSelectionModalOpen(true); }}
+              className="flex items-center gap-2 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Plus className="w-4 h-4" /> Selecionar para projeto
             </button>
