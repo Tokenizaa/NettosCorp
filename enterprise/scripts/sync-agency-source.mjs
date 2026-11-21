@@ -39,7 +39,7 @@ const documents = profiles.map(profile => {
   if (!profile.code || codes.has(profile.code)) throw new Error(`Código ausente ou duplicado: ${profile.code}`);
   codes.add(profile.code);
 
-  const sourcePath = String(profile.source_file || '').replace(/[`'"]/g, '').replace(/\/g, '/').trim();
+  const sourcePath = String(profile.source_file || '').replace(/[`'"]/g, '').trim();
   if (!sourcePath || isAbsolute(sourcePath) || sourcePath.split('/').some(part => part === '..')) {
     throw new Error(`Caminho de origem inválido para ${profile.code}: ${sourcePath}`);
   }

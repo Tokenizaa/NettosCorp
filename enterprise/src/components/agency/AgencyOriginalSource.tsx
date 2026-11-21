@@ -11,7 +11,7 @@ export const AgencyOriginalSource: React.FC<AgencyOriginalSourceProps> = ({ sour
 
   useEffect(() => {
     let active = true;
-    const relativePath = String(sourceFile || '').replace(/[`'"]/g, '').replace(/\\/g, '/').trim();
+    const relativePath = String(sourceFile || '').replace(/[`'"]/g, '').trim();
     if (!relativePath || relativePath.startsWith('/') || relativePath.split('/').some(part => part === '..')) {
       setMarkdown('');
       setError('Caminho da fonte original inválido.');
