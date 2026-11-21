@@ -456,7 +456,8 @@ export const agencyCatalogService = {
       .eq('organization_id', orgId)
       .order('created_at', { ascending: false });
     if (error) {
-      return this.listSelections();
+      console.error('Erro ao listar seleções no Supabase:', error);
+      throw error;
     }
     return (data || []).map((row: any) => ({
       ...row,
@@ -536,7 +537,7 @@ export const agencyCatalogService = {
       .insert(selection);
     if (error) {
       console.error('Erro ao criar seleção no Supabase:', error);
-      return this.createSelection(data);
+      throw error;
     }
 
     localStore.logAudit({
@@ -620,7 +621,8 @@ export const agencyCatalogService = {
       .eq('organization_id', orgId)
       .order('created_at', { ascending: false });
     if (error) {
-      return this.listHomologations();
+      console.error('Erro ao listar homologações no Supabase:', error);
+      throw error;
     }
     return (data || []).map((row: any) => ({
       ...row,
@@ -712,7 +714,7 @@ export const agencyCatalogService = {
       .insert(homologation);
     if (error) {
       console.error('Erro ao criar homologação no Supabase:', error);
-      return this.homologateProfile(data);
+      throw error;
     }
 
     // Atualiza o status do perfil também
@@ -729,6 +731,7 @@ export const agencyCatalogService = {
 
     if (profileError) {
       console.error('Erro ao atualizar status do perfil no Supabase:', profileError);
+      throw profileError;
     }
 
     localStore.logAudit({
