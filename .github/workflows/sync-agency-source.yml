@@ -1,0 +1,44 @@
+name: Vendor Agency Agents source corpus
+
+on:
+  push:
+    branches:
+      - feat/integracao-institucional-agency-agents
+    paths:
+      - '.github/workflows/sync-agency-source.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  vendor-source:
+    name: Copy original source profiles into Enterprise
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/integracao-institucional-agency-agents
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Clone pinned Agency Agents source
+        run: |
+          git clone --filter=blob:none https://github.com/msitarzewski/agency-agents.git /tmp/agency-agents
+          git -C /tmp/agency-agents checkout 8ae6164602c95ca78828b148b9052460ee426885
+      - name: Vendor all original Markdown profiles
+        working-directory: enterprise
+        run: node scripts/sync-agency-source.mjs --source /tmp/agency-agents
+      - name: Commit vendored corpus
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add enterprise/public/agency-source enterprise/public/agency-source-index.json
+          if git diff --cached --quiet; then
+            echo "Corpus já está sincronizado; nenhuma alteração necessária."
+          else
+            git commit -m "data(agency): incorpora os 283 documentos originais do corpus"
+            git push origin HEAD:feat/integracao-institucional-agency-agents
+          fi
