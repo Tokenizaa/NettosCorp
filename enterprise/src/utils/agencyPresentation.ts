@@ -416,7 +416,21 @@ const wordMap: Record<string, string> = {
   salesforce: 'Salesforce',
   duel: 'Duelo',
   zk: 'ZK',
-  evaluator: 'Avaliador'
+  evaluator: 'Avaliador',
+  '508': '508', a: '', abroad: 'no Exterior', add: 'Complemento', advisor: 'Consultor',
+  analytics: 'Análises', analyzer: 'Analisador', artist: 'Artista', benchmarker: 'Avaliador de Desempenho',
+  bim: 'BIM', book: 'Livro', cart: 'Carrinho', chain: 'Cadeia', client: 'Cliente',
+  collector: 'Coletor', commerce: 'Comércio', drupal: 'Drupal', e: 'e', expert: 'Especialista',
+  extraction: 'Extração', feishu: 'Feishu', generated: 'Gerado', health: 'Saúde',
+  intake: 'Entrada', interface: 'Interface', it: 'TI', kuaishou: 'Kuaishou',
+  language: 'Idioma', linkedin: 'LinkedIn', livestream: 'Transmissão ao Vivo',
+  m: 'M', of: 'de', on: 'em', orgscript: 'OrgScript', pr: 'Relações Públicas',
+  prototyper: 'Prototipador', publisher: 'Publicador', responder: 'Responsável pelo Atendimento',
+  review: 'Revisão', seller: 'Vendedor', seo: 'SEO', servicenow: 'ServiceNow',
+  services: 'Serviços', shepherd: 'Coordenador', shopping: 'Compras', sre: 'SRE',
+  staff: 'Gabinete', study: 'Estudos', supply: 'Suprimentos', synthesist: 'Sintetizador',
+  technical: 'Técnico', time: 'Tempo', tracking: 'Rastreamento', trend: 'Tendências',
+  uswds: 'USWDS', visualization: 'Visualização', webassembly: 'WebAssembly', x: 'X'
 };
 const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
@@ -434,7 +448,7 @@ export function translateAgentName(name: string, code?: string): string {
     architect: `Arquiteto de ${prefix}`, specialist: `Especialista em ${prefix}`,
     analyst: `Analista de ${prefix}`, strategist: `Estrategista de ${prefix}`,
     manager: `Gerente de ${prefix}`, designer: `Designer de ${prefix}`,
-    researcher: `Pesquisador de ${prefix}`, agent: `Agente de ${prefix}`,
+    researcher: `Pesquisador de ${prefix}`, advisor: `Consultor de ${prefix}`, artist: `Artista de ${prefix}`, analyzer: `Analisador de ${prefix}`, prototyper: `Especialista em Prototipação de ${prefix}`, collector: `Coletor de ${prefix}`, benchmarker: `Avaliador de Desempenho de ${prefix}`, publisher: `Publicador de ${prefix}`, responder: `Responsável pelo Atendimento de ${prefix}`, expert: `Especialista em ${prefix}`, synthesist: `Especialista em Síntese de ${prefix}`, agent: `Agente de ${prefix}`,
     operator: `Operador de ${prefix}`, auditor: `Auditor de ${prefix}`,
     tester: `Testador de ${prefix}`, creator: `Criador de ${prefix}`,
     builder: `Construtor de ${prefix}`, writer: `Redator de ${prefix}`,
