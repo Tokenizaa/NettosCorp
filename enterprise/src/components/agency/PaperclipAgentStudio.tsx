@@ -126,7 +126,7 @@ A definir conforme o adapter, as permissões e as integrações disponibilizadas
 A definir durante a configuração operacional.
 
 ## Skills
-Relacionar skills reutilizáveis aprovadas para o cargo. Skills devem permanecer como unidades independentes (SKILL.md e seus recursos), não ser copiadas integralmente para este arquivo.
+Relacionar habilidades reutilizáveis aprovadas para o cargo. As habilidades devem permanecer como unidades independentes (SKILL.md e seus recursos), não ser copiadas integralmente para este arquivo.
 
 ## Restrições
 Não executar ações destrutivas, compromissos financeiros ou alterações de autoridade sem a delegação institucional aplicável.
@@ -138,7 +138,7 @@ const FILES: { name: InstructionFile; description: string; icon: React.ReactNode
   { name: 'AGENTS.md', description: 'Missão, responsabilidades, limites e critérios de conclusão', icon: <FileText className="h-4 w-4" /> },
   { name: 'SOUL.md', description: 'Personalidade, comunicação e estilo de decisão', icon: <BrainCircuit className="h-4 w-4" /> },
   { name: 'HEARTBEAT.md', description: 'Rotinas, verificações e ciclos de execução', icon: <Activity className="h-4 w-4" /> },
-  { name: 'TOOLS.md', description: 'Ferramentas, integrações e skills habilitadas', icon: <Wrench className="h-4 w-4" /> },
+  { name: 'TOOLS.md', description: 'Ferramentas, integrações e habilidades habilitadas', icon: <Wrench className="h-4 w-4" /> },
 ];
 
 export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
@@ -204,13 +204,13 @@ export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-stretch justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={`Preparar agente ${profile.name}`}>
+    <div className="fixed inset-0 z-[70] flex items-stretch justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={`Preparar agente ${translateAgentName(profile.name, profile.code)}`}>
       <section className="flex h-full w-full max-w-6xl flex-col overflow-hidden border border-zinc-800 bg-zinc-950 shadow-2xl sm:h-[min(92vh,900px)] sm:rounded-2xl">
         <header className="flex items-center justify-between gap-4 border-b border-zinc-800 px-4 py-3 sm:px-6">
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-xs text-zinc-500"><Package className="h-3.5 w-3.5" /> ESTÚDIO DE PREPARAÇÃO PARA PAPERCLIP</div>
             <h2 className="mt-1 truncate text-lg font-semibold text-white">{translateAgentName(profile.name, profile.code)}</h2>
-            <p className="text-xs text-zinc-500">{profile.code} · Perfil mestre de origem</p>
+            <p className="text-xs text-zinc-500">{profile.code} · Perfil profissional de origem</p>
           </div>
           <button onClick={onClose} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white" aria-label="Fechar"><X className="h-5 w-5" /></button>
         </header>
@@ -238,7 +238,7 @@ export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
             <aside className="space-y-2">
               <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Arquivos de instrução</p>
               {FILES.map(file => <button key={file.name} onClick={() => setActiveFile(file.name)} className={`w-full rounded-xl border p-3 text-left ${activeFile === file.name ? 'border-blue-600 bg-blue-950/30' : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700'}`}><div className="flex items-center gap-2 text-sm font-semibold text-zinc-200">{file.icon}{file.name}</div><p className="mt-1 text-xs leading-5 text-zinc-500">{file.description}</p></button>)}
-              <p className="pt-2 text-xs leading-5 text-zinc-600">Edite o conteúdo antes de exportar. Skills reutilizáveis permanecem em arquivos SKILL.md próprios.</p>
+              <p className="pt-2 text-xs leading-5 text-zinc-600">Edite o conteúdo antes de exportar. Habilidades reutilizáveis permanecem em arquivos SKILL.md próprios.</p>
             </aside>
             <section className="flex min-h-[500px] min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40">
               <div className="flex items-center justify-between gap-2 border-b border-zinc-800 px-3 py-2"><div className="flex items-center gap-2 text-sm font-medium text-zinc-200"><FileText className="h-4 w-4 text-zinc-500" />{activeFile}</div><div className="flex gap-1"><button onClick={copyActive} className="rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white" title="Copiar conteúdo">{copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}</button><button onClick={() => download(activeFile, files[activeFile])} className="rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white" title="Baixar arquivo"><Download className="h-4 w-4" /></button></div></div>
@@ -247,7 +247,7 @@ export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
           </div>}
 
           {tab === 'runtime' && <div className="mx-auto max-w-3xl space-y-5">
-            <div className="rounded-xl border border-amber-900/60 bg-amber-950/20 p-4 text-sm text-amber-100">Preencha os parâmetros da instância. Adapter, modelo, diretório e orçamento não são presumidos: precisam corresponder ao ambiente real da NettosCorp.</div>
+            <div className="rounded-xl border border-amber-900/60 bg-amber-950/20 p-4 text-sm text-amber-100">Preencha os parâmetros da instância. Adaptador, modelo, diretório e orçamento não são presumidos: precisam corresponder ao ambiente real da NettosCorp.</div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div><label className={labelClass}>Cargo</label><input className={inputClass} value={role} onChange={e => setRole(e.target.value)} placeholder="Cargo na estrutura NettosCorp" /></div>
               <div><label className={labelClass}>Reporta-se a</label><input className={inputClass} value={reportsTo} onChange={e => setReportsTo(e.target.value)} placeholder="Agente ou cargo superior" /></div>
@@ -256,8 +256,8 @@ export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
               <div><label className={labelClass}>Diretório de trabalho</label><input className={inputClass} value={workingDirectory} onChange={e => setWorkingDirectory(e.target.value)} placeholder="/workspace/..." /></div>
               <div><label className={labelClass}>Orçamento mensal</label><input className={inputClass} type="number" min="0" step="0.01" value={monthlyBudget} onChange={e => setMonthlyBudget(e.target.value)} placeholder="Definir limite mensal" /></div>
             </div>
-            <div><label className={labelClass}>Habilidades (nomes separados por vírgula)</label><input className={inputClass} value={skills} onChange={e => setSkills(e.target.value)} placeholder="ex.: code-review, incident-response" /><p className="mt-1 text-xs text-zinc-600">Referencie habilidades existentes e aprovadas. Não cole seus conteúdos aqui.</p></div>
-            <div className="rounded-xl border border-zinc-800 p-4"><h3 className="text-sm font-semibold text-zinc-200">Checklist antes da criação</h3><ul className="mt-3 space-y-2 text-xs text-zinc-400"><li>• Superior hierárquico definido e existente no Paperclip.</li><li>• Adapter e modelo disponíveis no ambiente.</li><li>• Diretório de trabalho válido e permissões conferidas.</li><li>• Orçamento aprovado e compatível com o caixa.</li><li>• Arquivos Markdown revisados e skills existentes.</li></ul></div>
+            <div><label className={labelClass}>Habilidades (nomes separados por vírgula)</label><input className={inputClass} value={skills} onChange={e => setSkills(e.target.value)} placeholder="ex.: revisão-de-código, resposta-a-incidentes" /><p className="mt-1 text-xs text-zinc-600">Referencie habilidades existentes e aprovadas. Não cole seus conteúdos aqui.</p></div>
+            <div className="rounded-xl border border-zinc-800 p-4"><h3 className="text-sm font-semibold text-zinc-200">Checklist antes da criação</h3><ul className="mt-3 space-y-2 text-xs text-zinc-400"><li>• Superior hierárquico definido e existente no Paperclip.</li><li>• Adaptador e modelo disponíveis no ambiente.</li><li>• Diretório de trabalho válido e permissões conferidas.</li><li>• Orçamento aprovado e compatível com o caixa.</li><li>• Arquivos Markdown revisados e habilidades existentes.</li></ul></div>
           </div>}
         </main>
 
