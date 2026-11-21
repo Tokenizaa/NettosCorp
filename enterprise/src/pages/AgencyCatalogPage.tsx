@@ -19,6 +19,7 @@ import { TextArea } from '../components/forms/TextArea';
 import { FormActions } from '../components/forms/FormActions';
 import { PaperclipAgentStudio } from '../components/agency/PaperclipAgentStudio';
 import { AgencyOriginalSource } from '../components/agency/AgencyOriginalSource';
+import { translateAgentName, translateAgentCategory, translateProfileText } from '../utils/agencyPresentation';
 import {
   Bot,
   Search,
@@ -271,7 +272,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   return (
     <div className={selectedProfile && modalType === "view" ? "space-y-6 lg:pr-[min(720px,58vw)]" : "space-y-6"}>
       <PageHeader
-        title="Biblioteca de Agentes"
+        title="Biblioteca de Profissionais e Agentes"
         description="Explore os perfis profissionais originais, consulte competências e forme equipes para seus projetos."
         actions={
           <div className="flex items-center gap-2">
@@ -382,7 +383,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
                 <div className="flex items-start justify-between mb-2">
                   {selectMode && <input type="checkbox" checked={selectedForAction.includes(profile.id)} onChange={() => setSelectedForAction(current => current.includes(profile.id) ? current.filter(id => id !== profile.id) : [...current, profile.id])} onClick={event => event.stopPropagation()} aria-label={`Selecionar ${profile.name}`} className="mr-2 h-4 w-4 accent-blue-500" />}
                   <div>
-                    <h3 className="font-semibold text-zinc-100">{profile.name}</h3>
+                    <h3 className="font-semibold text-zinc-100">{translateAgentName(profile.name, profile.code)}</h3>
                     <span className="text-xs font-mono text-zinc-500">{profile.code}</span>
                   </div>
                   <span
@@ -391,10 +392,10 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
                     {STATUS_OPTIONS.find(o => o.value === profile.status)?.label || profile.status}
                   </span>
                 </div>
-                <p className="text-zinc-400 text-sm mb-3 line-clamp-2">{profile.identity}</p>
+                <p className="text-zinc-400 text-sm mb-3 line-clamp-2">{translateProfileText(profile.identity)}</p>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs text-zinc-500">{CATEGORIES.find(c => c.value === profile.category)?.label}</span>
-                  <span className="text-xs text-zinc-500">{profile.specialty_description}</span>
+                  <span className="text-xs text-zinc-500">{translateAgentCategory(profile.category)}</span>
+                  <span className="text-xs text-zinc-500">{translateProfileText(profile.specialty_description)}</span>
                 </div>
                 <div className="flex flex-wrap gap-1 mb-3">
                   {profile.competencies.slice(0, 4).map(c => (
@@ -518,18 +519,18 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
       {selectedProfile && modalType === "view" && !isPaperclipStudioOpen && (
         <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden border-l border-zinc-800 bg-zinc-950 shadow-2xl sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[min(720px,58vw)]" aria-label="Ficha individual do perfil">
           <header className="flex items-start justify-between gap-3 border-b border-zinc-800 px-5 py-4">
-            <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400">Ficha profissional · Biblioteca de Agentes</p><h2 className="mt-1 text-lg font-semibold text-zinc-100">{selectedProfile.name}</h2><p className="text-xs text-zinc-500">{selectedProfile.code} · {CATEGORIES.find(category => category.value === selectedProfile.category)?.label}</p></div>
+            <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400">Ficha profissional · Biblioteca de Agentes</p><h2 className="mt-1 text-lg font-semibold text-zinc-100">{translateAgentName(selectedProfile.name, selectedProfile.code)}</h2><p className="text-xs text-zinc-500">{selectedProfile.code} · {CATEGORIES.find(category => category.value === selectedProfile.category)?.label}</p></div>
             <button onClick={() => setSelectedProfile(null)} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white" aria-label="Fechar ficha"><XCircle className="h-5 w-5" /></button>
           </header>
           <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5">
             <div className="flex flex-wrap items-center gap-2"><span className={"rounded px-2 py-1 text-[10px] font-bold uppercase " + statusColor(selectedProfile.status) + " text-zinc-950"}>{STATUS_OPTIONS.find(option => option.value === selectedProfile.status)?.label}</span><span className="rounded border border-zinc-800 px-2 py-1 text-[10px] text-zinc-400">Perfil mestre · não implantado</span></div>
             <div className="rounded-lg border border-nc-border bg-nc-surface p-3"><p className="text-xs leading-5 text-nc-text-secondary">O documento original é a referência profissional principal. Os campos estruturados abaixo só são exibidos quando a importação contém conteúdo específico, evitando apresentar textos genéricos como atributos reais do agente.</p></div>
             <AgencyOriginalSource sourceFile={selectedProfile.source_file} />
-            <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Identidade profissional</h3><p className="text-sm leading-6 text-zinc-300">{selectedProfile.identity}</p>{selectedProfile.specialty_description && selectedProfile.specialty_description.trim() !== selectedProfile.identity.trim() && <p className="mt-3 text-sm leading-6 text-zinc-400">{selectedProfile.specialty_description}</p>}</section>
-            {selectedProfile.competencies?.length > 0 && !(selectedProfile.competencies.length === 1 && selectedProfile.competencies[0].trim().toLocaleLowerCase() === selectedProfile.specialty_description.trim().toLocaleLowerCase()) && <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Competências importadas</h3><div className="flex flex-wrap gap-2">{selectedProfile.competencies.map(item => <span key={item} className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-300">{item}</span>)}</div></section>}
-            {selectedProfile.personality && !selectedProfile.personality.trim().toLocaleLowerCase().startsWith('profissional especializado em ') && <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Personalidade importada</h3><p className="text-sm leading-6 text-zinc-300">{selectedProfile.personality}</p></section>}
+            <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Identidade profissional</h3><p className="text-sm leading-6 text-zinc-300">{translateProfileText(selectedProfile.identity)}</p>{selectedProfile.specialty_description && selectedProfile.specialty_description.trim() !== selectedProfile.identity.trim() && <p className="mt-3 text-sm leading-6 text-zinc-400">{translateProfileText(selectedProfile.specialty_description)}</p>}</section>
+            {selectedProfile.competencies?.length > 0 && !(selectedProfile.competencies.length === 1 && selectedProfile.competencies[0].trim().toLocaleLowerCase() === selectedProfile.specialty_description.trim().toLocaleLowerCase()) && <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Competências importadas</h3><div className="flex flex-wrap gap-2">{selectedProfile.competencies.map(item => <span key={item} className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-300">{translateProfileText(item)}</span>)}</div></section>}
+            {selectedProfile.personality && !selectedProfile.personality.trim().toLocaleLowerCase().startsWith('profissional especializado em ') && <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Personalidade importada</h3><p className="text-sm leading-6 text-zinc-300">{translateProfileText(selectedProfile.personality)}</p></section>}
             {selectedProfile.responsibilities?.some(item => !/^Atuar como /i.test(item.trim())) && <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Responsabilidades importadas</h3><ul className="space-y-2 text-sm leading-6 text-zinc-300">{selectedProfile.responsibilities.filter(item => !/^Atuar como /i.test(item.trim())).map(item => <li key={item} className="border-l-2 border-zinc-700 pl-3">{item}</li>)}</ul></section>}
-            {selectedProfile.methodology && !selectedProfile.methodology.trim().toLocaleLowerCase().startsWith('metodologia profissional baseada em ') && <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Metodologia importada</h3><p className="text-sm leading-6 text-zinc-300">{selectedProfile.methodology}</p></section>}
+            {selectedProfile.methodology && !selectedProfile.methodology.trim().toLocaleLowerCase().startsWith('metodologia profissional baseada em ') && <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Metodologia importada</h3><p className="text-sm leading-6 text-zinc-300">{translateProfileText(selectedProfile.methodology)}</p></section>}
             <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3"><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Origem e rastreabilidade</h3><p className="break-all text-xs text-zinc-400">{selectedProfile.source_file}</p><p className="mt-1 break-all font-mono text-[10px] text-zinc-600">{selectedProfile.source_hash}</p></section>
           </div>
           <footer className="flex flex-col gap-2 border-t border-zinc-800 p-4 sm:flex-row">
@@ -553,7 +554,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <div className="flex items-start justify-between mb-1">
-                  <h3 className="text-lg font-bold text-zinc-100">{selectedProfile.name}</h3>
+                  <h3 className="text-lg font-bold text-zinc-100">{translateAgentName(selectedProfile.name, selectedProfile.code)}</h3>
                   <span
                     className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${statusColor(selectedProfile.status)} text-zinc-950`}
                   >
@@ -584,7 +585,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
             <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-1">Responsabilidades</h4>
             <ul className="list-disc list-inside text-zinc-300 text-sm space-y-1">
               {selectedProfile.responsibilities.map(r => (
-                <li key={r}>{r}</li>
+                <li key={r}>{translateProfileText(r)}</li>
               ))}
             </ul>
             <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-1 mt-4">Metodologia</h4>
