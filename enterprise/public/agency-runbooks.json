@@ -45,7 +45,8 @@
             "support-infrastructure-maintainer"
           ]
         }
-      ]
+      ],
+      "asset": "/agency-runbooks/startup-mvp.md"
     },
     {
       "slug": "enterprise-feature",
@@ -95,7 +96,8 @@
             "project-management-experiment-tracker"
           ]
         }
-      ]
+      ],
+      "asset": "/agency-runbooks/enterprise-feature.md"
     },
     {
       "slug": "marketing-campaign",
@@ -137,7 +139,8 @@
             "support-legal-compliance-checker"
           ]
         }
-      ]
+      ],
+      "asset": "/agency-runbooks/marketing-campaign.md"
     },
     {
       "slug": "incident-response",
@@ -169,7 +172,8 @@
             "product-sprint-prioritizer"
           ]
         }
-      ]
+      ],
+      "asset": "/agency-runbooks/incident-response.md"
     }
   ]
 }
