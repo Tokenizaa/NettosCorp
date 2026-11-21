@@ -16,7 +16,10 @@ import {
   Deliberation,
   GovernanceDocument,
   AuditLog,
-  UserRole
+  UserRole,
+  AgencyAgentProfile,
+  AgencyAgentSelection,
+  AgencyAgentHomologation,
 } from '../types';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
@@ -52,6 +55,9 @@ interface StorageSchema {
   departments: Department[];
   positions: Position[];
   agents: AIAgent[];
+  agencyAgentProfiles: AgencyAgentProfile[];
+  agencyAgentSelections: AgencyAgentSelection[];
+  agencyAgentHomologations: AgencyAgentHomologation[];
   projects: Project[];
   tasks: Task[];
   decisions: Decision[];
@@ -319,6 +325,9 @@ const INITIAL_DATA: StorageSchema = {
       updated_at: '2026-02-05T09:00:00Z',
     },
   ],
+  agencyAgentProfiles: [] as AgencyAgentProfile[],
+  agencyAgentSelections: [] as AgencyAgentSelection[],
+  agencyAgentHomologations: [] as AgencyAgentHomologation[],
   projects: [
     {
       id: 'prj-001',
@@ -714,7 +723,9 @@ class LocalSupabaseStore {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Faz merge com INITIAL_DATA para garantir que propriedades novas existam
+        return { ...INITIAL_DATA, ...parsed };
       }
     } catch {
       // ignore
@@ -849,6 +860,41 @@ class LocalSupabaseStore {
 
   public getAgents(): AIAgent[] {
     return this.data.agents;
+  }
+
+  public getAgencyAgentProfiles(): AgencyAgentProfile[] {
+    return this.data.agencyAgentProfiles;
+  }
+
+  public getAgencyAgentProfileById(id: string): AgencyAgentProfile | undefined {
+    return this.data.agencyAgentProfiles.find(p => p.id === id);
+  }
+
+  public getAgencyAgentProfileByCode(code: string): AgencyAgentProfile | undefined {
+    return this.data.agencyAgentProfiles.find(p => p.code === code);
+  }
+
+  public setAgencyAgentProfiles(updater: (prev: AgencyAgentProfile[]) => AgencyAgentProfile[]): void {
+    this.data.agencyAgentProfiles = updater(this.data.agencyAgentProfiles);
+    this.saveData(this.data);
+  }
+
+  public getAgencyAgentSelections(): AgencyAgentSelection[] {
+    return this.data.agencyAgentSelections;
+  }
+
+  public setAgencyAgentSelections(updater: (prev: AgencyAgentSelection[]) => AgencyAgentSelection[]): void {
+    this.data.agencyAgentSelections = updater(this.data.agencyAgentSelections);
+    this.saveData(this.data);
+  }
+
+  public getAgencyAgentHomologations(): AgencyAgentHomologation[] {
+    return this.data.agencyAgentHomologations;
+  }
+
+  public setAgencyAgentHomologations(updater: (prev: AgencyAgentHomologation[]) => AgencyAgentHomologation[]): void {
+    this.data.agencyAgentHomologations = updater(this.data.agencyAgentHomologations);
+    this.saveData(this.data);
   }
 
   public getProjects(): Project[] {
