@@ -381,7 +381,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
                 onClick={() => openViewModal(profile)}
               >
                 <div className="flex items-start justify-between mb-2">
-                  {selectMode && <input type="checkbox" checked={selectedForAction.includes(profile.id)} onChange={() => setSelectedForAction(current => current.includes(profile.id) ? current.filter(id => id !== profile.id) : [...current, profile.id])} onClick={event => event.stopPropagation()} aria-label={`Selecionar ${profile.name}`} className="mr-2 h-4 w-4 accent-blue-500" />}
+                  {selectMode && <input type="checkbox" checked={selectedForAction.includes(profile.id)} onChange={() => setSelectedForAction(current => current.includes(profile.id) ? current.filter(id => id !== profile.id) : [...current, profile.id])} onClick={event => event.stopPropagation()} aria-label={`Selecionar ${translateAgentName(profile.name, profile.code)}`} className="mr-2 h-4 w-4 accent-blue-500" />}
                   <div>
                     <h3 className="font-semibold text-zinc-100">{translateAgentName(profile.name, profile.code)}</h3>
                     <span className="text-xs font-mono text-zinc-500">{profile.code}</span>
@@ -517,7 +517,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
       )}
 
       {selectedProfile && modalType === "view" && !isPaperclipStudioOpen && (
-        <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden border-l border-zinc-800 bg-zinc-950 shadow-2xl sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[min(720px,58vw)]" aria-label="Ficha individual do perfil">
+        <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden border-l border-zinc-800 bg-zinc-950 shadow-2xl sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[min(720px,58vw)]" aria-label="Ficha profissional individual">
           <header className="flex items-start justify-between gap-3 border-b border-zinc-800 px-5 py-4">
             <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400">Ficha profissional · Biblioteca de Agentes</p><h2 className="mt-1 text-lg font-semibold text-zinc-100">{translateAgentName(selectedProfile.name, selectedProfile.code)}</h2><p className="text-xs text-zinc-500">{selectedProfile.code} · {translateAgentCategory(selectedProfile.category)}</p></div>
             <button onClick={() => setSelectedProfile(null)} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white" aria-label="Fechar ficha"><XCircle className="h-5 w-5" /></button>
@@ -659,7 +659,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
                 if (!profile) return null;
                 return (
                   <div key={id} className="bg-zinc-800/50 border border-zinc-800 rounded-lg p-3">
-                    <h5 className="text-xs font-bold text-zinc-100 mb-1">{profile.name}</h5>
+                    <h5 className="text-xs font-bold text-zinc-100 mb-1">{translateAgentName(profile.name, profile.code)}</h5>
                     <p className="text-[10px] text-zinc-500 mb-2">{profile.code}</p>
                     <p className="text-xs text-zinc-300 mb-2">{profile.identity}</p>
                     <span
