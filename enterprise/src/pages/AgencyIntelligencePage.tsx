@@ -9,7 +9,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { recommendTeamComposition, PlannerRunbook } from '../services/agencyTeamPlanner';
 import { translateAgentName, translateAgentCategory, translateDivision, translateCapability, translateRunbookTitle, translateRunbookGroup, translateActivation, translateRunbookMode, translateDuration, translateRunbookSummary, translatePlannerText } from '../utils/agencyPresentation';
 
-type ModuleTab = 'library' | 'team-builder' | 'runbooks' | 'divisions';
+type ModuleTab = 'library' | 'team-builder' | 'roteiro operacionals' | 'divisions';
 type RunbookGroup = { group: string; activation: string; agents: string[] };
 type Runbook = PlannerRunbook;
 type RunbookFile = { runbooks: Runbook[] };
@@ -172,7 +172,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
               <input id="team-project-name" value={projectName} onChange={e => setProjectName(e.target.value)} placeholder="Ex.: Lançamento de uma plataforma SaaS" className="mb-3 w-full rounded-lg border border-nc-border bg-nc-surface px-3 py-2.5 text-sm text-nc-text outline-none focus:border-nc-brand" />
               <label className="mb-1 block text-sm text-nc-text-secondary" htmlFor="team-objective">O que precisa ser realizado?</label>
               <textarea id="team-objective" value={objective} onChange={e => setObjective(e.target.value)} rows={4} placeholder="Descreva o resultado esperado, as etapas, as áreas envolvidas e os desafios do projeto..." className="w-full resize-y rounded-lg border border-nc-border bg-nc-surface px-3 py-3 text-sm text-nc-text outline-none focus:border-nc-brand" />
-              <p className="mt-2 text-xs text-nc-text-muted">A recomendação cruza o objetivo com o conteúdo original dos 283 perfis e os rosters dos runbooks. O cenário e os critérios encontrados são exibidos para revisão humana; não é uma decisão automática de contratação ou implantação.</p>
+              <p className="mt-2 text-xs text-nc-text-muted">A recomendação cruza o objetivo com o conteúdo original dos 283 perfis e as equipes previstas nos roteiros operacionais. O cenário e os critérios encontrados são exibidos para revisão humana; não é uma decisão automática de contratação ou implantação.</p>
             </div>
 
             <div className="flex items-center justify-between gap-3">
@@ -205,7 +205,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
                   </div>
                 </div>
                 {composition.analysis.phases.length > 0 && <div className="mt-4 border-t border-nc-border pt-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Sequência sugerida pelo runbook</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Sequência sugerida pelo roteiro operacional</p>
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                     {composition.analysis.phases.map((phase, index) => <div key={phase.name} className="rounded-lg bg-nc-surface p-3">
                       <p className="text-xs font-semibold text-nc-text">{index + 1}. {translateRunbookGroup(phase.name)}</p>
@@ -233,7 +233,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
                     <span className="rounded-md bg-nc-surface px-2 py-1 text-xs tabular-nums text-nc-text-secondary">{Math.round(score * 100)}% correspondência</span>
                   </div>
                   <p className="mt-3 line-clamp-3 text-sm text-nc-text-secondary">{translateAgentName(profile.name, profile.code)} · {translateAgentCategory(profile.category)}</p>
-                  <p className="mt-2 text-xs text-nc-text-muted">{translatePlannerText(reason)}</p><p className="mt-2 text-[11px] text-nc-text-muted">Objetivo: {Math.round(dimensions.objectiveFit * 100)}% · Runbook: {Math.round(dimensions.runbookFit * 100)}% · Capacidades: {dimensions.capabilityDomains.map(translateCapability).join(', ') || 'não classificadas'}</p>{group && <p className="mt-1 text-xs text-nc-brand">{translateRunbookGroup(group)} · {translateActivation(activation)}</p>}
+                  <p className="mt-2 text-xs text-nc-text-muted">{translatePlannerText(reason)}</p><p className="mt-2 text-[11px] text-nc-text-muted">Objetivo: {Math.round(dimensions.objectiveFit * 100)}% · Roteiro: {Math.round(dimensions.runbookFit * 100)}% · Capacidades: {dimensions.capabilityDomains.map(translateCapability).join(', ') || 'não classificadas'}</p>{group && <p className="mt-1 text-xs text-nc-brand">{translateRunbookGroup(group)} · {translateActivation(activation)}</p>}
                   <button onClick={() => added ? removeFromTeam(profile.id) : addToTeam(profile)} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-nc-border px-3 py-2 text-xs font-medium text-nc-text hover:border-nc-brand">
                     {added ? <><Check size={14}/> Adicionado à equipe</> : <><Plus size={14}/> Adicionar à equipe</>}
                   </button>
@@ -244,9 +244,9 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
 
           <aside className="h-fit space-y-4 rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
             <div className="flex items-center justify-between"><div><h2 className="font-semibold text-nc-text">Equipe em formação</h2><p className="text-xs text-nc-text-muted">{team.length} profissional(is) selecionado(s)</p></div><Users size={20} className="text-nc-text-muted"/></div>
-            {team.length === 0 ? <p className="rounded-lg border border-dashed border-nc-border p-4 text-sm text-nc-text-muted">Adicione profissionais recomendados ou carregue um grupo de um runbook.</p> : <>
+            {team.length === 0 ? <p className="rounded-lg border border-dashed border-nc-border p-4 text-sm text-nc-text-muted">Adicione profissionais recomendados ou carregue um grupo de um roteiro operacional.</p> : <>
               <div className="space-y-2">{team.map(profile => <div key={profile.id} className="flex items-center justify-between gap-2 rounded-lg bg-nc-surface p-3"><div className="min-w-0"><p className="truncate text-sm font-medium text-nc-text">{translateAgentName(profile.name, profile.code)}</p><p className="text-xs text-nc-text-muted">{translateAgentCategory(profile.category)}</p></div><button aria-label={`Remover ${profile.name}`} onClick={() => removeFromTeam(profile.id)} className="rounded p-1 text-nc-text-muted hover:text-red-400"><X size={15}/></button></div>)}</div>
-              <div className="border-t border-nc-border pt-3"><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Distribuição por especialidade</p>{categoryCounts.map(([category, count]) => <div key={category} className="mb-1 flex justify-between text-xs text-nc-text-secondary"><span>{category}</span><span>{count}</span></div>)}</div>
+              <div className="border-t border-nc-border pt-3"><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Distribuição por especialidade</p>{categoryCounts.map(([category, count]) => <div key={category} className="mb-1 flex justify-between text-xs text-nc-text-secondary"><span>{translateAgentCategory(category)}</span><span>{count}</span></div>)}</div>
             </>}
             <div><label htmlFor="team-save-project" className="mb-1 block text-xs text-nc-text-secondary">Projeto para registrar a seleção</label><input id="team-save-project" value={projectName} onChange={e => setProjectName(e.target.value)} placeholder="Nome do projeto" className="w-full rounded-lg border border-nc-border bg-nc-surface px-3 py-2 text-sm text-nc-text outline-none focus:border-nc-brand"/></div>
             <button disabled={!team.length || !projectName.trim() || saving} onClick={() => void saveTeam()} className="w-full rounded-lg bg-nc-brand px-4 py-2.5 text-sm font-semibold text-nc-brand-text disabled:cursor-not-allowed disabled:opacity-40">{saving ? 'Registrando seleção…' : 'Registrar equipe no planejamento'}</button>
@@ -259,8 +259,8 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
       {tab === 'runbooks' && (
         <div className="space-y-5">
           <div className="rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
-            <div className="flex items-center gap-2"><Compass size={19}/><h2 className="font-semibold text-nc-text">Playbooks de composição e execução</h2></div>
-            <p className="mt-2 max-w-3xl text-sm text-nc-text-secondary">Os runbooks preservam cenários, modos NEXUS, grupos de ativação e rosters do projeto de origem. Selecione um cenário para inspecionar sua estrutura ou adicionar um grupo à equipe em formação.</p>
+            <div className="flex items-center gap-2"><Compass size={19}/><h2 className="font-semibold text-nc-text">Roteiros de composição e execução</h2></div>
+            <p className="mt-2 max-w-3xl text-sm text-nc-text-secondary">Os roteiros operacionais preservam cenários, modos NEXUS, grupos de ativação e composições de equipe do projeto de origem. Selecione um cenário para inspecionar sua estrutura ou adicionar um grupo à equipe em formação.</p>
           </div>
           {runbooksError && <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"><CircleAlert size={15} className="mr-2 inline"/> {translatePlannerText(runbooksError)}</div>}
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -270,7 +270,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
             </button>)}
           </div>
           {selectedRunbook && <section className="rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-nc-text">{translateRunbookTitle(selectedRunbook.title)}</h2><p className="text-sm text-nc-text-muted">{translateRunbookMode(selectedRunbook.mode)} · {translateDuration(selectedRunbook.duration)}</p></div><div className="flex items-center gap-3"><button onClick={() => selectedRunbook.roster.forEach(addRunbookGroup)} className="rounded-md bg-nc-brand px-3 py-2 text-xs font-semibold text-nc-brand-text">Adicionar equipe completa</button>{selectedRunbook.asset && <a href={selectedRunbook.asset} target="_blank" rel="noreferrer" className="text-sm text-nc-brand hover:underline">Runbook completo na Enterprise</a>}<a href={`https://github.com/msitarzewski/agency-agents/blob/main/${selectedRunbook.doc}`} target="_blank" rel="noreferrer" className="text-sm text-nc-text-muted hover:underline">Fonte upstream</a></div></div>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-nc-text">{translateRunbookTitle(selectedRunbook.title)}</h2><p className="text-sm text-nc-text-muted">{translateRunbookMode(selectedRunbook.mode)} · {translateDuration(selectedRunbook.duration)}</p></div><div className="flex items-center gap-3"><button onClick={() => selectedRunbook.roster.forEach(addRunbookGroup)} className="rounded-md bg-nc-brand px-3 py-2 text-xs font-semibold text-nc-brand-text">Adicionar equipe completa</button>{selectedRunbook.asset && <a href={selectedRunbook.asset} target="_blank" rel="noreferrer" className="text-sm text-nc-brand hover:underline">Documento completo na plataforma</a>}<a href={`https://github.com/msitarzewski/agency-agents/blob/main/${selectedRunbook.doc}`} target="_blank" rel="noreferrer" className="text-sm text-nc-text-muted hover:underline">Repositório de origem</a></div></div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {selectedRunbook.roster.map(group => <div key={group.group} className="rounded-lg border border-nc-border p-4">
                 <div className="mb-3 flex items-center justify-between gap-2"><div><h3 className="font-medium text-nc-text">{translateRunbookGroup(group.group)}</h3><p className="text-xs text-nc-text-muted">Ativação: {translateActivation(group.activation)}</p></div><button onClick={() => addRunbookGroup(group)} className="inline-flex items-center gap-1 rounded-md border border-nc-border px-2 py-1.5 text-xs text-nc-text hover:border-nc-brand"><Plus size={13}/> Adicionar grupo</button></div>
@@ -278,7 +278,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
               </div>)}
             </div>
           </section>}
-          <p className="text-xs text-nc-text-muted">Fonte: repositório Agency Agents, arquivo strategy/runbooks.json e documentos de cenário. Os rosters são referências de composição; a implantação operacional continua sob controle da Enterprise e do Paperclip.</p>
+          <p className="text-xs text-nc-text-muted">Fonte: repositório biblioteca de origem, arquivo strategy/runbooks.json e documentos de cenário. Os rosters são referências de composição; a implantação operacional continua sob controle da Enterprise e do Paperclip.</p>
         </div>
       )}
 
