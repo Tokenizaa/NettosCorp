@@ -29,13 +29,13 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
       title={collapsed ? label : undefined}
       className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium rounded transition-colors whitespace-nowrap group ${
         active
-          ? 'bg-blue-50 text-blue-700 font-semibold'
+          ? 'bg-amber-50 text-amber-800 font-semibold'
           : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
       } ${collapsed ? 'justify-center px-2' : ''}`}
     >
       <Icon
         className={`w-4 h-4 shrink-0 transition-colors ${
-          active ? 'text-blue-600' : 'text-zinc-500 group-hover:text-zinc-300'
+          active ? 'text-amber-700' : 'text-zinc-500 group-hover:text-zinc-300'
         }`}
       />
       {!collapsed && <span className="truncate flex-1 text-left">{label}</span>}
