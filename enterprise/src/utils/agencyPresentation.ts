@@ -389,7 +389,7 @@ const wordMap: Record<string, string> = {
   ai: 'IA',
   ux: 'Experiência do Usuário',
   ui: 'Interface',
-  3d: '3D',
+  '3d': '3D',
   scene: 'Cenários',
   app: 'Aplicativo',
   store: 'Loja',
