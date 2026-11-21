@@ -164,7 +164,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
   return (
     <div
-      className={`flex h-screen bg-nc-surface text-nc-text overflow-hidden font-sans ${
+      className={`flex h-screen bg-[#f7f8fa] text-nc-text overflow-hidden font-sans ${
         mobileOpen ? 'overflow-hidden' : ''
       }`}
     >
@@ -200,7 +200,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         />
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 overflow-y-auto px-5 py-6 sm:px-7 lg:px-8 max-w-[1440px] w-full mx-auto">
           {children}
         </main>
       </div>
