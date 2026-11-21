@@ -182,6 +182,44 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
               <div className="min-w-0"><p className="text-[11px] font-semibold uppercase tracking-wide text-nc-brand">Cenário operacional identificado</p><h3 className="mt-1 font-semibold text-nc-text">{inferredRunbook.title}</h3><p className="mt-1 text-xs text-nc-text-secondary">{inferredRunbook.summary}</p><p className="mt-1 text-xs text-nc-text-muted">Sinais encontrados: {composition.scenarioMatches.join(', ')} · {inferredRunbook.mode} · {inferredRunbook.duration}</p></div>
               <button onClick={() => inferredRunbook.roster.forEach(addRunbookGroup)} className="shrink-0 rounded-lg bg-nc-brand px-3 py-2.5 text-xs font-semibold text-nc-brand-text">Adicionar composição completa</button>
             </div>}
+            {objective.trim() && (
+              <section className="rounded-xl border border-nc-border bg-nc-surface-elevated p-4">
+                <div className="mb-3 flex items-center gap-2"><Layers3 size={17}/><h3 className="font-semibold text-nc-text">Análise da composição</h3></div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Áreas identificadas no objetivo</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {composition.analysis.objectiveDomains.length
+                        ? composition.analysis.objectiveDomains.map(domain => <span key={domain} className="rounded-md bg-nc-surface px-2 py-1 text-xs text-nc-text-secondary">{domain}</span>)
+                        : <span className="text-xs text-nc-text-muted">Ainda não foi possível classificar áreas com segurança.</span>}
+                    </div>
+                    <p className="mt-3 text-xs text-nc-text-secondary">Cobertura identificada: {composition.analysis.coveredDomains.length} de {composition.analysis.objectiveDomains.length} áreas</p>
+                    {composition.analysis.uncoveredDomains.length > 0 && <p className="mt-1 text-xs text-amber-300">Lacunas para revisar: {composition.analysis.uncoveredDomains.join(', ')}</p>}
+                  </div>
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Pontos fortes encontrados</p>
+                    {composition.analysis.strengths.length
+                      ? <ul className="space-y-1">{composition.analysis.strengths.map(item => <li key={item} className="text-xs text-nc-text-secondary">• {item}</li>)}</ul>
+                      : <p className="text-xs text-nc-text-muted">A análise ainda não identificou pontos fortes suficientes.</p>}
+                  </div>
+                </div>
+                {composition.analysis.phases.length > 0 && <div className="mt-4 border-t border-nc-border pt-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-nc-text-muted">Sequência sugerida pelo runbook</p>
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                    {composition.analysis.phases.map((phase, index) => <div key={phase.name} className="rounded-lg bg-nc-surface p-3">
+                      <p className="text-xs font-semibold text-nc-text">{index + 1}. {phase.name}</p>
+                      <p className="mt-1 text-xs text-nc-text-muted">Ativação: {phase.activation} · {phase.count} posição(ões)</p>
+                      <p className="mt-1 text-xs text-nc-text-secondary">{phase.professionals.slice(0, 5).join(', ')}{phase.professionals.length > 5 ? '…' : ''}</p>
+                    </div>)}
+                  </div>
+                </div>}
+                {composition.analysis.risks.length > 0 && <div className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-3">
+                  <p className="mb-1 text-xs font-semibold text-amber-200">Riscos e limitações a validar</p>
+                  <ul className="space-y-1">{composition.analysis.risks.map(item => <li key={item} className="text-xs text-nc-text-secondary">• {item}</li>)}</ul>
+                </div>}
+                <p className="mt-3 text-[11px] text-nc-text-muted">{composition.analysis.selectionGuidance.join(' ')}</p>
+              </section>
+            )}
             {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>}
             {!loading && objective.trim().length > 0 && recommendations.length === 0 && <div className="rounded-lg border border-nc-border p-5 text-sm text-nc-text-muted">Nenhuma correspondência textual encontrada. Amplie a descrição do objetivo ou explore a Biblioteca.</div>}
             {!objective.trim() && <div className="rounded-lg border border-dashed border-nc-border p-6 text-sm text-nc-text-muted">Descreva o projeto para receber uma primeira seleção de profissionais com competências relacionadas.</div>}
