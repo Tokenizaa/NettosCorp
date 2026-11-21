@@ -62,7 +62,7 @@ const wordMap: Record<string, string> = {
   analyst: 'Analista', engineer: 'Engenheiro', automator: 'Automatizador',
   tester: 'Testador', tester: 'Testador', checker: 'Verificador',
   specialist: 'Especialista', specialistS: 'Especialistas', support: 'Suporte',
-  infrastructure: 'Infraestrutura', maintainer: 'Responsável', reporter: 'Relator',
+  maintainer: 'Responsável', reporter: 'Relator',
   tracker: 'Acompanhamento', generator: 'Gerador', builder: 'Construtor',
   curator: 'Curador', optimizer: 'Otimizador', prioritizer: 'Priorizador',
   sprint: 'Ciclo', rapid: 'Rápida', performance: 'Desempenho', evidence: 'Evidências',
@@ -70,11 +70,11 @@ const wordMap: Record<string, string> = {
   social: 'Sociais', media: 'Mídia', growth: 'Crescimento', hacker: 'Especialista',
   frontend: 'Front-end', backend: 'Back-end', devops: 'DevOps', ai: 'IA',
   ux: 'Experiência do Usuário', ui: 'Interface', 3d: '3D', scene: 'Cenários',
-  game: 'Jogos', spatial: 'Espacial', app: 'Aplicativos', store: 'Loja',
+  app: 'Aplicativos', store: 'Loja',
   incident: 'Incidente', response: 'Resposta', workflow: 'Fluxo de Trabalho',
   experiment: 'Experimento', results: 'Resultados', test: 'Teste', tests: 'Testes',
   executive: 'Executivo', summary: 'Resumo', finance: 'Financeiro',
-  legal: 'Jurídico', twitter: 'X', tiktok: 'TikTok', instagram: 'Instagram',
+  twitter: 'X', tiktok: 'TikTok', instagram: 'Instagram',
   reddit: 'Reddit', startup: 'Inicial', enterprise: 'Corporativo',
 };
 
@@ -86,7 +86,7 @@ export function translateAgentName(name: string, code?: string): string {
   const codeKey = normalize((code || '').replace(/-/g, ' '));
   if (phraseMap[codeKey]) return phraseMap[codeKey];
   const source = key || codeKey;
-  return source.split(' ').map(token => wordMap[token] || token.toLocaleUpperCase()).join(' ');
+  return source.split(' ').map(token => wordMap[token] || token.charAt(0).toLocaleUpperCase() + token.slice(1)).join(' ');
 }
 
 export function translateAgentCategory(value: string): string {
