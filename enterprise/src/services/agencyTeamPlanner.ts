@@ -7,6 +7,7 @@ export interface PlannerRunbook {
   duration: string;
   summary: string;
   doc: string;
+  asset?: string;
   roster: { group: string; activation: string; agents: string[] }[];
 }
 
