@@ -7,7 +7,7 @@ import { localStore } from '../services/supabaseClient';
 import { AgencyAgentProfile } from '../types';
 import { PageHeader } from '../components/layout/PageHeader';
 
-type ModuleTab = 'library' | 'team-builder' | 'runbooks';
+type ModuleTab = 'library' | 'team-builder' | 'runbooks' | 'divisions';
 type RunbookGroup = { group: string; activation: string; agents: string[] };
 type Runbook = { slug: string; title: string; mode: string; duration: string; summary: string; doc: string; roster: RunbookGroup[] };
 type RunbookFile = { runbooks: Runbook[] };
