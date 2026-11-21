@@ -222,6 +222,7 @@ export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
         <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
           {tab === 'identity' && <div className="mx-auto max-w-4xl space-y-5">
             <div className="rounded-xl border border-blue-900/60 bg-blue-950/20 p-4 text-sm text-blue-100">O perfil mestre é preservado. Os campos abaixo complementam a instância organizacional sem alterar os 283 registros de origem.</div>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 text-xs leading-5 text-zinc-400">Os nomes, categorias e elementos de navegação são apresentados em português brasileiro. Os textos técnicos originais do perfil permanecem no idioma de origem para preservar a referência usada na preparação dos agentes.</div>
             <div className="grid gap-4 md:grid-cols-2">
               <div><label className={labelClass}>Identidade profissional</label><div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{translateProfileText(profile.identity)}</div></div>
               <div><label className={labelClass}>Especialidade</label><div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{translateProfileText(profile.specialty_description)}</div></div>
