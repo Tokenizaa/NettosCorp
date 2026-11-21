@@ -24,7 +24,7 @@ export const AgencyOriginalSource: React.FC<AgencyOriginalSourceProps> = ({ sour
     const assetPath = relativePath.split('/').map(encodeURIComponent).join('/');
     fetch(`/agency-source/${assetPath}`)
       .then(response => {
-        if (!response.ok) throw new Error('Fonte original ainda não sincronizada nesta versão da Enterprise.');
+        if (!response.ok) throw new Error('Documento de origem ainda não sincronizado nesta versão da plataforma.');
         return response.text();
       })
       .then(content => { if (active) setMarkdown(content); })
@@ -38,10 +38,10 @@ export const AgencyOriginalSource: React.FC<AgencyOriginalSourceProps> = ({ sour
     <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
       <details>
         <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Conteúdo original integral
+          Documento original integral (idioma de origem)
         </summary>
         <div className="mt-3">
-          {loading && <p className="text-xs text-zinc-500">Carregando documento original…</p>}
+          {loading && <p className="text-xs text-zinc-500">Carregando documento de origem…</p>}
           {error && <p role="status" className="text-xs text-amber-300">{error}</p>}
           {markdown && <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap break-words rounded-lg bg-zinc-950 p-4 text-xs leading-5 text-zinc-300">{markdown}</pre>}
         </div>
