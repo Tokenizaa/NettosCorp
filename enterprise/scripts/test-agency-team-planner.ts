@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { recommendTeamComposition, PlannerRunbook } from '../src/services/agencyTeamPlanner';
 import { AgencyAgentProfile } from '../src/types';
 
@@ -68,4 +71,22 @@ const empty = recommendTeamComposition('', profiles, runbooks);
 assert.equal(empty.runbook, null);
 assert.equal(empty.recommendations.length, 0);
 
-console.log('OK: cenários de runbook e busca no conteúdo original passaram.');
+
+const manifest = JSON.parse(readFileSync(resolve('public/agency-source-index.json'), 'utf8'));
+const sourceSearchIndex = JSON.parse(readFileSync(resolve('public/agency-profile-search-index.json'), 'utf8'));
+assert.equal(manifest.profile_count, 283);
+assert.equal(manifest.profiles.length, 283);
+assert.equal(new Set(manifest.profiles.map((item: { code: string }) => item.code)).size, 283);
+assert.equal(new Set(manifest.profiles.map((item: { source_path: string }) => item.source_path)).size, 283);
+assert.equal(sourceSearchIndex.profile_count, 283);
+assert.equal(sourceSearchIndex.profiles.length, 283);
+const searchCodes = new Set(sourceSearchIndex.profiles.map((item: { code: string }) => item.code));
+for (const item of manifest.profiles as { code: string; source_path: string; sha256: string }[]) {
+  assert.ok(searchCodes.has(item.code), `Índice pesquisável sem o perfil ${item.code}`);
+  assert.ok(!item.source_path.split('/').includes('..'), `Caminho inseguro: ${item.source_path}`);
+  const markdown = readFileSync(resolve('public/agency-source', item.source_path));
+  const actualHash = createHash('sha256').update(markdown).digest('hex');
+  assert.equal(actualHash, item.sha256, `Hash divergente: ${item.source_path}`);
+}
+
+console.log('OK: composição por runbook, busca no conteúdo original e integridade dos 283 documentos passaram.');
