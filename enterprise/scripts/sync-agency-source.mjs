@@ -105,19 +105,13 @@ const searchIndex = {
   source_repository: 'https://github.com/msitarzewski/agency-agents',
   source_commit: upstreamCommit,
   profile_count: documents.length,
-  profiles: documents.map(({ code, name, source_path, markdown }) => ({
-    code,
-    name,
-    source_path,
-    search_text: markdown
-      .replace(/^---\\r?\\n[\\s\\S]*?\\r?\\n---\\s*(?:\\r?\\n|$)/, ' ')
-      .replace(/[`*_#>|~-]/g, ' ')
-      .replace(/\\s+/g, ' ')
-      .trim(),
-  })),
+  profiles: documents.map(({ code, name, source_path, markdown }) => {
+    const body = markdown.startsWith('---') ? markdown.split('---').slice(2).join(' ') : markdown;
+    const terms = body.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLocaleLowerCase().match(/[a-z0-9]{3,}/g) || [];
+    return { code, name, source_path, search_text: Array.from(new Set(terms)).join(' ') };
+  }),
 };
 writeFileSync(resolve(publicRoot, 'agency-profile-search-index.json'), JSON.stringify(searchIndex) + '\\n', 'utf8');
-
 console.log(JSON.stringify({
   status: 'success',
   profiles: documents.length,
