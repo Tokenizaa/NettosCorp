@@ -33,11 +33,11 @@ function sourceIdentifier(profile: AgencyAgentProfile): string {
   return String(profile.source_file || '').replace(/[`'"]/g, '').split('/').pop()?.replace(/\.md$/i, '') || '';
 }
 
-function profileSearchText(profile: AgencyAgentProfile): string {
+function profileSearchText(profile: AgencyAgentProfile, originalSourceText = ''): string {
   return [
     profile.name, profile.code, profile.identity, profile.specialty,
     profile.specialty_description, profile.personality, profile.methodology,
-    ...(profile.competencies || []), ...(profile.responsibilities || []),
+    ...(profile.competencies || []), ...(profile.responsibilities || []), originalSourceText,
   ].join(' ');
 }
 
@@ -45,6 +45,7 @@ export function recommendTeamComposition(
   objective: string,
   profiles: AgencyAgentProfile[],
   runbooks: PlannerRunbook[],
+  originalSearchTextByCode: Record<string, string> = {},
 ): { runbook: PlannerRunbook | null; scenarioMatches: string[]; recommendations: TeamRecommendation[] } {
   const normalizedObjective = normalize(objective.trim());
   const objectiveTokens = new Set(tokenize(objective));
@@ -77,7 +78,7 @@ export function recommendTeamComposition(
   }
 
   const recommendations = profiles.map(profile => {
-    const profileTokens = new Set(tokenize(profileSearchText(profile)));
+    const profileTokens = new Set(tokenize(profileSearchText(profile, originalSearchTextByCode[profile.code] || '')));
     const matches = [...objectiveTokens].filter(token => profileTokens.has(token));
     const lexicalScore = matches.length / Math.max(1, objectiveTokens.size);
     const assignment = rosterAssignments.get(profile.id);
@@ -85,7 +86,7 @@ export function recommendTeamComposition(
     const reason = assignment
       ? `Previsto no grupo ${assignment.group}; ativação: ${assignment.activation}.`
       : matches.length
-        ? `Correspondência em competências, responsabilidades ou metodologia: ${matches.slice(0, 6).join(', ')}.`
+        ? `Correspondência no conteúdo original, competências, responsabilidades ou metodologia: ${matches.slice(0, 6).join(', ')}.`
         : '';
     return { profile, score, matches, group: assignment?.group, activation: assignment?.activation, reason };
   }).filter(item => item.score > 0)

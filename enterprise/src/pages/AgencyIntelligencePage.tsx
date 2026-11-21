@@ -14,6 +14,7 @@ type Runbook = PlannerRunbook;
 type RunbookFile = { runbooks: Runbook[] };
 type Division = { label: string; icon: string; color: string };
 type DivisionFile = { divisions: Record<string, Division> };
+type ProfileSearchIndexFile = { profiles: { code: string; search_text: string }[] };
 
 const tabs: { id: ModuleTab; label: string; icon: React.ElementType }[] = [
   { id: 'library', label: 'Biblioteca', icon: BookOpen },
@@ -37,6 +38,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
   const [saveMessage, setSaveMessage] = useState('');
   const [runbooks, setRunbooks] = useState<Runbook[]>([]);
   const [divisions, setDivisions] = useState<Record<string, Division>>({});
+  const [originalSearchTextByCode, setOriginalSearchTextByCode] = useState<Record<string, string>>({});
   const [runbooksError, setRunbooksError] = useState('');
   const [activeRunbook, setActiveRunbook] = useState<string>('');
 
@@ -56,6 +58,14 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
 
   useEffect(() => {
     let active = true;
+    fetch('/agency-profile-search-index.json')
+      .then(response => { if (!response.ok) throw new Error('Índice dos documentos originais indisponível.'); return response.json() as Promise<ProfileSearchIndexFile>; })
+      .then(data => {
+        if (!active) return;
+        const index = Object.fromEntries((data.profiles || []).map(item => [item.code, item.search_text]));
+        setOriginalSearchTextByCode(index);
+      })
+      .catch(e => { if (active) console.error('Falha ao carregar índice do corpus original:', e); });
     fetch('/agency-divisions.json')
       .then(response => { if (!response.ok) throw new Error('Taxonomia de divisões indisponível.'); return response.json() as Promise<DivisionFile>; })
       .then(data => { if (active) setDivisions(data.divisions || {}); })
@@ -71,8 +81,8 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
   }, []);
 
   const composition = useMemo(
-    () => recommendTeamComposition(objective, profiles, runbooks),
-    [objective, profiles, runbooks],
+    () => recommendTeamComposition(objective, profiles, runbooks, originalSearchTextByCode),
+    [objective, profiles, runbooks, originalSearchTextByCode],
   );
   const recommendations = composition.recommendations;
   const inferredRunbook = composition.runbook;
@@ -161,7 +171,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
               <input id="team-project-name" value={projectName} onChange={e => setProjectName(e.target.value)} placeholder="Ex.: Lançamento de uma plataforma SaaS" className="mb-3 w-full rounded-lg border border-nc-border bg-nc-surface px-3 py-2.5 text-sm text-nc-text outline-none focus:border-nc-brand" />
               <label className="mb-1 block text-sm text-nc-text-secondary" htmlFor="team-objective">O que precisa ser realizado?</label>
               <textarea id="team-objective" value={objective} onChange={e => setObjective(e.target.value)} rows={4} placeholder="Descreva o resultado esperado, as etapas, as áreas envolvidas e os desafios do projeto..." className="w-full resize-y rounded-lg border border-nc-border bg-nc-surface px-3 py-3 text-sm text-nc-text outline-none focus:border-nc-brand" />
-              <p className="mt-2 text-xs text-nc-text-muted">A recomendação inicial cruza os termos do objetivo com especialidades, competências, responsabilidades e metodologias dos perfis disponíveis. É uma triagem explicável, não uma decisão automática de contratação ou implantação.</p>
+              <p className="mt-2 text-xs text-nc-text-muted">A recomendação cruza o objetivo com o conteúdo original dos 283 perfis e os rosters dos runbooks. O cenário e os critérios encontrados são exibidos para revisão humana; não é uma decisão automática de contratação ou implantação.</p>
             </div>
 
             <div className="flex items-center justify-between gap-3">

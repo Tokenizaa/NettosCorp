@@ -53,8 +53,19 @@ assert.equal(startup.recommendations[0]?.profile.code, 'agents-orchestrator');
 const enterprise = recommendTeamComposition('Desenvolver funcionalidade com integração e compliance em plataforma existente', profiles, runbooks);
 assert.equal(enterprise.runbook?.slug, 'enterprise-feature');
 
+
+const sourceOnlyProfile = profile('spatial-specialist', 'Spatial Specialist', '`gis/spatial-specialist.md`', ['cartografia']);
+const sourceOnly = recommendTeamComposition(
+  'Construir visualização geoespacial com LiDAR e Cesium',
+  [sourceOnlyProfile],
+  [],
+  { 'spatial-specialist': 'lidar cesium pointcloud geospatial 3dtiles terrain' },
+);
+assert.equal(sourceOnly.recommendations[0]?.profile.code, 'spatial-specialist');
+assert.ok(sourceOnly.recommendations[0]?.matches.includes('lidar'));
+
 const empty = recommendTeamComposition('', profiles, runbooks);
 assert.equal(empty.runbook, null);
 assert.equal(empty.recommendations.length, 0);
 
-console.log('OK: 5 cenários do motor de composição passaram.');
+console.log('OK: cenários de runbook e busca no conteúdo original passaram.');
