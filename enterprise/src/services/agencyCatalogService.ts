@@ -11,8 +11,46 @@ import {
 
 const DEFAULT_ORG_ID = 'd3c6760f-f734-4154-837e-34898849f040';
 
+// Asset público com os 283 perfis do catálogo Agency Agents (copiado para dist/ pelo Vite).
+// Serve como fonte de dados do catálogo quando o Supabase ao vivo não está configurado,
+// garantindo que o catálogo apresente os registros mesmo sem integração Supabase ativa.
+const PUBLIC_CATALOG_URL = '/agency-profiles-import.json';
+
 function now(): string {
   return new Date().toISOString();
+}
+
+/**
+ * Carrega os 283 perfis do asset público para o localStore apenas quando ainda não há
+ * perfis persistidos. Não sobrescreve dados existentes (evita duplicar registros).
+ * Retorna true se importou algo.
+ */
+async function ensureCatalogFromPublicAsset(): Promise<boolean> {
+  const existing = localStore.getAgencyAgentProfiles();
+  if (existing && existing.length > 0) {
+    return false;
+  }
+  try {
+    const response = await fetch(PUBLIC_CATALOG_URL);
+    if (!response.ok) {
+      return false;
+    }
+    const profiles = (await response.json()) as any[];
+    if (!Array.isArray(profiles) || profiles.length === 0) {
+      return false;
+    }
+    localStore.setAgencyAgentProfiles(() => profiles as AgencyAgentProfile[]);
+    localStore.logAudit({
+      user_id: 'system',
+      user_email: 'system',
+      action: 'CREATE',
+      resource: 'agencyAgentProfiles',
+      details: { count: profiles.length, source: PUBLIC_CATALOG_URL },
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function generateId(prefix: string): string {
@@ -42,6 +80,10 @@ export const agencyCatalogService = {
 
   async listProfilesAsync(): Promise<AgencyAgentProfile[]> {
     if (!useSupabase()) {
+      // Sem Supabase ao vivo: carrega os 283 perfis do catálogo a partir do asset
+      // público antes de ler o armazenamento local, para que o catálogo apresente
+      // os registros mesmo sem integração Supabase configurada.
+      await ensureCatalogFromPublicAsset();
       return this.listProfiles();
     }
     const user = localStore.getSessionUser();
