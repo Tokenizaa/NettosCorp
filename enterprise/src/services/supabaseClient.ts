@@ -16,7 +16,10 @@ import {
   Deliberation,
   GovernanceDocument,
   AuditLog,
-  UserRole
+  UserRole,
+  AgencyAgentProfile,
+  AgencyAgentSelection,
+  AgencyAgentHomologation,
 } from '../types';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
@@ -52,6 +55,9 @@ interface StorageSchema {
   departments: Department[];
   positions: Position[];
   agents: AIAgent[];
+  agencyAgentProfiles: AgencyAgentProfile[];
+  agencyAgentSelections: AgencyAgentSelection[];
+  agencyAgentHomologations: AgencyAgentHomologation[];
   projects: Project[];
   tasks: Task[];
   decisions: Decision[];
@@ -273,7 +279,7 @@ const INITIAL_DATA: StorageSchema = {
         temperature: 0.2,
         max_tokens: 4096,
         system_prompt: 'Agente especializado em auditoria de decisões executivas e confrontação com normas institucionais.',
-        capabilities: ['análise documental', 'validação de quórum', 'cruzamento DEC-CNS'],
+        capabilities: ['análise documental', 'validação de quórum', 'cruzamento DEC-CNS'] as string[],
       },
       created_at: '2026-01-12T10:00:00Z',
       updated_at: '2026-01-12T10:00:00Z',
@@ -293,7 +299,7 @@ const INITIAL_DATA: StorageSchema = {
         temperature: 0.1,
         max_tokens: 2048,
         system_prompt: 'Despacho automatizado e sincronização de atividades.',
-        capabilities: ['priorização de sprints', 'estimativa de esforço', 'alocação de recursos'],
+        capabilities: ['priorização de sprints', 'estimativa de esforço', 'alocação de recursos'] as string[],
       },
       created_at: '2026-01-18T14:30:00Z',
       updated_at: '2026-01-18T14:30:00Z',
@@ -313,12 +319,15 @@ const INITIAL_DATA: StorageSchema = {
         temperature: 0.0,
         max_tokens: 1024,
         system_prompt: 'Validador formal de schemas de integração Paperclip sem modificação externa.',
-        capabilities: ['validação de integridade', 'checagem de hash', 'auditoria de contratos'],
+        capabilities: ['validação de integridade', 'checagem de hash', 'auditoria de contratos'] as string[],
       },
       created_at: '2026-02-05T09:00:00Z',
       updated_at: '2026-02-05T09:00:00Z',
     },
   ],
+  agencyAgentProfiles: [] as AgencyAgentProfile[],
+  agencyAgentSelections: [] as AgencyAgentSelection[],
+  agencyAgentHomologations: [] as AgencyAgentHomologation[],
   projects: [
     {
       id: 'prj-001',
@@ -849,6 +858,41 @@ class LocalSupabaseStore {
 
   public getAgents(): AIAgent[] {
     return this.data.agents;
+  }
+
+  public getAgencyAgentProfiles(): AgencyAgentProfile[] {
+    return this.data.agencyAgentProfiles;
+  }
+
+  public getAgencyAgentProfileById(id: string): AgencyAgentProfile | undefined {
+    return this.data.agencyAgentProfiles.find(p => p.id === id);
+  }
+
+  public getAgencyAgentProfileByCode(code: string): AgencyAgentProfile | undefined {
+    return this.data.agencyAgentProfiles.find(p => p.code === code);
+  }
+
+  public setAgencyAgentProfiles(updater: (prev: AgencyAgentProfile[]) => AgencyAgentProfile[]): void {
+    this.data.agencyAgentProfiles = updater(this.data.agencyAgentProfiles);
+    this.saveData(this.data);
+  }
+
+  public getAgencyAgentSelections(): AgencyAgentSelection[] {
+    return this.data.agencyAgentSelections;
+  }
+
+  public setAgencyAgentSelections(updater: (prev: AgencyAgentSelection[]) => AgencyAgentSelection[]): void {
+    this.data.agencyAgentSelections = updater(this.data.agencyAgentSelections);
+    this.saveData(this.data);
+  }
+
+  public getAgencyAgentHomologations(): AgencyAgentHomologation[] {
+    return this.data.agencyAgentHomologations;
+  }
+
+  public setAgencyAgentHomologations(updater: (prev: AgencyAgentHomologation[]) => AgencyAgentHomologation[]): void {
+    this.data.agencyAgentHomologations = updater(this.data.agencyAgentHomologations);
+    this.saveData(this.data);
   }
 
   public getProjects(): Project[] {

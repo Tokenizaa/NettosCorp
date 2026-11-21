@@ -257,3 +257,84 @@ export interface DashboardMetrics {
   total_members: number;
   recent_activities: AuditLog[];
 }
+
+// ============================================================================
+// CATÁLOGO AGENCY AGENTS - Modelos profissionais para planejamento estratégico
+// ============================================================================
+
+export type AgencyAgentCategory =
+  | 'strategy'
+  | 'operations'
+  | 'technology'
+  | 'governance'
+  | 'finance'
+  | 'human-resources'
+  | 'legal'
+  | 'marketing'
+  | 'sales'
+  | 'product'
+  | 'research'
+  | 'security'
+  | 'compliance'
+  | 'data'
+  | 'infrastructure'
+  | 'customer-success'
+  | 'communications'
+  | 'other';
+
+export type AgencyAgentStatus = 'disponivel' | 'em_avaliacao' | 'homologado' | 'nao_recomendado';
+
+export type AgencyAgentSpecialty = string;
+
+export interface AgencyAgentProfile {
+  id: string;
+  organization_id: string;
+  category: AgencyAgentCategory;
+  specialty: AgencyAgentSpecialty;
+  name: string;
+  code: string;
+  identity: string;
+  specialty_description: string;
+  competencies: string[];
+  personality: string;
+  responsibilities: string[];
+  methodology: string;
+  status: AgencyAgentStatus;
+  homologated_at?: string;
+  homologated_by?: string;
+  homologation_notes?: string;
+  source_file: string;
+  source_hash: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgencyAgentSelection {
+  id: string;
+  organization_id: string;
+  profile_id: string;
+  profile_code?: string;
+  project_name: string;
+  purpose: string;
+  selected_by: string;
+  selected_by_name?: string;
+  selected_at: string;
+  status: 'planejado' | 'ativo' | 'concluído' | 'cancelado';
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgencyAgentHomologation {
+  id: string;
+  organization_id: string;
+  profile_id: string;
+  profile_code?: string;
+  status: AgencyAgentStatus;
+  reviewed_by: string;
+  reviewed_by_name?: string;
+  reviewed_at: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}

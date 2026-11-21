@@ -29,6 +29,7 @@ import { AuditPage } from './pages/AuditPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { UsersPage } from './pages/UsersPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { AgencyCatalogPage } from './pages/AgencyCatalogPage';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(authService.getCurrentUser());
@@ -136,6 +137,8 @@ export default function App() {
         return <UsersPage onNavigate={navigateTo} />;
       case '/profile':
         return <ProfilePage onNavigate={navigateTo} />;
+      case '/agency-catalog':
+        return <AgencyCatalogPage onNavigate={navigateTo} />;
       default:
         return <DashboardPage onNavigate={navigateTo} />;
     }

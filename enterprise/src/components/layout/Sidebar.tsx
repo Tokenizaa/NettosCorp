@@ -171,6 +171,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 badge={counts?.tasks}
                 collapsed={collapsed}
               />
+              <NavigationItem
+                label="Catálogo Agency Agents"
+                icon={FileText}
+                active={currentRoute === '/agency-catalog'}
+                onClick={() => onNavigate('/agency-catalog')}
+                collapsed={collapsed}
+              />
             </div>
           </div>
 
