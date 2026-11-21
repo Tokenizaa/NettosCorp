@@ -72,6 +72,18 @@ assert.equal(empty.runbook, null);
 assert.equal(empty.recommendations.length, 0);
 
 
+
+const importedProfiles = JSON.parse(readFileSync(resolve('public/agency-profiles-import.json'), 'utf8')) as { code: string; source_file: string }[];
+const profileIdentifiers = new Set(importedProfiles.flatMap(profile => [
+  profile.code,
+  String(profile.source_file || '').replace(/[`'"]/g, '').split('/').pop()?.replace(/\.md$/i, '') || '',
+]));
+const sourceRunbooks = JSON.parse(readFileSync(resolve('public/agency-runbooks.json'), 'utf8'));
+const runbookAgentSlugs = sourceRunbooks.runbooks.flatMap((runbook: { roster: { agents: string[] }[] }) => runbook.roster.flatMap(group => group.agents));
+const unresolvedRunbookAgents = [...new Set(runbookAgentSlugs.filter((slug: string) => !profileIdentifiers.has(slug)))];
+assert.equal(runbookAgentSlugs.length, 64);
+assert.deepEqual(unresolvedRunbookAgents, []);
+
 const manifest = JSON.parse(readFileSync(resolve('public/agency-source-index.json'), 'utf8'));
 const sourceSearchIndex = JSON.parse(readFileSync(resolve('public/agency-profile-search-index.json'), 'utf8'));
 assert.equal(manifest.profile_count, 283);
