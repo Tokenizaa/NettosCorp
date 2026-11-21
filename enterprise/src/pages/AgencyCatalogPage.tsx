@@ -63,6 +63,7 @@ interface AgencyCatalogPageProps {
 export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate }) => {
   const [profiles, setProfiles] = useState<AgencyAgentProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<AgencyAgentCategory | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AgencyAgentStatus | 'all'>('all');
@@ -78,48 +79,55 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   const [selectionProject, setSelectionProject] = useState('');
   const [selectionPurpose, setSelectionPurpose] = useState('');
 
-  useEffect(() => {
-    let mounted = true;
-    const loadProfiles = async () => {
-      setLoading(true);
-      try {
-        const data = await agencyCatalogService.listProfilesAsync();
-        if (mounted) setProfiles(data);
-      } catch {
-        if (mounted) setProfiles(agencyCatalogService.listProfiles());
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-    loadProfiles();
-
-    const unsub = localStore.subscribe(() => {
-      setProfiles(applyFilters());
-    });
-    return () => {
-      mounted = false;
-      unsub();
-    };
+  const loadProfiles = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await agencyCatalogService.listProfilesAsync();
+      setProfiles(data);
+    } catch (error) {
+      console.error('Falha ao carregar o catálogo Agency Agents:', error);
+      setProfiles([]);
+      setLoadError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const applyFilters = useCallback(() => {
-    let result = agencyCatalogService.listProfiles();
+  useEffect(() => {
+    void loadProfiles();
+  }, [loadProfiles]);
 
-    if (search) {
-      result = agencyCatalogService.searchProfiles(search);
+  // A lista exibida, os filtros e os indicadores devem derivar do mesmo
+  // conjunto carregado do Supabase (e não do armazenamento síncrono local).
+  const applyFilters = useCallback(() => {
+    const query = search.trim().toLocaleLowerCase();
+    let result = profiles;
+
+    if (query) {
+      result = result.filter(profile =>
+        [profile.name, profile.code, profile.identity, profile.specialty_description,
+          ...(profile.competencies || []), ...(profile.responsibilities || [])]
+          .some(value => String(value || '').toLocaleLowerCase().includes(query))
+      );
     }
     if (categoryFilter !== 'all') {
-      result = result.filter(p => p.category === categoryFilter);
+      result = result.filter(profile => profile.category === categoryFilter);
     }
     if (statusFilter !== 'all') {
-      result = result.filter(p => p.status === statusFilter);
+      result = result.filter(profile => profile.status === statusFilter);
     }
 
-    return result.sort((a, b) => a.code.localeCompare(b.code));
-  }, [search, categoryFilter, statusFilter]);
+    return [...result].sort((a, b) => a.code.localeCompare(b.code));
+  }, [profiles, search, categoryFilter, statusFilter]);
 
   const filteredProfiles = applyFilters();
-  const stats = agencyCatalogService.stats();
+  const stats = {
+    total: profiles.length,
+    homologated: profiles.filter(profile => profile.status === 'homologado').length,
+    evaluating: profiles.filter(profile => profile.status === 'em_avaliacao').length,
+    notRecommended: profiles.filter(profile => profile.status === 'nao_recomendado').length,
+  };
 
   const openViewModal = (profile: AgencyAgentProfile) => {
     setSelectedProfile(profile);
@@ -170,13 +178,14 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         notes: homologationNotes || undefined,
       });
     }
+    await loadProfiles();
     setIsModalOpen(false);
     setSelectedProfile(null);
   };
 
-  const handleSelectForProject = () => {
+  const handleSelectForProject = async () => {
     if (!selectedProfile) return;
-    agencyCatalogService.createSelection({
+    await agencyCatalogService.createSelectionAsync({
       profile_id: selectedProfile.id,
       profile_code: selectedProfile.code,
       project_name: selectionProject,
@@ -277,6 +286,16 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         </div>
       </div>
 
+      {!loading && loadError && (
+        <div role="alert" className="rounded-xl border border-rose-800 bg-rose-950/30 p-4 text-sm text-rose-200">
+          <p className="font-semibold">Não foi possível carregar os perfis do Supabase.</p>
+          <p className="mt-1 break-words text-rose-300">{loadError}</p>
+          <button onClick={() => void loadProfiles()} className="mt-3 rounded bg-rose-800 px-3 py-2 font-medium text-white hover:bg-rose-700">
+            Tentar novamente
+          </button>
+        </div>
+      )}
+
       {loading && (
         <div className="flex justify-center py-10">
           <div className="flex flex-col items-center gap-2">
@@ -286,7 +305,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         </div>
       )}
 
-      {!loading && (
+      {!loading && !loadError && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredProfiles.length === 0 ? (
             <EmptyState
