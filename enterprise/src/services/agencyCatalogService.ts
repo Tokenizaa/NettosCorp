@@ -53,7 +53,7 @@ export const agencyCatalogService = {
       .order('code', { ascending: true });
     if (error) {
       console.error('Erro ao listar perfis no Supabase:', error);
-      return this.listProfiles();
+      throw error;
     }
     return (data || []).map((row: any) => this.rowToProfile(row));
   },
@@ -91,7 +91,13 @@ export const agencyCatalogService = {
 
   async searchProfilesAsync(query: string): Promise<AgencyAgentProfile[]> {
     const all = await this.listProfilesAsync();
-    return this.searchProfiles(query);
+    const q = query.trim().toLocaleLowerCase();
+    if (!q) return all;
+    return all.filter(profile =>
+      [profile.name, profile.code, profile.identity, profile.specialty_description,
+        ...(profile.competencies || []), ...(profile.responsibilities || [])]
+        .some(value => String(value || '').toLocaleLowerCase().includes(q))
+    );
   },
 
   getProfileById(id: string): AgencyAgentProfile | undefined {
