@@ -39,7 +39,7 @@ const documents = profiles.map(profile => {
   if (!profile.code || codes.has(profile.code)) throw new Error(`Código ausente ou duplicado: ${profile.code}`);
   codes.add(profile.code);
 
-  const sourcePath = String(profile.source_file || '').replace(/[`'"]/g, '').replace(/\\/g, '/').trim();
+  const sourcePath = String(profile.source_file || '').replace(/[`'"]/g, '').replace(/\/g, '/').trim();
   if (!sourcePath || isAbsolute(sourcePath) || sourcePath.split('/').some(part => part === '..')) {
     throw new Error(`Caminho de origem inválido para ${profile.code}: ${sourcePath}`);
   }
@@ -98,7 +98,7 @@ const manifest = {
   profile_count: documents.length,
   profiles: documents.map(({ code, name, source_path, sha256, bytes }) => ({ code, name, source_path, sha256, bytes })),
 };
-writeFileSync(resolve(publicRoot, 'agency-source-index.json'), JSON.stringify(manifest, null, 2) + '\\n', 'utf8');
+writeFileSync(resolve(publicRoot, 'agency-source-index.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');
 
 console.log(JSON.stringify({
   status: 'success',
