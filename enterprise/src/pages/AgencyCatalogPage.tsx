@@ -73,6 +73,9 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'view' | 'homologate' | 'compare'>('view');
   const [selectedProfiles, setSelectedProfiles] = useState<string[]>([]);
+  const [selectedForAction, setSelectedForAction] = useState<string[]>([]);
+  const [selectMode, setSelectMode] = useState(false);
+  const [bulkStatus, setBulkStatus] = useState<AgencyAgentStatus>('em_avaliacao');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [selectedProfile, setSelectedProfile] = useState<AgencyAgentProfile | null>(null);
@@ -129,6 +132,51 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   const filteredProfiles = applyFilters();
   const pageCount = Math.max(1, Math.ceil(filteredProfiles.length / pageSize));
   const pageProfiles = filteredProfiles.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const allFilteredSelected = filteredProfiles.length > 0 && filteredProfiles.every(profile => selectedForAction.includes(profile.id));
+  const toggleAllFiltered = () => setSelectedForAction(current => allFilteredSelected
+    ? current.filter(id => !filteredProfiles.some(profile => profile.id === id))
+    : Array.from(new Set([...current, ...filteredProfiles.map(profile => profile.id)])));
+  const handleBulkHomologate = async () => {
+    const targets = profiles.filter(profile => selectedForAction.includes(profile.id));
+    if (!targets.length) return;
+    setOperationError(null);
+    try {
+      for (const profile of targets) {
+        await agencyCatalogService.homologateProfileAsync({
+          profile_id: profile.id, profile_code: profile.code, status: bulkStatus,
+          reviewed_by: localStore.getSessionUser()?.id || 'system',
+          reviewed_by_name: localStore.getSessionUser()?.full_name,
+          notes: 'Homologação em lote pelo catálogo Agency Agents.',
+        });
+      }
+      setSelectedForAction([]);
+      await loadProfiles();
+    } catch (error) {
+      setOperationError(error instanceof Error ? error.message : String(error));
+    }
+  };
+  const handleBulkSelectForProject = async () => {
+    const targets = profiles.filter(profile => selectedForAction.includes(profile.id));
+    if (!targets.length || !selectionProject.trim()) return;
+    setOperationError(null);
+    try {
+      for (const profile of targets) {
+        await agencyCatalogService.createSelectionAsync({
+          profile_id: profile.id, profile_code: profile.code,
+          project_name: selectionProject.trim(), purpose: selectionPurpose,
+          selected_by: localStore.getSessionUser()?.id || 'system',
+          selected_by_name: localStore.getSessionUser()?.full_name,
+          selected_at: new Date().toISOString(), status: 'planejado',
+        });
+      }
+      setSelectedForAction([]);
+      setIsSelectionModalOpen(false);
+      setSelectionProject('');
+      setSelectionPurpose('');
+    } catch (error) {
+      setOperationError(error instanceof Error ? error.message : String(error));
+    }
+  };
   useEffect(() => { setCurrentPage(1); }, [search, categoryFilter, statusFilter, pageSize]);
   const stats = {
     total: profiles.length,
@@ -237,6 +285,12 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
               Limpar filtros
             </button>
             <button
+              onClick={() => setSelectMode(value => !value)}
+              className={`px-3 py-2 rounded text-sm font-medium transition-colors ${selectMode ? 'bg-blue-600 text-white' : 'border border-zinc-700 text-zinc-300 hover:bg-zinc-800'}`}
+            >
+              {selectMode ? 'Sair da seleção' : 'Selecionar modelos'}
+            </button>
+            <button
               onClick={() => setIsSelectionModalOpen(true)}
               className="flex items-center gap-2 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded text-sm font-medium transition-colors"
             >
@@ -324,6 +378,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
                 onClick={() => openViewModal(profile)}
               >
                 <div className="flex items-start justify-between mb-2">
+                  {selectMode && <input type="checkbox" checked={selectedForAction.includes(profile.id)} onChange={() => setSelectedForAction(current => current.includes(profile.id) ? current.filter(id => id !== profile.id) : [...current, profile.id])} onClick={event => event.stopPropagation()} aria-label={`Selecionar ${profile.name}`} className="mr-2 h-4 w-4 accent-blue-500" />}
                   <div>
                     <h3 className="font-semibold text-zinc-100">{profile.name}</h3>
                     <span className="text-xs font-mono text-zinc-500">{profile.code}</span>
@@ -399,6 +454,23 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
             <button disabled={currentPage >= pageCount} onClick={() => setCurrentPage(page => Math.min(pageCount, page + 1))} className="rounded border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300 disabled:opacity-40">Próxima</button>
           </div>
         </div>
+      )}
+      {selectMode && (
+        <section className="sticky bottom-3 z-20 rounded-xl border border-blue-900 bg-zinc-950 p-3 shadow-xl sm:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              <button onClick={toggleAllFiltered} className="text-xs font-medium text-blue-300 hover:text-blue-200">{allFilteredSelected ? "Desmarcar filtrados" : "Selecionar todos os filtrados"}</button>
+              <span className="text-xs text-zinc-400">{selectedForAction.length} selecionado(s)</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <select value={bulkStatus} onChange={event => setBulkStatus(event.target.value as AgencyAgentStatus)} className="rounded border border-zinc-700 bg-zinc-900 px-2 py-2 text-xs text-zinc-200">{STATUS_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
+              <button disabled={!selectedForAction.length} onClick={() => void handleBulkHomologate()} className="rounded border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 disabled:opacity-40">Homologar selecionados</button>
+              <button disabled={!selectedForAction.length} onClick={() => { setOperationError(null); setIsSelectionModalOpen(true); }} className="rounded bg-amber-500 px-3 py-2 text-xs font-semibold text-zinc-950 disabled:opacity-40">Selecionar para projeto</button>
+              <button onClick={() => setSelectedForAction([])} className="px-2 py-2 text-xs text-zinc-500 hover:text-zinc-200">Limpar</button>
+            </div>
+          </div>
+          {operationError && <p role="alert" className="mt-2 text-xs text-rose-300">{operationError}</p>}
+        </section>
       )}
       {selectedProfiles.length > 0 && (
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
@@ -586,12 +658,12 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         }}
         title="Selecionar modelo para projeto"
       >
-        {selectedProfile && (
-          <form onSubmit={e => { e.preventDefault(); void handleSelectForProject().catch(error => setOperationError(error instanceof Error ? error.message : String(error))); }} className="space-y-4">
+        {(selectedProfile || selectedForAction.length > 0) && (
+          <form onSubmit={e => { e.preventDefault(); if (selectedForAction.length) void handleBulkSelectForProject(); else void handleSelectForProject().catch(error => setOperationError(error instanceof Error ? error.message : String(error))); }} className="space-y-4">
             {operationError && <div role="alert" className="rounded-lg border border-rose-800 bg-rose-950/30 p-3 text-xs text-rose-200">Falha ao persistir seleção no Supabase: {operationError}</div>}
             <div className="bg-zinc-800/50 border border-zinc-800 rounded-lg p-3">
-              <h4 className="text-sm font-semibold text-zinc-100 mb-1">Modelo selecionado</h4>
-              <p className="text-xs text-zinc-400">{selectedProfile.name} ({selectedProfile.code})</p>
+              <h4 className="text-sm font-semibold text-zinc-100 mb-1">{selectedForAction.length ? selectedForAction.length + ' modelos selecionados' : 'Modelo selecionado'}</h4>
+              <p className="text-xs text-zinc-400">{selectedProfile ? selectedProfile.name + ' (' + selectedProfile.code + ')' : profiles.filter(profile => selectedForAction.includes(profile.id)).map(profile => profile.name).join(', ')}</p>
             </div>
             <FormField label="Nome do projeto">
               <TextInput
