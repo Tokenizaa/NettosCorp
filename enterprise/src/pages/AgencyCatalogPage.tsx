@@ -65,6 +65,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   const [profiles, setProfiles] = useState<AgencyAgentProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [operationError, setOperationError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<AgencyAgentCategory | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AgencyAgentStatus | 'all'>('all');
@@ -161,6 +162,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
 
   const handleHomologate = async () => {
     if (!selectedProfile) return;
+    setOperationError(null);
     try {
       await agencyCatalogService.homologateProfileAsync({
         profile_id: selectedProfile.id,
@@ -170,15 +172,9 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         reviewed_by_name: localStore.getSessionUser()?.full_name,
         notes: homologationNotes || undefined,
       });
-    } catch {
-      agencyCatalogService.homologateProfile({
-        profile_id: selectedProfile.id,
-        profile_code: selectedProfile.code,
-        status: homologationStatus,
-        reviewed_by: localStore.getSessionUser()?.id || 'system',
-        reviewed_by_name: localStore.getSessionUser()?.full_name,
-        notes: homologationNotes || undefined,
-      });
+    } catch (error) {
+      setOperationError(error instanceof Error ? error.message : String(error));
+      return;
     }
     await loadProfiles();
     setIsModalOpen(false);
@@ -502,7 +498,8 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
           </div>
         )}
         {modalType === 'homologate' && selectedProfile && (
-          <form onSubmit={e => { e.preventDefault(); handleHomologate(); }} className="space-y-4">
+          <form onSubmit={e => { e.preventDefault(); void handleHomologate(); }} className="space-y-4">
+            {operationError && <div role="alert" className="rounded-lg border border-rose-800 bg-rose-950/30 p-3 text-xs text-rose-200">Falha ao persistir homologação no Supabase: {operationError}</div>}
             <div>
               <h3 className="text-lg font-bold text-zinc-100 mb-1">{selectedProfile.name}</h3>
               <p className="text-xs font-mono text-zinc-500">{selectedProfile.code}</p>
@@ -567,7 +564,8 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         title="Selecionar modelo para projeto"
       >
         {selectedProfile && (
-          <form onSubmit={e => { e.preventDefault(); handleSelectForProject(); }} className="space-y-4">
+          <form onSubmit={e => { e.preventDefault(); void handleSelectForProject().catch(error => setOperationError(error instanceof Error ? error.message : String(error))); }} className="space-y-4">
+            {operationError && <div role="alert" className="rounded-lg border border-rose-800 bg-rose-950/30 p-3 text-xs text-rose-200">Falha ao persistir seleção no Supabase: {operationError}</div>}
             <div className="bg-zinc-800/50 border border-zinc-800 rounded-lg p-3">
               <h4 className="text-sm font-semibold text-zinc-100 mb-1">Modelo selecionado</h4>
               <p className="text-xs text-zinc-400">{selectedProfile.name} ({selectedProfile.code})</p>
