@@ -51,7 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 border-r border-nc-border bg-nc-surface h-screen flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
+      className={`fixed inset-y-0 left-0 z-50 border-r border-nc-border bg-nc-surface h-screen flex flex-col justify-between transition-transform duration-200 ease-out shrink-0 ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:static lg:inset-0 lg:translate-x-0 lg:block lg:z-auto ${
         collapsed ? 'lg:w-16' : 'lg:w-64'
@@ -62,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="h-14 px-4 flex items-center justify-between border-b border-zinc-850">
           {!collapsed ? (
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-7 h-7 rounded bg-amber-400 flex items-center justify-center text-zinc-950 font-black text-sm shrink-0">
+              <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center text-white font-black text-sm shrink-0">
                 N
               </div>
               <div className="truncate">
@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           ) : (
-            <div className="w-7 h-7 rounded bg-amber-400 flex items-center justify-center text-zinc-950 font-black text-sm mx-auto">
+            <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center text-white font-black text-sm mx-auto">
               N
             </div>
           )}
@@ -92,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation Groups */}
-        <div className="p-2 space-y-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
+        <div className="p-2 space-y-5 overflow-y-auto max-h-[calc(100vh-8rem)]">
           {/* 1. Visão Executiva */}
           <div>
             {!collapsed && (
