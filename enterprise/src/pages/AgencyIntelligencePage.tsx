@@ -9,7 +9,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { recommendTeamComposition, PlannerRunbook } from '../services/agencyTeamPlanner';
 import { translateAgentName, translateAgentCategory, translateDivision, translateCapability, translateRunbookTitle, translateRunbookGroup, translateActivation, translateRunbookMode, translateDuration, translateRunbookSummary, translatePlannerText } from '../utils/agencyPresentation';
 
-type ModuleTab = 'library' | 'team-builder' | 'roteiro operacionals' | 'divisions';
+type ModuleTab = 'library' | 'team-builder' | 'runbooks' | 'divisions';
 type RunbookGroup = { group: string; activation: string; agents: string[] };
 type Runbook = PlannerRunbook;
 type RunbookFile = { runbooks: Runbook[] };
@@ -20,7 +20,7 @@ type ProfileSearchIndexFile = { profiles: { code: string; search_text: string }[
 const tabs: { id: ModuleTab; label: string; icon: React.ElementType }[] = [
   { id: 'library', label: 'Biblioteca', icon: BookOpen },
   { id: 'team-builder', label: 'Compor equipe', icon: Users },
-  { id: 'runbooks', label: 'Equipes e runbooks', icon: ClipboardList },
+  { id: 'runbooks', label: 'Roteiros operacionais', icon: ClipboardList },
   { id: 'divisions', label: 'Divisões profissionais', icon: Layers3 },
 ];
 
