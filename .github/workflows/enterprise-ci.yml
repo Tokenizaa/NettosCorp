@@ -1,0 +1,45 @@
+name: Enterprise CI
+
+on:
+  push:
+    branches:
+      - feat/integracao-institucional-agency-agents
+    paths:
+      - 'enterprise/**'
+      - '.github/workflows/enterprise-ci.yml'
+  pull_request:
+    paths:
+      - 'enterprise/**'
+      - '.github/workflows/enterprise-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Typecheck and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: enterprise
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: enterprise/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: TypeScript validation
+        run: pnpm run lint
+      - name: Production build
+        run: pnpm run build
