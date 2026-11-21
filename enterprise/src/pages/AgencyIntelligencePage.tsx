@@ -1,6 +1,6 @@
 /** @license SPDX-License-Identifier: Apache-2.0 */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookOpen, BrainCircuit, Check, ChevronRight, CircleAlert, ClipboardList, Compass, Plus, Users, X } from 'lucide-react';
+import { BookOpen, BrainCircuit, Check, ChevronRight, CircleAlert, ClipboardList, Compass, Layers3, Plus, Users, X } from 'lucide-react';
 import { AgencyCatalogPage } from './AgencyCatalogPage';
 import { agencyCatalogService } from '../services/agencyCatalogService';
 import { localStore } from '../services/supabaseClient';
@@ -11,11 +11,14 @@ type ModuleTab = 'library' | 'team-builder' | 'runbooks';
 type RunbookGroup = { group: string; activation: string; agents: string[] };
 type Runbook = { slug: string; title: string; mode: string; duration: string; summary: string; doc: string; roster: RunbookGroup[] };
 type RunbookFile = { runbooks: Runbook[] };
+type Division = { label: string; icon: string; color: string };
+type DivisionFile = { divisions: Record<string, Division> };
 
 const tabs: { id: ModuleTab; label: string; icon: React.ElementType }[] = [
   { id: 'library', label: 'Biblioteca', icon: BookOpen },
   { id: 'team-builder', label: 'Compor equipe', icon: Users },
   { id: 'runbooks', label: 'Equipes e runbooks', icon: ClipboardList },
+  { id: 'divisions', label: 'Divisões profissionais', icon: Layers3 },
 ];
 
 const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
@@ -36,6 +39,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [runbooks, setRunbooks] = useState<Runbook[]>([]);
+  const [divisions, setDivisions] = useState<Record<string, Division>>({});
   const [runbooksError, setRunbooksError] = useState('');
   const [activeRunbook, setActiveRunbook] = useState<string>('');
 
@@ -55,6 +59,10 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
 
   useEffect(() => {
     let active = true;
+    fetch('/agency-divisions.json')
+      .then(response => { if (!response.ok) throw new Error('Taxonomia de divisões indisponível.'); return response.json() as Promise<DivisionFile>; })
+      .then(data => { if (active) setDivisions(data.divisions || {}); })
+      .catch(() => { if (active) setDivisions({}); });
     fetch('/agency-runbooks.json')
       .then(response => {
         if (!response.ok) throw new Error('Arquivo de runbooks indisponível.');
@@ -213,7 +221,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
             </button>)}
           </div>
           {selectedRunbook && <section className="rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-nc-text">{selectedRunbook.title}</h2><p className="text-sm text-nc-text-muted">{selectedRunbook.mode} · {selectedRunbook.duration}</p></div><a href={`https://github.com/msitarzewski/agency-agents/blob/main/${selectedRunbook.doc}`} target="_blank" rel="noreferrer" className="text-sm text-nc-brand hover:underline">Documento original</a></div>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-nc-text">{selectedRunbook.title}</h2><p className="text-sm text-nc-text-muted">{selectedRunbook.mode} · {selectedRunbook.duration}</p></div><div className="flex items-center gap-3"><button onClick={() => selectedRunbook.roster.forEach(addRunbookGroup)} className="rounded-md bg-nc-brand px-3 py-2 text-xs font-semibold text-nc-brand-text">Adicionar equipe completa</button><a href={`https://github.com/msitarzewski/agency-agents/blob/main/${selectedRunbook.doc}`} target="_blank" rel="noreferrer" className="text-sm text-nc-brand hover:underline">Documento original</a></div></div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {selectedRunbook.roster.map(group => <div key={group.group} className="rounded-lg border border-nc-border p-4">
                 <div className="mb-3 flex items-center justify-between gap-2"><div><h3 className="font-medium text-nc-text">{group.group}</h3><p className="text-xs text-nc-text-muted">Ativação: {group.activation}</p></div><button onClick={() => addRunbookGroup(group)} className="inline-flex items-center gap-1 rounded-md border border-nc-border px-2 py-1.5 text-xs text-nc-text hover:border-nc-brand"><Plus size={13}/> Adicionar grupo</button></div>
@@ -223,6 +231,22 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
           </section>}
           <p className="text-xs text-nc-text-muted">Fonte: repositório Agency Agents, arquivo strategy/runbooks.json e documentos de cenário. Os rosters são referências de composição; a implantação operacional continua sob controle da Enterprise e do Paperclip.</p>
         </div>
+      )}
+
+      {tab === 'divisions' && (
+        <section className="space-y-4">
+          <div className="rounded-xl border border-nc-border bg-nc-surface-elevated p-5">
+            <div className="flex items-center gap-2"><Layers3 size={19}/><h2 className="font-semibold text-nc-text">Taxonomia profissional de origem</h2></div>
+            <p className="mt-2 max-w-3xl text-sm text-nc-text-secondary">As 18 divisões oficiais organizam o corpus original. Elas são preservadas como taxonomia de origem; as categorias corporativas da NettosCorp continuam sendo uma camada distinta e não substituem essa classificação.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {Object.entries(divisions).map(([slug, division]) => <article key={slug} className="flex items-center gap-3 rounded-xl border border-nc-border bg-nc-surface-elevated p-4">
+              <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: division.color }} />
+              <div className="min-w-0"><h3 className="font-medium text-nc-text">{division.label}</h3><p className="text-xs text-nc-text-muted">{slug}</p></div>
+            </article>)}
+          </div>
+          <p className="text-xs text-nc-text-muted">Fonte: divisions.json do repositório msitarzewski/agency-agents. Taxonomia sincronizada como snapshot versionado, sem dependência operacional do repositório remoto em tempo de execução.</p>
+        </section>
       )}
     </div>
   );

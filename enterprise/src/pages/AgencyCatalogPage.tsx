@@ -270,8 +270,8 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
   return (
     <div className={selectedProfile && modalType === "view" ? "space-y-6 lg:pr-[min(720px,58vw)]" : "space-y-6"}>
       <PageHeader
-        title="Biblioteca de Agentes"
-        description="Explore os perfis profissionais, compare competências e selecione especialistas para formar equipes."
+        title="Catálogo Agency Agents"
+        description="Modelos profissionais para planejamento estratégico, avaliação e seleção de equipes"
         actions={
           <div className="flex items-center gap-2">
             <button
