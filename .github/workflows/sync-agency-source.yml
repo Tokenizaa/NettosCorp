@@ -6,6 +6,7 @@ on:
       - feat/integracao-institucional-agency-agents
     paths:
       - '.github/workflows/sync-agency-source.yml'
+      - 'enterprise/scripts/sync-agency-source.mjs'
 
 permissions:
   contents: write

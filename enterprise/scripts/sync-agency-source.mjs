@@ -78,6 +78,7 @@ const upstreamCommit = (() => {
   catch { return 'unknown'; }
 })();
 
+mkdirSync(outputRoot, { recursive: true });
 copyFileSync(licensePath, resolve(outputRoot, 'UPSTREAM-LICENSE.txt'));
 
 for (const document of documents) {
