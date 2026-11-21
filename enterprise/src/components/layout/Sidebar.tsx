@@ -62,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="h-14 px-4 flex items-center justify-between border-b border-zinc-850">
           {!collapsed ? (
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center text-white font-black text-sm shrink-0">
+              <div className="w-7 h-7 rounded bg-amber-400 flex items-center justify-center text-zinc-950 font-black text-sm shrink-0">
                 N
               </div>
               <div className="truncate">
@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           ) : (
-            <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center text-white font-black text-sm mx-auto">
+            <div className="w-7 h-7 rounded bg-amber-400 flex items-center justify-center text-zinc-950 font-black text-sm mx-auto">
               N
             </div>
           )}
