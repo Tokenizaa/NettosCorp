@@ -107,11 +107,11 @@ const searchIndex = {
   profile_count: documents.length,
   profiles: documents.map(({ code, name, source_path, markdown }) => {
     const body = markdown.startsWith('---') ? markdown.split('---').slice(2).join(' ') : markdown;
-    const terms = body.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLocaleLowerCase().match(/[a-z0-9]{3,}/g) || [];
+    const terms = body.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase().match(/[a-z0-9]{3,}/g) || [];
     return { code, name, source_path, search_text: Array.from(new Set(terms)).join(' ') };
   }),
 };
-writeFileSync(resolve(publicRoot, 'agency-profile-search-index.json'), JSON.stringify(searchIndex) + '\\n', 'utf8');
+writeFileSync(resolve(publicRoot, 'agency-profile-search-index.json'), JSON.stringify(searchIndex) + '\n', 'utf8');
 console.log(JSON.stringify({
   status: 'success',
   profiles: documents.length,
