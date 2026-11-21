@@ -29,7 +29,6 @@ import { AuditPage } from './pages/AuditPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { UsersPage } from './pages/UsersPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { AgencyCatalogPage } from './pages/AgencyCatalogPage';
 import { AgencyIntelligencePage } from './pages/AgencyIntelligencePage';
 
 export default function App() {
