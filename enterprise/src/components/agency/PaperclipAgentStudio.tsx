@@ -4,6 +4,7 @@ import {
   Activity, Wrench, Copy, Check, Package
 } from 'lucide-react';
 import type { AgencyAgentProfile } from '../../types';
+import { translateAgentName, translateProfileText } from '../../utils/agencyPresentation';
 
 type InstructionFile = 'AGENTS.md' | 'SOUL.md' | 'HEARTBEAT.md' | 'TOOLS.md';
 type Tab = 'identity' | 'instructions' | 'runtime';
@@ -207,9 +208,9 @@ export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
       <section className="flex h-full w-full max-w-6xl flex-col overflow-hidden border border-zinc-800 bg-zinc-950 shadow-2xl sm:h-[min(92vh,900px)] sm:rounded-2xl">
         <header className="flex items-center justify-between gap-4 border-b border-zinc-800 px-4 py-3 sm:px-6">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-xs text-zinc-500"><Package className="h-3.5 w-3.5" /> ESTÚDIO DE PREPARAÇÃO PAPERCLIP</div>
-            <h2 className="mt-1 truncate text-lg font-semibold text-white">{profile.name}</h2>
-            <p className="text-xs text-zinc-500">{profile.code} · Perfil mestre Agency Agents</p>
+            <div className="flex items-center gap-2 text-xs text-zinc-500"><Package className="h-3.5 w-3.5" /> ESTÚDIO DE PREPARAÇÃO PARA PAPERCLIP</div>
+            <h2 className="mt-1 truncate text-lg font-semibold text-white">{translateAgentName(profile.name, profile.code)}</h2>
+            <p className="text-xs text-zinc-500">{profile.code} · Perfil mestre de origem</p>
           </div>
           <button onClick={onClose} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white" aria-label="Fechar"><X className="h-5 w-5" /></button>
         </header>
@@ -222,14 +223,14 @@ export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
           {tab === 'identity' && <div className="mx-auto max-w-4xl space-y-5">
             <div className="rounded-xl border border-blue-900/60 bg-blue-950/20 p-4 text-sm text-blue-100">O perfil mestre é preservado. Os campos abaixo complementam a instância organizacional sem alterar os 283 registros de origem.</div>
             <div className="grid gap-4 md:grid-cols-2">
-              <div><label className={labelClass}>Identidade profissional</label><div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{profile.identity}</div></div>
-              <div><label className={labelClass}>Especialidade</label><div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{profile.specialty_description}</div></div>
-              <div><label className={labelClass}>Personalidade</label><div className="min-h-28 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{profile.personality}</div></div>
-              <div><label className={labelClass}>Metodologia</label><div className="min-h-28 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{profile.methodology}</div></div>
+              <div><label className={labelClass}>Identidade profissional</label><div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{translateProfileText(profile.identity)}</div></div>
+              <div><label className={labelClass}>Especialidade</label><div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{translateProfileText(profile.specialty_description)}</div></div>
+              <div><label className={labelClass}>Personalidade</label><div className="min-h-28 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{translateProfileText(profile.personality)}</div></div>
+              <div><label className={labelClass}>Metodologia</label><div className="min-h-28 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-sm leading-6 text-zinc-300">{translateProfileText(profile.methodology)}</div></div>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <div><label className={labelClass}>Competências</label><ul className="space-y-1 text-sm text-zinc-300">{profile.competencies.map(item => <li key={item}>• {item}</li>)}</ul></div>
-              <div><label className={labelClass}>Responsabilidades</label><ul className="space-y-1 text-sm text-zinc-300">{profile.responsibilities.map(item => <li key={item}>• {item}</li>)}</ul></div>
+              <div><label className={labelClass}>Competências</label><ul className="space-y-1 text-sm text-zinc-300">{profile.competencies.map(item => <li key={item}>• {translateProfileText(item)}</li>)}</ul></div>
+              <div><label className={labelClass}>Responsabilidades</label><ul className="space-y-1 text-sm text-zinc-300">{profile.responsibilities.map(item => <li key={item}>• {translateProfileText(item)}</li>)}</ul></div>
             </div>
           </div>}
 
@@ -248,14 +249,14 @@ export const PaperclipAgentStudio: React.FC<Props> = ({ profile, onClose }) => {
           {tab === 'runtime' && <div className="mx-auto max-w-3xl space-y-5">
             <div className="rounded-xl border border-amber-900/60 bg-amber-950/20 p-4 text-sm text-amber-100">Preencha os parâmetros da instância. Adapter, modelo, diretório e orçamento não são presumidos: precisam corresponder ao ambiente real da NettosCorp.</div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div><label className={labelClass}>Cargo / Role</label><input className={inputClass} value={role} onChange={e => setRole(e.target.value)} placeholder="Cargo na estrutura NettosCorp" /></div>
+              <div><label className={labelClass}>Cargo</label><input className={inputClass} value={role} onChange={e => setRole(e.target.value)} placeholder="Cargo na estrutura NettosCorp" /></div>
               <div><label className={labelClass}>Reporta-se a</label><input className={inputClass} value={reportsTo} onChange={e => setReportsTo(e.target.value)} placeholder="Agente ou cargo superior" /></div>
-              <div><label className={labelClass}>Adapter Paperclip</label><input className={inputClass} value={adapter} onChange={e => setAdapter(e.target.value)} placeholder="Definir conforme runtime disponível" /></div>
-              <div><label className={labelClass}>Modelo</label><input className={inputClass} value={model} onChange={e => setModel(e.target.value)} placeholder="Provider / model ID" /></div>
-              <div><label className={labelClass}>Working directory / CWD</label><input className={inputClass} value={workingDirectory} onChange={e => setWorkingDirectory(e.target.value)} placeholder="/workspace/..." /></div>
+              <div><label className={labelClass}>Adaptador do Paperclip</label><input className={inputClass} value={adapter} onChange={e => setAdapter(e.target.value)} placeholder="Definir conforme runtime disponível" /></div>
+              <div><label className={labelClass}>Modelo</label><input className={inputClass} value={model} onChange={e => setModel(e.target.value)} placeholder="Provedor / identificador do modelo" /></div>
+              <div><label className={labelClass}>Diretório de trabalho</label><input className={inputClass} value={workingDirectory} onChange={e => setWorkingDirectory(e.target.value)} placeholder="/workspace/..." /></div>
               <div><label className={labelClass}>Orçamento mensal</label><input className={inputClass} type="number" min="0" step="0.01" value={monthlyBudget} onChange={e => setMonthlyBudget(e.target.value)} placeholder="Definir limite mensal" /></div>
             </div>
-            <div><label className={labelClass}>Skills (nomes separados por vírgula)</label><input className={inputClass} value={skills} onChange={e => setSkills(e.target.value)} placeholder="ex.: code-review, incident-response" /><p className="mt-1 text-xs text-zinc-600">Referencie skills existentes e aprovadas. Não cole seus conteúdos aqui.</p></div>
+            <div><label className={labelClass}>Habilidades (nomes separados por vírgula)</label><input className={inputClass} value={skills} onChange={e => setSkills(e.target.value)} placeholder="ex.: code-review, incident-response" /><p className="mt-1 text-xs text-zinc-600">Referencie habilidades existentes e aprovadas. Não cole seus conteúdos aqui.</p></div>
             <div className="rounded-xl border border-zinc-800 p-4"><h3 className="text-sm font-semibold text-zinc-200">Checklist antes da criação</h3><ul className="mt-3 space-y-2 text-xs text-zinc-400"><li>• Superior hierárquico definido e existente no Paperclip.</li><li>• Adapter e modelo disponíveis no ambiente.</li><li>• Diretório de trabalho válido e permissões conferidas.</li><li>• Orçamento aprovado e compatível com o caixa.</li><li>• Arquivos Markdown revisados e skills existentes.</li></ul></div>
           </div>}
         </main>
