@@ -492,7 +492,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
               if (!profile) return null;
               return (
                 <div key={id} className="flex-shrink-0 w-48 bg-zinc-800/50 border border-zinc-800 rounded-lg p-3">
-                  <h5 className="text-xs font-semibold text-zinc-100 truncate">{profile.name}</h5>
+                  <h5 className="text-xs font-semibold text-zinc-100 truncate">{translateAgentName(profile.name, profile.code)}</h5>
                   <p className="text-[10px] text-zinc-500 truncate">{profile.code}</p>
                   <span
                     className={`px-1 py-0.5 rounded text-[9px] font-bold uppercase ${statusColor(profile.status)} text-zinc-950 mt-1 inline-block`}
@@ -563,9 +563,9 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
                 </div>
                 <p className="text-xs font-mono text-zinc-500 mb-2">{selectedProfile.code}</p>
                 <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-1">Identidade</h4>
-                <p className="text-zinc-300 text-sm leading-relaxed">{selectedProfile.identity}</p>
+                <p className="text-zinc-300 text-sm leading-relaxed">{translateProfileText(selectedProfile.identity)}</p>
                 <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-1 mt-4">Descrição da especialidade</h4>
-                <p className="text-zinc-300 text-sm">{selectedProfile.specialty_description}</p>
+                <p className="text-zinc-300 text-sm">{translateProfileText(selectedProfile.specialty_description)}</p>
               </div>
               <div>
                 <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-1">Categoria</h4>
@@ -579,7 +579,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
                   ))}
                 </div>
                 <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-1 mt-4">Personalidade</h4>
-                <p className="text-zinc-300 text-sm italic">{selectedProfile.personality}</p>
+                <p className="text-zinc-300 text-sm italic">{translateProfileText(selectedProfile.personality)}</p>
               </div>
             </div>
             <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-1">Responsabilidades</h4>
@@ -589,7 +589,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
               ))}
             </ul>
             <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-1 mt-4">Metodologia</h4>
-            <p className="text-zinc-300 text-sm leading-relaxed">{selectedProfile.methodology}</p>
+            <p className="text-zinc-300 text-sm leading-relaxed">{translateProfileText(selectedProfile.methodology)}</p>
             {selectedProfile.source_file && (
               <div className="mt-4 pt-4 border-t border-zinc-800">
                 <p className="text-xs text-zinc-500">Arquivo origem: {selectedProfile.source_file}</p>
@@ -690,7 +690,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
             {operationError && <div role="alert" className="rounded-lg border border-rose-800 bg-rose-950/30 p-3 text-xs text-rose-200">Falha ao persistir seleção no Supabase: {operationError}</div>}
             <div className="bg-zinc-800/50 border border-zinc-800 rounded-lg p-3">
               <h4 className="text-sm font-semibold text-zinc-100 mb-1">{selectedForAction.length ? selectedForAction.length + ' modelos selecionados' : 'Modelo selecionado'}</h4>
-              <p className="text-xs text-zinc-400">{selectedProfile ? selectedProfile.name + ' (' + selectedProfile.code + ')' : profiles.filter(profile => selectedForAction.includes(profile.id)).map(profile => profile.name).join(', ')}</p>
+              <p className="text-xs text-zinc-400">{selectedProfile ? selectedProfile.name + ' (' + selectedProfile.code + ')' : profiles.filter(profile => selectedForAction.includes(profile.id)).map(profile => translateAgentName(profile.name, profile.code)).join(', ')}</p>
             </div>
             <FormField label="Nome do projeto">
               <TextInput
