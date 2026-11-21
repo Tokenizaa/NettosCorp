@@ -169,3 +169,43 @@ export function translateProfileStatus(value: string): string {
   };
   return labels[value] || value;
 }
+
+export function translateRunbookSummary(title: string): string {
+  const summaries: Record<string, string> = {
+    'Startup MVP Build': 'Da ideia ao produto em operação com usuários reais, mantendo velocidade sem abrir mão dos testes e da qualidade.',
+    'Enterprise Feature Development': 'Entrega de uma funcionalidade relevante em um produto corporativo existente, com conformidade, segurança, qualidade e alinhamento entre as partes envolvidas.',
+    'Multi-Channel Marketing Campaign': 'Planejamento e lançamento de uma campanha coordenada entre canais, com consistência de marca e foco em aquisição e engajamento mensuráveis.',
+    'Incident Response': 'Da detecção à análise pós-incidente, com resposta rápida a falhas em produção sem eliminar etapas essenciais.',
+  };
+  return summaries[title] || 'Cenário operacional e composição de equipe definidos pelo método de origem.';
+}
+
+export function translatePlannerText(value: string): string {
+  const replacements: [RegExp, string][] = [
+    [/runbook/gi, 'roteiro operacional'], [/objective/gi, 'objetivo'], [/capability/gi, 'capacidade'],
+    [/strategy/gi, 'estratégia'], [/product/gi, 'produto'], [/engineering/gi, 'engenharia'],
+    [/security/gi, 'segurança'], [/quality/gi, 'qualidade'], [/growth/gi, 'crescimento'],
+    [/operations/gi, 'operações'], [/governance/gi, 'governança'], [/customer/gi, 'cliente'],
+    [/finance/gi, 'finanças'], [/design/gi, 'design'], [/data/gi, 'dados'],
+    [/textual match/gi, 'correspondência textual'], [/source document indexed/gi, 'documento original indexado'],
+  ];
+  return replacements.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value);
+}
+
+export function translateProfileText(value: string): string {
+  const phrases: Record<string, string> = {
+    'AI Engineer': 'Engenheiro de Inteligência Artificial',
+    'Frontend Developer': 'Desenvolvedor Front-end',
+    'Backend Architect': 'Arquiteto Back-end',
+    'Senior Developer': 'Desenvolvedor Sênior',
+    'UX Architect': 'Arquiteto de Experiência do Usuário',
+    'UX Researcher': 'Pesquisador de Experiência do Usuário',
+    'UI Designer': 'Designer de Interfaces',
+    'Growth Hacker': 'Especialista em Crescimento',
+    'Social Media Strategist': 'Estrategista de Redes Sociais',
+    'Content Creator': 'Criador de Conteúdo',
+    'Brand Guardian': 'Guardião da Marca',
+    'DevOps Automator': 'Especialista em Automação e DevOps',
+  };
+  return phrases[value.trim()] || value;
+}
