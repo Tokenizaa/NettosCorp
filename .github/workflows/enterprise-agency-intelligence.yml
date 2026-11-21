@@ -1,0 +1,47 @@
+name: Enterprise — Agency Intelligence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "enterprise/**"
+      - ".github/workflows/enterprise-agency-intelligence.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "enterprise/**"
+      - ".github/workflows/enterprise-agency-intelligence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-agency-intelligence:
+    name: Validate Agency Intelligence
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: enterprise
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: enterprise/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+      - name: Agency planner and source integrity tests
+        run: pnpm run test:agency-planner
+      - name: Production build
+        run: pnpm run build
