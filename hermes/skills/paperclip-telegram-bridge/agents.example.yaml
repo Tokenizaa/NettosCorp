@@ -1,0 +1,25 @@
+agents:
+  - name: Arquiteto
+    agent_id: c47189df-3863-4a67-81f6-4e00a1716876
+    aliases: [arquiteto, software architect]
+  - name: Diretor de Tecnologia
+    agent_id: 10a2e4b1-6a82-46c0-9559-9e1e3a65a324
+    aliases: [cto, diretor]
+  - name: Technical Writer
+    agent_id: ea597481-35cf-4933-bb8a-75fcd50c88c2
+    aliases: [writer, redator]
+  - name: QA Engineer
+    agent_id: ee673ab8-5cca-4dc8-ab00-d1ad186c1281
+    aliases: [qa, teste]
+  - name: Backend Architect
+    agent_id: d4bfa751-9960-48f2-9ae6-f6c2509f6ab8
+    aliases: [backend]
+  - name: Frontend Developer
+    agent_id: 05518b0e-60cb-4642-b37a-c0a4b70cc2dc
+    aliases: [frontend]
+  - name: DevOps Automator
+    agent_id: 93e3c9e3-616c-48b3-8d09-61f9836e2e0a
+    aliases: [devops]
+  - name: Project Manager Senior
+    agent_id: 39f6999f-ca73-48b3-8d09-61f9836e2e0a
+    aliases: [pm]
