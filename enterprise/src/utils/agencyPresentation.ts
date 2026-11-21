@@ -2,7 +2,7 @@
  * Canonical English names, slugs, profile content and source documents remain untouched.
  */
 const phraseMap: Record<string, string> = {
-  '3d & scene developer': 'Desenvolvedor 3D e de Cenários',
+  '3d scene developer': 'Desenvolvedor 3D e de Cenários',
   'ai engineer': 'Engenheiro de Inteligência Artificial',
   'agents orchestrator': 'Orquestrador de Agentes',
   'project manager senior': 'Gerente de Projetos Sênior',
@@ -765,27 +765,27 @@ export function translateRunbookTitle(value: string): string {
 export function translateRunbookGroup(value: string): string {
   const labels: Record<string, string> = {
     'core team': 'Equipe principal', 'growth team': 'Equipe de crescimento',
-    'support team': 'Equipe de suporte', 'compliance & governance': 'Conformidade e governança',
+    'support team': 'Equipe de suporte', 'compliance governance': 'Conformidade e governança',
     'quality assurance': 'Garantia da qualidade', 'campaign core': 'Núcleo da campanha',
     'platform specialists': 'Especialistas por plataforma', support: 'Suporte',
     'p0 critical response': 'Resposta crítica — P0',
-    'verification & post-mortem': 'Verificação e análise pós-incidente',
+    'verification post mortem': 'Verificação e análise pós-incidente',
   };
   return labels[normalize(value)] || value;
 }
 
 export function translateActivation(value: string): string {
   const labels: Record<string, string> = {
-    always: 'Sempre ativo', 'as needed': 'Sob demanda', 'week 3+': 'A partir da 3ª semana',
-    'post-fix': 'Após a correção', 'minutes to hours': 'De minutos a horas',
+    always: 'Sempre ativo', 'as needed': 'Sob demanda', 'week 3': 'A partir da 3ª semana',
+    'post fix': 'Após a correção', 'minutes to hours': 'De minutos a horas',
   };
   return labels[normalize(value)] || value;
 }
 
 export function translateRunbookMode(value: string): string {
   const labels: Record<string, string> = {
-    'nexus-full': 'NEXUS Completo', 'nexus-sprint': 'NEXUS Ciclo Rápido',
-    'nexus-micro': 'NEXUS Enxuto',
+    'nexus full': 'NEXUS Completo', 'nexus sprint': 'NEXUS Ciclo Rápido',
+    'nexus micro': 'NEXUS Enxuto',
   };
   return labels[normalize(value)] || value;
 }
