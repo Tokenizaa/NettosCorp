@@ -3,7 +3,7 @@ import {
   X, Download, FileText, Settings2, UserRound, BrainCircuit,
   Activity, Wrench, Copy, Check, Package
 } from 'lucide-react';
-import type { AgencyAgentProfile } from '../types';
+import type { AgencyAgentProfile } from '../../types';
 
 type InstructionFile = 'AGENTS.md' | 'SOUL.md' | 'HEARTBEAT.md' | 'TOOLS.md';
 type Tab = 'identity' | 'instructions' | 'runtime';
