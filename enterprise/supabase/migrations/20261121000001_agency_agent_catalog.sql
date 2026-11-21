@@ -1,9 +1,7 @@
 -- ============================================================================
 -- MIGRAÇÃO: Tabelas do Catálogo Agency Agents na NettosCorp Enterprise
 -- ============================================================================
--- Armazena modelos profissionais do Agency Agents (283 perfis, 18 categorias)
--- para planejamento estratégico, avaliação e seleção de equipes.
--- Não cria nem modifica agentes operacionais no Paperclip.
+-- Executar no SQL Editor do Supabase (projeto: udeglcdloehagljrrukj)
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS agency_agent_profiles (
@@ -73,8 +71,33 @@ CREATE INDEX IF NOT EXISTS idx_agency_agent_homologations_org_id ON agency_agent
 CREATE INDEX IF NOT EXISTS idx_agency_agent_homologations_profile_id ON agency_agent_homologations(profile_id);
 CREATE INDEX IF NOT EXISTS idx_agency_agent_homologations_status ON agency_agent_homologations(status);
 
+-- Habilitar RLS nas tabelas
+ALTER TABLE agency_agent_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agency_agent_selections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agency_agent_homologations ENABLE ROW LEVEL SECURITY;
+
+-- Políticas RLS: permitir leitura e gravação para usuários autenticados da mesma organização
+CREATE POLICY IF NOT EXISTS "Permitir leitura de perfis da organização" ON agency_agent_profiles
+    FOR SELECT USING (organization_id::text = auth.uid()::text OR auth.role() = 'service_role');
+
+CREATE POLICY IF NOT EXISTS "Permitir gravação de perfis da organização" ON agency_agent_profiles
+    FOR ALL USING (organization_id::text = auth.uid()::text OR auth.role() = 'service_role');
+
+CREATE POLICY IF NOT EXISTS "Permitir leitura de seleções da organização" ON agency_agent_selections
+    FOR SELECT USING (organization_id::text = auth.uid()::text OR auth.role() = 'service_role');
+
+CREATE POLICY IF NOT EXISTS "Permitir gravação de seleções da organização" ON agency_agent_selections
+    FOR ALL USING (organization_id::text = auth.uid()::text OR auth.role() = 'service_role');
+
+CREATE POLICY IF NOT EXISTS "Permitir leitura de homologações da organização" ON agency_agent_homologations
+    FOR SELECT USING (organization_id::text = auth.uid()::text OR auth.role() = 'service_role');
+
+CREATE POLICY IF NOT EXISTS "Permitir gravação de homologações da organização" ON agency_agent_homologations
+    FOR ALL USING (organization_id::text = auth.uid()::text OR auth.role() = 'service_role');
+
 -- ============================================================================
 -- COMO APLICAR:
--- SQL Editor do Supabase: colar e executar
--- Projeto: udeglcdloehagljrrukj
+-- 1. Acesse https://app.supabase.com/project/udeglcdloehagljrrukj
+-- 2. Vá em SQL Editor
+-- 3. Cole este script e execute
 -- ============================================================================

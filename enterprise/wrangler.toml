@@ -1,7 +1,7 @@
 # wrangler.toml — NettosCorp Enterprise
 # Cloudflare Pages deployment para enterprise.defesai.com.br
 
-name = "defesai"
+name = "nettoscorp-enterprise"
 compatibility_date = "2026-11-21"
 
 [observability]

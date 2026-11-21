@@ -19,16 +19,13 @@ import { TextArea } from '../components/forms/TextArea';
 import { FormActions } from '../components/forms/FormActions';
 import {
   Bot,
-  FileText,
   Search,
   Users,
-  LayoutList,
   Scale,
   ShieldCheck,
-  AlertTriangle,
   Plus,
-  ChevronRight,
-  X,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
 
 const CATEGORIES: { value: AgencyAgentCategory; label: string }[] = [
@@ -64,28 +61,45 @@ interface AgencyCatalogPageProps {
 }
 
 export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate }) => {
-  const [profiles, setProfiles] = useState<AgencyAgentProfile[]>(agencyCatalogService.listProfiles());
+  const [profiles, setProfiles] = useState<AgencyAgentProfile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<AgencyAgentCategory | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AgencyAgentStatus | 'all'>('all');
 
-  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'view' | 'homologate'>('view');
+  const [modalType, setModalType] = useState<'view' | 'homologate' | 'compare'>('view');
+  const [selectedProfiles, setSelectedProfiles] = useState<string[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<AgencyAgentProfile | null>(null);
   const [homologationStatus, setHomologationStatus] = useState<AgencyAgentStatus>('disponivel');
   const [homologationNotes, setHomologationNotes] = useState('');
 
-  // Selection states
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
   const [selectionProject, setSelectionProject] = useState('');
   const [selectionPurpose, setSelectionPurpose] = useState('');
 
   useEffect(() => {
-    const handleUpdate = () => {
-      setProfiles(applyFilters());
+    let mounted = true;
+    const loadProfiles = async () => {
+      setLoading(true);
+      try {
+        const data = await agencyCatalogService.listProfilesAsync();
+        if (mounted) setProfiles(data);
+      } catch {
+        if (mounted) setProfiles(agencyCatalogService.listProfiles());
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
-    return localStore.subscribe(handleUpdate);
+    loadProfiles();
+
+    const unsub = localStore.subscribe(() => {
+      setProfiles(applyFilters());
+    });
+    return () => {
+      mounted = false;
+      unsub();
+    };
   }, []);
 
   const applyFilters = useCallback(() => {
@@ -121,25 +135,47 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
     setIsModalOpen(true);
   };
 
-  const handleHomologate = () => {
-    if (!selectedProfile) return;
-
-    agencyCatalogService.homologateProfile({
-      profile_id: selectedProfile.id,
-      profile_code: selectedProfile.code,
-      status: homologationStatus,
-      reviewed_by: localStore.getSessionUser()?.id || 'system',
-      reviewed_by_name: localStore.getSessionUser()?.full_name,
-      notes: homologationNotes || undefined,
+  const toggleCompare = (profileId: string) => {
+    setSelectedProfiles(prev => {
+      if (prev.includes(profileId)) {
+        return prev.filter(id => id !== profileId);
+      }
+      if (prev.length >= 5) {
+        return prev;
+      }
+      return [...prev, profileId];
     });
+  };
 
+  const isComparing = (profileId: string) => selectedProfiles.includes(profileId);
+
+  const handleHomologate = async () => {
+    if (!selectedProfile) return;
+    try {
+      await agencyCatalogService.homologateProfileAsync({
+        profile_id: selectedProfile.id,
+        profile_code: selectedProfile.code,
+        status: homologationStatus,
+        reviewed_by: localStore.getSessionUser()?.id || 'system',
+        reviewed_by_name: localStore.getSessionUser()?.full_name,
+        notes: homologationNotes || undefined,
+      });
+    } catch {
+      agencyCatalogService.homologateProfile({
+        profile_id: selectedProfile.id,
+        profile_code: selectedProfile.code,
+        status: homologationStatus,
+        reviewed_by: localStore.getSessionUser()?.id || 'system',
+        reviewed_by_name: localStore.getSessionUser()?.full_name,
+        notes: homologationNotes || undefined,
+      });
+    }
     setIsModalOpen(false);
     setSelectedProfile(null);
   };
 
   const handleSelectForProject = () => {
     if (!selectedProfile) return;
-
     agencyCatalogService.createSelection({
       profile_id: selectedProfile.id,
       profile_code: selectedProfile.code,
@@ -150,7 +186,6 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
       selected_at: new Date().toISOString(),
       status: 'planejado',
     });
-
     setIsSelectionModalOpen(false);
     setSelectedProfile(null);
     setSelectionProject('');
@@ -174,7 +209,6 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <PageHeader
         title="Catálogo Agency Agents"
         description="Modelos profissionais para planejamento estratégico, avaliação e seleção de equipes"
@@ -200,27 +234,25 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         }
       />
 
-      {/* Stats bar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
           <div className="text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-1">Total de modelos</div>
-          <div className="text-2xl font-bold text-zinc-100">{stats.total}</div>
+          <div className="text-2xl font-bold text-zinc-100">{loading ? '—' : stats.total}</div>
         </div>
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
           <div className="text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-1">Homologados</div>
-          <div className="text-2xl font-bold text-emerald-400">{stats.homologated}</div>
+          <div className="text-2xl font-bold text-emerald-400">{loading ? '—' : stats.homologated}</div>
         </div>
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
           <div className="text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-1">Em avaliação</div>
-          <div className="text-2xl font-bold text-amber-400">{stats.evaluating}</div>
+          <div className="text-2xl font-bold text-amber-400">{loading ? '—' : stats.evaluating}</div>
         </div>
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
           <div className="text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-1">Não recomendados</div>
-          <div className="text-2xl font-bold text-rose-400">{stats.notRecommended}</div>
+          <div className="text-2xl font-bold text-rose-400">{loading ? '—' : stats.notRecommended}</div>
         </div>
       </div>
 
-      {/* Search & filters */}
       <div className="flex flex-col lg:flex-row gap-4 items-end">
         <div className="flex-1">
           <SearchInput
@@ -245,62 +277,138 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
         </div>
       </div>
 
-      {/* Catalog grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredProfiles.length === 0 ? (
-          <EmptyState
-            icon={Search}
-            title="Nenhum modelo encontrado"
-            description="Ajuste os filtros de busca ou importe novos perfis do catálogo Agency Agents."
-          />
-        ) : (
-          filteredProfiles.map(profile => (
-            <div
-              key={profile.id}
-              className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 hover:border-zinc-600 transition-colors cursor-pointer group"
-              onClick={() => openViewModal(profile)}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <h3 className="font-semibold text-zinc-100">{profile.name}</h3>
-                  <span className="text-xs font-mono text-zinc-500">{profile.code}</span>
-                </div>
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusColor(profile.status)} text-zinc-950`}
-                >
-                  {STATUS_OPTIONS.find(o => o.value === profile.status)?.label || profile.status}
-                </span>
-              </div>
-              <p className="text-zinc-400 text-sm mb-3 line-clamp-2">{profile.identity}</p>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs text-zinc-500">{CATEGORIES.find(c => c.value === profile.category)?.label}</span>
-                <span className="text-xs text-zinc-500">{profile.specialty_description}</span>
-              </div>
-              <div className="flex flex-wrap gap-1 mb-3">
-                {profile.competencies.slice(0, 4).map(c => (
-                  <span key={c} className="px-2 py-1 bg-zinc-800/50 border border-zinc-800 rounded text-xs text-zinc-300">
-                    {c}
-                  </span>
-                ))}
-                {profile.competencies.length > 4 && (
-                  <span className="px-2 py-1 bg-zinc-800/50 border border-zinc-800 rounded text-xs text-zinc-500">
-                    +{profile.competencies.length - 4}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      {loading && (
+        <div className="flex justify-center py-10">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 border-2 border-zinc-700 border-t-transparent rounded-full animate-spin" />
+            <p className="text-xs text-zinc-500">Carregando perfis…</p>
+          </div>
+        </div>
+      )}
 
-      {/* View / Homologate Modal */}
+      {!loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredProfiles.length === 0 ? (
+            <EmptyState
+              icon={Search}
+              title="Nenhum modelo encontrado"
+              description="Ajuste os filtros de busca ou importe novos perfis do catálogo Agency Agents."
+            />
+          ) : (
+            filteredProfiles.map(profile => (
+              <div
+                key={profile.id}
+                className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 hover:border-zinc-600 transition-colors cursor-pointer group"
+                onClick={() => openViewModal(profile)}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="font-semibold text-zinc-100">{profile.name}</h3>
+                    <span className="text-xs font-mono text-zinc-500">{profile.code}</span>
+                  </div>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusColor(profile.status)} text-zinc-950`}
+                  >
+                    {STATUS_OPTIONS.find(o => o.value === profile.status)?.label || profile.status}
+                  </span>
+                </div>
+                <p className="text-zinc-400 text-sm mb-3 line-clamp-2">{profile.identity}</p>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs text-zinc-500">{CATEGORIES.find(c => c.value === profile.category)?.label}</span>
+                  <span className="text-xs text-zinc-500">{profile.specialty_description}</span>
+                </div>
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {profile.competencies.slice(0, 4).map(c => (
+                    <span key={c} className="px-2 py-1 bg-zinc-800/50 border border-zinc-800 rounded text-xs text-zinc-300">
+                      {c}
+                    </span>
+                  ))}
+                  {profile.competencies.length > 4 && (
+                    <span className="px-2 py-1 bg-zinc-800/50 border border-zinc-800 rounded text-xs text-zinc-500">
+                      +{profile.competencies.length - 4}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t border-zinc-800/50">
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      toggleCompare(profile.id);
+                    }}
+                    className="p-1.5 rounded hover:bg-zinc-800 transition-colors"
+                    title={isComparing(profile.id) ? 'Remover da comparação' : 'Adicionar à comparação'}
+                  >
+                    {isComparing(profile.id) ? (
+                      <CheckCircle className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <Plus className="w-4 h-4 text-zinc-400" />
+                    )}
+                  </button>
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      openHomologateModal(profile);
+                    }}
+                    className="p-1.5 rounded hover:bg-zinc-800 transition-colors"
+                    title="Homologar"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-zinc-400" />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {selectedProfiles.length > 0 && (
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold text-zinc-100">Comparação ({selectedProfiles.length}/5)</h4>
+            <button
+              onClick={() => setSelectedProfiles([])}
+              className="text-xs text-zinc-400 hover:text-zinc-200"
+            >
+              Limpar
+            </button>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {selectedProfiles.map(id => {
+              const profile = profiles.find(p => p.id === id);
+              if (!profile) return null;
+              return (
+                <div key={id} className="flex-shrink-0 w-48 bg-zinc-800/50 border border-zinc-800 rounded-lg p-3">
+                  <h5 className="text-xs font-semibold text-zinc-100 truncate">{profile.name}</h5>
+                  <p className="text-[10px] text-zinc-500 truncate">{profile.code}</p>
+                  <span
+                    className={`px-1 py-0.5 rounded text-[9px] font-bold uppercase ${statusColor(profile.status)} text-zinc-950 mt-1 inline-block`}
+                  >
+                    {STATUS_OPTIONS.find(o => o.value === profile.status)?.label}
+                  </span>
+                  <button
+                    onClick={() => toggleCompare(id)}
+                    className="mt-2 p-1 hover:bg-zinc-700 rounded"
+                    title="Remover da comparação"
+                  >
+                    <XCircle className="w-3 h-3 text-zinc-500" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          {selectedProfiles.length >= 5 && (
+            <p className="text-xs text-zinc-500 mt-2">Limite de 5 perfis atingido para comparação.</p>
+          )}
+        </div>
+      )}
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedProfile(null);
         }}
-        title={modalType === 'homologate' ? 'Homologar modelo' : 'Ficha do modelo'}
+        title={modalType === 'homologate' ? 'Homologar modelo' : modalType === 'compare' ? 'Comparação de perfis' : 'Ficha do modelo'}
       >
         {modalType === 'view' && selectedProfile && (
           <div className="space-y-4">
@@ -350,9 +458,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
             )}
             <div className="flex gap-2">
               <button
-                onClick={() => {
-                  setModalType('homologate');
-                }}
+                onClick={() => setModalType('homologate')}
                 className="flex-1 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-sm font-medium transition-colors"
               >
                 Homologar
@@ -398,9 +504,31 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
             />
           </form>
         )}
+        {modalType === 'compare' && selectedProfiles.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="text-sm font-semibold text-zinc-100">Comparação de perfis</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {selectedProfiles.map(id => {
+                const profile = profiles.find(p => p.id === id);
+                if (!profile) return null;
+                return (
+                  <div key={id} className="bg-zinc-800/50 border border-zinc-800 rounded-lg p-3">
+                    <h5 className="text-xs font-bold text-zinc-100 mb-1">{profile.name}</h5>
+                    <p className="text-[10px] text-zinc-500 mb-2">{profile.code}</p>
+                    <p className="text-xs text-zinc-300 mb-2">{profile.identity}</p>
+                    <span
+                      className={`px-1 py-0.5 rounded text-[9px] font-bold uppercase ${statusColor(profile.status)} text-zinc-950`}
+                    >
+                      {STATUS_OPTIONS.find(o => o.value === profile.status)?.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </Modal>
 
-      {/* Selection Modal */}
       <Modal
         isOpen={isSelectionModalOpen}
         onClose={() => {

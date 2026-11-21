@@ -1,6 +1,6 @@
 /** @license SPDX-License-Identifier: Apache-2.0 */
 
-import { localStore } from './supabaseClient';
+import { supabase, isLiveSupabaseConfigured, localStore } from './supabaseClient';
 import {
   AgencyAgentProfile,
   AgencyAgentSelection,
@@ -19,21 +19,63 @@ function generateId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 }
 
-export const agencyCatalogService = {
-  // ── Perfis ──────────────────────────────────────────────────────────────
+/** Verifica se o Supabase está configurado e disponível */
+function useSupabase(): boolean {
+  return isLiveSupabaseConfigured && supabase !== null;
+}
 
+/** Converte UUID do Supabase para string, se necessário */
+function toUuid(value: string | null): string | null {
+  return value;
+}
+
+/** ── Perfis ── */
+
+export const agencyCatalogService = {
   listProfiles(): AgencyAgentProfile[] {
+    if (useSupabase()) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      return [];
+    }
     const user = localStore.getSessionUser();
     const orgId = user?.organization_id || DEFAULT_ORG_ID;
     return localStore.getAgencyAgentProfiles().filter(p => p.organization_id === orgId);
+  },
+
+  async listProfilesAsync(): Promise<AgencyAgentProfile[]> {
+    if (!useSupabase()) {
+      return this.listProfiles();
+    }
+    const user = localStore.getSessionUser();
+    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const { data, error } = await supabase!
+      .from('agency_agent_profiles')
+      .select('*')
+      .eq('organization_id', orgId)
+      .order('code', { ascending: true });
+    if (error) {
+      console.error('Erro ao listar perfis no Supabase:', error);
+      return this.listProfiles();
+    }
+    return (data || []).map((row: any) => this.rowToProfile(row));
   },
 
   listProfilesByCategory(category: AgencyAgentCategory): AgencyAgentProfile[] {
     return this.listProfiles().filter(p => p.category === category);
   },
 
+  async listProfilesByCategoryAsync(category: AgencyAgentCategory): Promise<AgencyAgentProfile[]> {
+    const all = await this.listProfilesAsync();
+    return all.filter(p => p.category === category);
+  },
+
   listProfilesByStatus(status: AgencyAgentStatus): AgencyAgentProfile[] {
     return this.listProfiles().filter(p => p.status === status);
+  },
+
+  async listProfilesByStatusAsync(status: AgencyAgentStatus): Promise<AgencyAgentProfile[]> {
+    const all = await this.listProfilesAsync();
+    return all.filter(p => p.status === status);
   },
 
   searchProfiles(query: string): AgencyAgentProfile[] {
@@ -49,12 +91,47 @@ export const agencyCatalogService = {
     );
   },
 
+  async searchProfilesAsync(query: string): Promise<AgencyAgentProfile[]> {
+    const all = await this.listProfilesAsync();
+    return this.searchProfiles(query);
+  },
+
   getProfileById(id: string): AgencyAgentProfile | undefined {
     return localStore.getAgencyAgentProfileById(id);
   },
 
+  async getProfileByIdAsync(id: string): Promise<AgencyAgentProfile | undefined> {
+    if (!useSupabase()) {
+      return this.getProfileById(id);
+    }
+    const { data, error } = await supabase!
+      .from('agency_agent_profiles')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error || !data) {
+      return this.getProfileById(id);
+    }
+    return this.rowToProfile(data);
+  },
+
   getProfileByCode(code: string): AgencyAgentProfile | undefined {
     return localStore.getAgencyAgentProfileByCode(code);
+  },
+
+  async getProfileByCodeAsync(code: string): Promise<AgencyAgentProfile | undefined> {
+    if (!useSupabase()) {
+      return this.getProfileByCode(code);
+    }
+    const { data, error } = await supabase!
+      .from('agency_agent_profiles')
+      .select('*')
+      .eq('code', code)
+      .single();
+    if (error || !data) {
+      return this.getProfileByCode(code);
+    }
+    return this.rowToProfile(data);
   },
 
   upsertProfile(data: {
@@ -101,6 +178,103 @@ export const agencyCatalogService = {
       }
       return [profile, ...prev];
     });
+
+    localStore.logAudit({
+      user_id: user?.id || 'system',
+      user_email: user?.email || 'system',
+      action: existing ? 'UPDATE' : 'CREATE',
+      resource: 'agencyAgentProfiles',
+      resource_id: profile.id,
+      details: {
+        code: profile.code,
+        name: profile.name,
+        category: profile.category,
+        status: profile.status,
+      },
+    });
+
+    return profile;
+  },
+
+  async upsertProfileAsync(data: {
+    category: AgencyAgentCategory;
+    specialty: string;
+    name: string;
+    code: string;
+    identity: string;
+    specialty_description: string;
+    competencies: string[];
+    personality: string;
+    responsibilities: string[];
+    methodology: string;
+    status: AgencyAgentStatus;
+    source_file: string;
+    source_hash: string;
+  }): Promise<AgencyAgentProfile> {
+    if (!useSupabase()) {
+      return this.upsertProfile(data);
+    }
+    const user = localStore.getSessionUser();
+    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const nowStr = now();
+
+    const { data: existing } = await supabase!
+      .from('agency_agent_profiles')
+      .select('*')
+      .eq('code', data.code)
+      .eq('organization_id', orgId)
+      .single();
+
+    const row: any = {
+      category: data.category,
+      specialty: data.specialty,
+      name: data.name,
+      code: data.code,
+      identity: data.identity,
+      specialty_description: data.specialty_description,
+      competencies: data.competencies,
+      personality: data.personality,
+      responsibilities: data.responsibilities,
+      methodology: data.methodology,
+      status: data.status,
+      source_file: data.source_file,
+      source_hash: data.source_hash,
+      organization_id: orgId,
+      updated_at: nowStr,
+    };
+
+    if (existing) {
+      row.id = existing.id;
+      row.created_at = existing.created_at;
+      const { error } = await supabase!
+        .from('agency_agent_profiles')
+        .update(row)
+        .eq('id', existing.id);
+      if (error) {
+        console.error('Erro ao atualizar perfil no Supabase:', error);
+        return this.upsertProfile(data);
+      }
+    } else {
+      row.id = generateId('agt');
+      row.created_at = nowStr;
+      const { error } = await supabase!
+        .from('agency_agent_profiles')
+        .insert(row);
+      if (error) {
+        console.error('Erro ao inserir perfil no Supabase:', error);
+        return this.upsertProfile(data);
+      }
+    }
+
+    const profile: AgencyAgentProfile = {
+      ...row,
+      id: row.id,
+      organization_id: orgId,
+      created_at: row.created_at,
+      updated_at: nowStr,
+      competencies: Array.isArray(row.competencies) ? row.competencies : [],
+      responsibilities: Array.isArray(row.responsibilities) ? row.responsibilities : [],
+    } as AgencyAgentProfile;
 
     localStore.logAudit({
       user_id: user?.id || 'system',
@@ -176,12 +350,114 @@ export const agencyCatalogService = {
     return imported;
   },
 
-  // ── Seleções ────────────────────────────────────────────────────────────
+  async importProfilesAsync(profiles: {
+    category: AgencyAgentCategory;
+    specialty: string;
+    name: string;
+    code: string;
+    identity: string;
+    specialty_description: string;
+    competencies: string[];
+    personality: string;
+    responsibilities: string[];
+    methodology: string;
+    status: AgencyAgentStatus;
+    source_file: string;
+    source_hash: string;
+  }[]): Promise<AgencyAgentProfile[]> {
+    if (!useSupabase()) {
+      return this.importProfiles(profiles);
+    }
+    const user = localStore.getSessionUser();
+    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const nowStr = now();
+
+    const imported: AgencyAgentProfile[] = [];
+
+    for (const data of profiles) {
+      const { data: existing } = await supabase!
+        .from('agency_agent_profiles')
+        .select('*')
+        .eq('code', data.code)
+        .eq('organization_id', orgId)
+        .single();
+
+      const row: any = {
+        category: data.category,
+        specialty: data.specialty,
+        name: data.name,
+        code: data.code,
+        identity: data.identity,
+        specialty_description: data.specialty_description,
+        competencies: data.competencies,
+        personality: data.personality,
+        responsibilities: data.responsibilities,
+        methodology: data.methodology,
+        status: data.status,
+        source_file: data.source_file,
+        source_hash: data.source_hash,
+        organization_id: orgId,
+        updated_at: nowStr,
+      };
+
+      if (existing) {
+        row.id = existing.id;
+        row.created_at = existing.created_at;
+        await supabase!.from('agency_agent_profiles').update(row).eq('id', existing.id);
+      } else {
+        row.id = generateId('agt');
+        row.created_at = nowStr;
+        await supabase!.from('agency_agent_profiles').insert(row);
+      }
+
+      imported.push({
+        ...row,
+        id: row.id,
+        organization_id: orgId,
+        created_at: row.created_at,
+        updated_at: nowStr,
+        competencies: Array.isArray(row.competencies) ? row.competencies : [],
+        responsibilities: Array.isArray(row.responsibilities) ? row.responsibilities : [],
+      } as AgencyAgentProfile);
+    }
+
+    localStore.logAudit({
+      user_id: user?.id || 'system',
+      user_email: user?.email || 'system',
+      action: 'CREATE',
+      resource: 'agencyAgentProfiles',
+      details: { count: imported.length, codes: imported.map(p => p.code) },
+    });
+
+    return imported;
+  },
+
+  // ── Seleções ──
 
   listSelections(): AgencyAgentSelection[] {
     const user = localStore.getSessionUser();
     const orgId = user?.organization_id || DEFAULT_ORG_ID;
     return localStore.getAgencyAgentSelections().filter(s => s.organization_id === orgId);
+  },
+
+  async listSelectionsAsync(): Promise<AgencyAgentSelection[]> {
+    if (!useSupabase()) {
+      return this.listSelections();
+    }
+    const user = localStore.getSessionUser();
+    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const { data, error } = await supabase!
+      .from('agency_agent_selections')
+      .select('*')
+      .eq('organization_id', orgId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      return this.listSelections();
+    }
+    return (data || []).map((row: any) => ({
+      ...row,
+      organization_id: orgId,
+    } as AgencyAgentSelection));
   },
 
   createSelection(data: {
@@ -208,6 +484,56 @@ export const agencyCatalogService = {
     };
 
     localStore.setAgencyAgentSelections(prev => [selection, ...prev]);
+
+    localStore.logAudit({
+      user_id: user?.id || 'system',
+      user_email: user?.email || 'system',
+      action: 'CREATE',
+      resource: 'agencyAgentSelections',
+      resource_id: selection.id,
+      details: {
+        project_name: selection.project_name,
+        profile_code: selection.profile_code,
+        status: selection.status,
+      },
+    });
+
+    return selection;
+  },
+
+  async createSelectionAsync(data: {
+    profile_id: string;
+    profile_code?: string;
+    project_name: string;
+    purpose: string;
+    selected_by: string;
+    selected_by_name?: string;
+    selected_at: string;
+    status: 'planejado' | 'ativo' | 'concluído' | 'cancelado';
+    notes?: string;
+  }): Promise<AgencyAgentSelection> {
+    if (!useSupabase()) {
+      return this.createSelection(data);
+    }
+    const user = localStore.getSessionUser();
+    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const nowStr = now();
+
+    const selection: AgencyAgentSelection = {
+      id: generateId('sel'),
+      organization_id: orgId,
+      created_at: nowStr,
+      updated_at: nowStr,
+      ...data,
+    };
+
+    const { error } = await supabase!
+      .from('agency_agent_selections')
+      .insert(selection);
+    if (error) {
+      console.error('Erro ao criar seleção no Supabase:', error);
+      return this.createSelection(data);
+    }
 
     localStore.logAudit({
       user_id: user?.id || 'system',
@@ -270,12 +596,32 @@ export const agencyCatalogService = {
     });
   },
 
-  // ── Homologações ────────────────────────────────────────────────────────
+  // ── Homologações ──
 
   listHomologations(): AgencyAgentHomologation[] {
     const user = localStore.getSessionUser();
     const orgId = user?.organization_id || DEFAULT_ORG_ID;
     return localStore.getAgencyAgentHomologations().filter(h => h.organization_id === orgId);
+  },
+
+  async listHomologationsAsync(): Promise<AgencyAgentHomologation[]> {
+    if (!useSupabase()) {
+      return this.listHomologations();
+    }
+    const user = localStore.getSessionUser();
+    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const { data, error } = await supabase!
+      .from('agency_agent_homologations')
+      .select('*')
+      .eq('organization_id', orgId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      return this.listHomologations();
+    }
+    return (data || []).map((row: any) => ({
+      ...row,
+      organization_id: orgId,
+    } as AgencyAgentHomologation));
   },
 
   homologateProfile(data: {
@@ -299,7 +645,6 @@ export const agencyCatalogService = {
       ...data,
     };
 
-    // Atualiza o status do perfil também
     localStore.setAgencyAgentProfiles(prev =>
       prev.map(p => {
         if (p.id === data.profile_id || p.code === data.profile_code) {
@@ -334,7 +679,71 @@ export const agencyCatalogService = {
     return homologation;
   },
 
-  // ── Estatísticas ────────────────────────────────────────────────────────
+  async homologateProfileAsync(data: {
+    profile_id: string;
+    profile_code?: string;
+    status: AgencyAgentStatus;
+    reviewed_by: string;
+    reviewed_by_name?: string;
+    notes?: string;
+  }): Promise<AgencyAgentHomologation> {
+    if (!useSupabase()) {
+      return this.homologateProfile(data);
+    }
+    const user = localStore.getSessionUser();
+    const orgId = user?.organization_id || DEFAULT_ORG_ID;
+    const nowStr = now();
+
+    const homologation: AgencyAgentHomologation = {
+      id: generateId('hom'),
+      organization_id: orgId,
+      created_at: nowStr,
+      updated_at: nowStr,
+      reviewed_at: nowStr,
+      ...data,
+    };
+
+    const { error } = await supabase!
+      .from('agency_agent_homologations')
+      .insert(homologation);
+    if (error) {
+      console.error('Erro ao criar homologação no Supabase:', error);
+      return this.homologateProfile(data);
+    }
+
+    // Atualiza o status do perfil também
+    const { error: profileError } = await supabase!
+      .from('agency_agent_profiles')
+      .update({
+        status: data.status,
+        homologated_at: nowStr,
+        homologated_by: data.reviewed_by,
+        homologation_notes: data.notes,
+        updated_at: nowStr,
+      })
+      .or(`id.eq.${data.profile_id},code.eq.${data.profile_code}`);
+
+    if (profileError) {
+      console.error('Erro ao atualizar status do perfil no Supabase:', profileError);
+    }
+
+    localStore.logAudit({
+      user_id: user?.id || 'system',
+      user_email: user?.email || 'system',
+      action: 'STATUS_CHANGE',
+      resource: 'agencyAgentHomologations',
+      resource_id: homologation.id,
+      details: {
+        profile_code: data.profile_code,
+        status: data.status,
+        reviewed_by: data.reviewed_by,
+      },
+    });
+
+    return homologation;
+  },
+
+  // ── Estatísticas ──
 
   stats() {
     const profiles = this.listProfiles();
@@ -354,6 +763,72 @@ export const agencyCatalogService = {
       notRecommended: profiles.filter(p => p.status === 'nao_recomendado').length,
       available: profiles.filter(p => p.status === 'disponivel').length,
       evaluating: profiles.filter(p => p.status === 'em_avaliacao').length,
+    };
+  },
+
+  async statsAsync(): Promise<ReturnType<typeof this.stats>> {
+    if (!useSupabase()) {
+      return this.stats();
+    }
+    const profiles = await this.listProfilesAsync();
+    const byCategory = profiles.reduce<Record<string, number>>((acc, p) => {
+      acc[p.category] = (acc[p.category] || 0) + 1;
+      return acc;
+    }, {});
+    const byStatus = profiles.reduce<Record<string, number>>((acc, p) => {
+      acc[p.status] = (acc[p.status] || 0) + 1;
+      return acc;
+    }, {});
+    return {
+      total: profiles.length,
+      byCategory,
+      byStatus,
+      homologated: profiles.filter(p => p.status === 'homologado').length,
+      notRecommended: profiles.filter(p => p.status === 'nao_recomendado').length,
+      available: profiles.filter(p => p.status === 'disponivel').length,
+      evaluating: profiles.filter(p => p.status === 'em_avaliacao').length,
+    };
+  },
+
+  // ── Comparação de até 5 perfis ──
+
+  compareProfiles(ids: string[]): AgencyAgentProfile[] {
+    const all = this.listProfiles();
+    return all.filter(p => ids.includes(p.id)).slice(0, 5);
+  },
+
+  async compareProfilesAsync(ids: string[]): Promise<AgencyAgentProfile[]> {
+    if (!useSupabase()) {
+      return this.compareProfiles(ids);
+    }
+    const all = await this.listProfilesAsync();
+    return all.filter(p => ids.includes(p.id)).slice(0, 5);
+  },
+
+  // ── Utilitário para converter linha do Supabase em perfil ──
+
+  rowToProfile(row: any): AgencyAgentProfile {
+    return {
+      id: row.id,
+      organization_id: row.organization_id,
+      category: row.category,
+      specialty: row.specialty,
+      name: row.name,
+      code: row.code,
+      identity: row.identity,
+      specialty_description: row.specialty_description,
+      competencies: Array.isArray(row.competencies) ? row.competencies : [],
+      personality: row.personality,
+      responsibilities: Array.isArray(row.responsibilities) ? row.responsibilities : [],
+      methodology: row.methodology,
+      status: row.status,
+      homologated_at: row.homologated_at,
+      homologated_by: row.homologated_by,
+      homologation_notes: row.homologation_notes,
+      source_file: row.source_file,
+      source_hash: row.source_hash,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
     };
   },
 };
