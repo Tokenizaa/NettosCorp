@@ -18,6 +18,7 @@ import { SelectInput } from '../components/forms/SelectInput';
 import { TextArea } from '../components/forms/TextArea';
 import { FormActions } from '../components/forms/FormActions';
 import { PaperclipAgentStudio } from '../components/agency/PaperclipAgentStudio';
+import { AgencyOriginalSource } from '../components/agency/AgencyOriginalSource';
 import {
   Bot,
   Search,
@@ -528,6 +529,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
             <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Responsabilidades</h3><ul className="space-y-2 text-sm leading-6 text-zinc-300">{selectedProfile.responsibilities.map(item => <li key={item} className="border-l-2 border-zinc-700 pl-3">{item}</li>)}</ul></section>
             <section><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Metodologia</h3><p className="text-sm leading-6 text-zinc-300">{selectedProfile.methodology}</p></section>
             <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3"><h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Origem e rastreabilidade</h3><p className="break-all text-xs text-zinc-400">{selectedProfile.source_file}</p><p className="mt-1 break-all font-mono text-[10px] text-zinc-600">{selectedProfile.source_hash}</p></section>
+            <AgencyOriginalSource sourceFile={selectedProfile.source_file} />
           </div>
           <footer className="flex flex-col gap-2 border-t border-zinc-800 p-4 sm:flex-row">
             <button onClick={() => setIsPaperclipStudioOpen(true)} className="flex-1 rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500">Preparar para Paperclip</button>
