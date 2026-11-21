@@ -70,10 +70,15 @@ if (documents.length !== 283 || paths.size !== 283) {
   throw new Error('A validação de integridade do corpus não foi satisfeita; nada foi gravado.');
 }
 
+const licensePath = resolve(sourceRoot, 'LICENSE');
+if (!existsSync(licensePath)) throw new Error('LICENSE não encontrado no repositório de origem.');
+
 const upstreamCommit = (() => {
   try { return execFileSync('git', ['-C', sourceRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); }
   catch { return 'unknown'; }
 })();
+
+copyFileSync(licensePath, resolve(outputRoot, 'UPSTREAM-LICENSE.txt'));
 
 for (const document of documents) {
   const destination = resolve(outputRoot, document.source_path);
@@ -84,10 +89,6 @@ for (const document of documents) {
   mkdirSync(dirname(destination), { recursive: true });
   writeFileSync(destination, document.markdown, 'utf8');
 }
-
-const licensePath = resolve(sourceRoot, 'LICENSE');
-if (!existsSync(licensePath)) throw new Error('LICENSE não encontrado no repositório de origem.');
-copyFileSync(licensePath, resolve(outputRoot, 'UPSTREAM-LICENSE.txt'));
 
 const manifest = {
   source_repository: 'https://github.com/msitarzewski/agency-agents',
