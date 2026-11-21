@@ -519,7 +519,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
       {selectedProfile && modalType === "view" && !isPaperclipStudioOpen && (
         <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden border-l border-zinc-800 bg-zinc-950 shadow-2xl sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[min(720px,58vw)]" aria-label="Ficha individual do perfil">
           <header className="flex items-start justify-between gap-3 border-b border-zinc-800 px-5 py-4">
-            <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400">Ficha profissional · Biblioteca de Agentes</p><h2 className="mt-1 text-lg font-semibold text-zinc-100">{translateAgentName(selectedProfile.name, selectedProfile.code)}</h2><p className="text-xs text-zinc-500">{selectedProfile.code} · {CATEGORIES.find(category => category.value === selectedProfile.category)?.label}</p></div>
+            <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400">Ficha profissional · Biblioteca de Agentes</p><h2 className="mt-1 text-lg font-semibold text-zinc-100">{translateAgentName(selectedProfile.name, selectedProfile.code)}</h2><p className="text-xs text-zinc-500">{selectedProfile.code} · {translateAgentCategory(selectedProfile.category)}</p></div>
             <button onClick={() => setSelectedProfile(null)} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white" aria-label="Fechar ficha"><XCircle className="h-5 w-5" /></button>
           </header>
           <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5">
@@ -623,7 +623,7 @@ export const AgencyCatalogPage: React.FC<AgencyCatalogPageProps> = ({ onNavigate
           <form onSubmit={e => { e.preventDefault(); void handleHomologate(); }} className="space-y-4">
             {operationError && <div role="alert" className="rounded-lg border border-rose-800 bg-rose-950/30 p-3 text-xs text-rose-200">Falha ao persistir homologação no Supabase: {operationError}</div>}
             <div>
-              <h3 className="text-lg font-bold text-zinc-100 mb-1">{selectedProfile.name}</h3>
+              <h3 className="text-lg font-bold text-zinc-100 mb-1">{translateAgentName(selectedProfile.name, selectedProfile.code)}</h3>
               <p className="text-xs font-mono text-zinc-500">{selectedProfile.code}</p>
             </div>
             <FormField label="Novo status de homologação">
