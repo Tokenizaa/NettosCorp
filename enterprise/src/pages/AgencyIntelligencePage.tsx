@@ -1,6 +1,6 @@
 /** @license SPDX-License-Identifier: Apache-2.0 */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookOpen, BrainCircuit, Check, ChevronRight, CircleAlert, ClipboardList, Compass, Layers3, Plus, Search, ShieldCheck, Users, X } from 'lucide-react';
+import { BookOpen, BrainCircuit, Check, ChevronRight, CircleAlert, ClipboardList, Compass, Plus, Users, X } from 'lucide-react';
 import { AgencyCatalogPage } from './AgencyCatalogPage';
 import { agencyCatalogService } from '../services/agencyCatalogService';
 import { localStore } from '../services/supabaseClient';
@@ -85,14 +85,6 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
   }, [team]);
 
   const selectedRunbook = runbooks.find(item => item.slug === activeRunbook);
-  const runbookProfiles = useMemo(() => {
-    if (!selectedRunbook) return [];
-    const byCode = new Map(profiles.map(profile => [normalize(profile.code), profile]));
-    return selectedRunbook.roster.flatMap(group => group.agents.map(slug => ({
-      slug, group: group.group, activation: group.activation, profile: byCode.get(normalize(slug)),
-    })));
-  }, [profiles, selectedRunbook]);
-
   const addToTeam = (profile: AgencyAgentProfile) => {
     setTeam(current => current.some(item => item.id === profile.id) ? current : [...current, profile]);
     setSaveMessage('');
@@ -225,7 +217,7 @@ export const AgencyIntelligencePage: React.FC<{ onNavigate: (route: string) => v
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {selectedRunbook.roster.map(group => <div key={group.group} className="rounded-lg border border-nc-border p-4">
                 <div className="mb-3 flex items-center justify-between gap-2"><div><h3 className="font-medium text-nc-text">{group.group}</h3><p className="text-xs text-nc-text-muted">Ativação: {group.activation}</p></div><button onClick={() => addRunbookGroup(group)} className="inline-flex items-center gap-1 rounded-md border border-nc-border px-2 py-1.5 text-xs text-nc-text hover:border-nc-brand"><Plus size={13}/> Adicionar grupo</button></div>
-                <ul className="space-y-1.5">{group.agents.map(slug => <li key={slug} className="flex items-center gap-2 text-sm text-nc-text-secondary"><span className="h-1.5 w-1.5 rounded-full bg-nc-brand"/>{slug.replace(/-/g, ' ')}</li>)}</ul>
+                <ul className="space-y-1.5">{group.agents.map(slug => <li key={slug} className="flex items-center gap-2 text-sm text-nc-text-secondary"><span className="h-1.5 w-1.5 rounded-full bg-nc-brand"/>{profiles.find(profile => normalize(profile.code) === normalize(slug))?.name || slug.replace(/-/g, ' ')}</li>)}</ul>
               </div>)}
             </div>
           </section>}
