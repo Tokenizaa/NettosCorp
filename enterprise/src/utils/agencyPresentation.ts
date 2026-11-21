@@ -40,7 +40,7 @@ const phraseMap: Record<string, string> = {
   'support responder': 'Analista de Suporte',
   'startup mvp build': 'Construção de Produto Mínimo Viável',
   'enterprise feature development': 'Desenvolvimento de Funcionalidades Corporativas',
-  'multi-channel marketing campaign': 'Campanha de Marketing Multicanal',
+  'multi channel marketing campaign': 'Campanha de Marketing Multicanal',
   'incident response': 'Resposta a Incidentes',
   'image prompt engineer': 'Engenheiro de Prompts Visuais',
   'inclusive visuals specialist': 'Especialista em Recursos Visuais Inclusivos',
