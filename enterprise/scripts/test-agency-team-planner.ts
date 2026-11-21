@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { recommendTeamComposition, PlannerRunbook } from '../src/services/agencyTeamPlanner';
 import { AgencyAgentProfile } from '../src/types';
+import { translateAgentName, translateAgentCategory, translateDivision, translateRunbookGroup, translateActivation, translateRunbookMode } from '../src/utils/agencyPresentation';
 
 function profile(code: string, name: string, sourceFile: string, competencies: string[]): AgencyAgentProfile {
   return {
@@ -80,7 +81,19 @@ assert.ok(empty.analysis.selectionGuidance.length > 0);
 
 
 
-const importedProfiles = JSON.parse(readFileSync(resolve('public/agency-profiles-import.json'), 'utf8')) as { code: string; source_file: string }[];
+const importedProfiles = JSON.parse(readFileSync(resolve('public/agency-profiles-import.json'), 'utf8')) as { code: string; name: string; category: string; source_file: string }[];
+assert.equal(importedProfiles.length, 283);
+for (const imported of importedProfiles) {
+  const displayName = translateAgentName(imported.name, imported.code);
+  assert.ok(displayName.trim().length > 0, `Nome de apresentação vazio: ${imported.code}`);
+  assert.notEqual(displayName, imported.name, `Nome não localizado: ${imported.code}`);
+  assert.ok(translateAgentCategory(imported.category).trim().length > 0);
+}
+assert.equal(translateDivision('engineering'), 'Engenharia');
+assert.equal(translateRunbookGroup('Core Team'), 'Equipe principal');
+assert.equal(translateActivation('as needed'), 'Sob demanda');
+assert.equal(translateRunbookMode('NEXUS-Sprint'), 'NEXUS Ciclo Rápido');
+
 const profileIdentifiers = new Set(importedProfiles.flatMap(profile => [
   profile.code,
   String(profile.source_file || '').replace(/[`'"]/g, '').split('/').pop()?.replace(/\.md$/i, '') || '',
